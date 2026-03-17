@@ -12,5 +12,8 @@ def test_doctor_repository_emits_core_findings() -> None:
     assert "ENV001" in codes
     assert "ENV002" in codes
     assert "ENV003" in codes
+    assert "ENV007" in codes
+    assert "ENV008" in codes
+    assert "ENV009" in codes
     assert "ENV005" in codes
     assert "ENV006" in codes

@@ -110,6 +110,14 @@ def _build_contracts(
                 definitions=sort_definitions(payload["definitions"]),
                 usages=sort_usages(payload["usages"]),
                 requiredness=requiredness,
+                secret_like=any(
+                    definition.normalized_value_kind == "secret_like"
+                    for definition in payload["definitions"]
+                ),
+                placeholder_like=any(
+                    definition.normalized_value_kind == "placeholder"
+                    for definition in payload["definitions"]
+                ),
                 status=tuple(sorted(statuses)),
                 resolution_notes=tuple(sorted(set(payload["notes"]))),
             )

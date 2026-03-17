@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from collections import defaultdict
 
+from envdiff.analyzers.aliases import find_alias_candidates
+from envdiff.analyzers.secrets import secret_and_placeholder_findings
 from envdiff.models import Finding, Location, RepoScanResult, ResolutionDecision
 from envdiff.utils.ordering import sort_findings
 
@@ -74,6 +76,15 @@ def doctor_repository(scan_result: RepoScanResult) -> tuple[Finding, ...]:
                         suppression_key=f"missing:{usage.file_path}:{usage.name}",
                     )
                 )
+            findings.extend(
+                _alias_findings_for_missing_usage(
+                    usage_name=usage.name,
+                    usage_path=usage.file_path,
+                    usage_line=usage.line_number,
+                    env_names=env_names,
+                    seen=seen,
+                )
+            )
 
         if resolution and resolution.example_file and usage.name not in example_names:
             key = ("ENV004", usage.name, resolution.example_file)
@@ -126,6 +137,7 @@ def doctor_repository(scan_result: RepoScanResult) -> tuple[Finding, ...]:
             )
 
     findings.extend(_skew_findings(scan_result, definitions_by_file, seen))
+    findings.extend(secret_and_placeholder_findings(scan_result))
     return sort_findings(findings)
 
 
@@ -175,4 +187,39 @@ def _skew_findings(scan_result: RepoScanResult, definitions_by_file, seen) -> li
                     suppression_key=f"skew:{resolution.env_file}:{name}",
                 )
             )
+    return findings
+
+
+def _alias_findings_for_missing_usage(
+    *,
+    usage_name: str,
+    usage_path: str,
+    usage_line: int | None,
+    env_names: set[str],
+    seen,
+) -> list[Finding]:
+    findings: list[Finding] = []
+    for candidate in find_alias_candidates(usage_name, env_names):
+        key = ("ENV007", usage_name, candidate.candidate_name)
+        if key in seen:
+            continue
+        seen.add(key)
+        findings.append(
+            Finding(
+                code="ENV007",
+                severity="warning",
+                title="Possible alias candidate",
+                details=(
+                    f"{usage_name} is missing, but nearby definitions include "
+                    f"{candidate.candidate_name}."
+                ),
+                variable_name=usage_name,
+                locations=(Location(file_path=usage_path, line_number=usage_line),),
+                related_variables=(candidate.candidate_name,),
+                confidence="low",
+                source_kind="heuristic",
+                reason=candidate.reason,
+                suppression_key=f"alias:{usage_name}:{candidate.candidate_name}",
+            )
+        )
     return findings

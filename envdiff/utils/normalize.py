@@ -41,6 +41,10 @@ def is_placeholder(value: str) -> bool:
     return normalize_value_kind(value) == "placeholder"
 
 
+def is_non_empty_placeholder(value: str) -> bool:
+    return value.strip() != "" and normalize_value_kind(value) == "placeholder"
+
+
 def _is_int(value: str) -> bool:
     if not value:
         return False
@@ -71,4 +75,3 @@ def _looks_like_secret(value: str) -> bool:
     alpha = sum(character.isalpha() for character in value)
     digits = sum(character.isdigit() for character in value)
     return alpha > 0 and digits > 0
-
