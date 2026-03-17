@@ -13,9 +13,15 @@ from envdiff.analyzers.baseline import (
 )
 from envdiff.analyzers.compare import compare_dotenv_files
 from envdiff.analyzers.doctor import doctor_repository
+from envdiff.analyzers.matrix import matrix_dotenv_files
 from envdiff.analyzers.scan import scan_repository
 from envdiff.models import CommandMeta, JsonEnvelope, SummaryCounts
-from envdiff.render.human import render_compare_result, render_doctor_result, render_scan_result
+from envdiff.render.human import (
+    render_compare_result,
+    render_doctor_result,
+    render_matrix_result,
+    render_scan_result,
+)
 from envdiff.render.json import render_json
 
 app = typer.Typer(
@@ -23,6 +29,7 @@ app = typer.Typer(
     help="Analyze repository environment contracts deterministically.",
     no_args_is_help=True,
 )
+MATRIX_PATHS_ARGUMENT = typer.Argument(..., help="Two or more dotenv files to compare.")
 
 
 @app.command()
@@ -58,6 +65,31 @@ def scan(
         typer.echo(render_json(envelope))
         return
     typer.echo(render_scan_result(result))
+
+
+@app.command()
+def matrix(
+    paths: list[str] = MATRIX_PATHS_ARGUMENT,
+    show_all: bool = typer.Option(
+        False,
+        "--show-all",
+        help="Include variables that are consistent across every file.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Emit JSON output."),
+) -> None:
+    if len(paths) < 2:
+        raise typer.BadParameter("matrix requires at least two dotenv files")
+
+    result = matrix_dotenv_files(paths, show_all=show_all)
+    if json_output:
+        envelope = JsonEnvelope(
+            meta=CommandMeta(command="matrix"),
+            inputs={"paths": paths, "show_all": show_all},
+            data=result,
+        )
+        typer.echo(render_json(envelope))
+        return
+    typer.echo(render_matrix_result(result))
 
 
 @app.command()

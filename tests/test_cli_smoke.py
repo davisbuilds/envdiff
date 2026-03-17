@@ -12,6 +12,7 @@ def test_cli_help_smoke() -> None:
 
     assert result.exit_code == 0
     assert "compare" in result.stdout
+    assert "matrix" in result.stdout
     assert "scan" in result.stdout
     assert "doctor" in result.stdout
 
@@ -41,6 +42,23 @@ def test_cli_scan_json_smoke() -> None:
     assert result.exit_code == 0
     assert '"command": "scan"' in result.stdout
     assert '"contracts"' in result.stdout
+
+
+def test_cli_matrix_json_smoke() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "matrix",
+            "tests/fixtures/matrix/a.env",
+            "tests/fixtures/matrix/b.env",
+            "tests/fixtures/matrix/c.env",
+            "--json",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert '"command": "matrix"' in result.stdout
+    assert '"inconsistent_variable_count"' in result.stdout
 
 
 def test_cli_doctor_threshold_smoke() -> None:

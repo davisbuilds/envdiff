@@ -44,6 +44,45 @@ def render_scan_result(scan_result: RepoScanResult) -> str:
     return "\n".join(lines)
 
 
+def render_matrix_result(result: dict[str, object]) -> str:
+    lines = [
+        f"Matrix files: {result['file_count']}",
+        f"Variables: {result['variable_count']}",
+        f"Inconsistent: {result['inconsistent_variable_count']}",
+    ]
+
+    warnings = result["warnings"]
+    if warnings:
+        lines.append(f"Warnings: {len(warnings)}")
+
+    variables = result["variables"]
+    if not variables:
+        lines.append("No variables matched the selected view.")
+        return "\n".join(lines)
+
+    lines.append("Variables:")
+    for variable in variables:
+        reasons = []
+        if variable["missing_in"]:
+            reasons.append("missing")
+        if len(variable["value_kinds"]) > 1:
+            reasons.append("kind-mismatch")
+        if variable["duplicates_in"]:
+            reasons.append("duplicate")
+        lines.append(f"  {variable['name']} [{', '.join(reasons) or 'consistent'}]")
+        for file_entry in variable["files"]:
+            if file_entry["presence"] == "missing":
+                lines.append(f"    {file_entry['path']}: missing")
+                continue
+
+            suffix = file_entry["value_kind"]
+            if file_entry.get("is_duplicate"):
+                suffix = f"{suffix}, duplicate"
+            lines.append(f"    {file_entry['path']}: present ({suffix})")
+
+    return "\n".join(lines)
+
+
 def render_doctor_result(
     root_path: str,
     findings: tuple[Finding, ...],

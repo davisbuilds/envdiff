@@ -19,6 +19,7 @@ Current product-surface reference for `envdiff`.
 | Command | Purpose | Current Notes |
 | --- | --- | --- |
 | `compare` | Compare two dotenv files | Reports missing keys, duplicates, and value-kind differences |
+| `matrix` | Compare multiple dotenv files | Reports presence, kind mismatches, and duplicate signals across two or more files |
 | `scan` | Analyze a repo's env contract surface | Aggregates definitions, usages, and repo-local resolution |
 | `doctor` | Validate the inferred contract | Emits structured findings, supports `--fail-on`, and can baseline or suppress findings |
 
@@ -56,6 +57,7 @@ Current product-surface reference for `envdiff`.
 ### Human Output
 
 - concise command summaries
+- mismatch-focused matrix summaries across multiple dotenv files
 - grouped doctor findings by severity
 - summary counts and suppression counts when applicable
 
@@ -70,6 +72,5 @@ Current product-surface reference for `envdiff`.
 
 - GitHub Actions parsing
 - shell script or `.envrc` parsing
-- matrix mode
 - `.env.example` generation
 - secret manager integration
