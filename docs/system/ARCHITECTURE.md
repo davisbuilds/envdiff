@@ -1,0 +1,76 @@
+# Architecture
+
+## High-Level Flow
+
+`envdiff` currently has three top-level workflows:
+
+1. `compare`: parse two dotenv files and compute missing keys, duplicates, and value-kind differences.
+2. `scan`: walk a repo, parse supported definition files, scan supported source files, and aggregate contracts.
+3. `doctor`: run deterministic validation on the scan result and emit structured findings.
+
+The current implementation is intentionally local-first and deterministic. There are no network dependencies in core analysis.
+
+## CLI Layer
+
+`envdiff/cli.py` exposes the current command surface:
+
+```text
+compare, scan, doctor
+```
+
+Each command supports a human-oriented terminal rendering path and a stable JSON path.
+
+## Analyzer Layer
+
+`envdiff/analyzers/` contains the main product logic:
+
+- `compare.py`: dotenv file-to-file comparison
+- `scan.py`: repository traversal, parser dispatch, contract aggregation, and repo-local resolution
+- `doctor.py`: contract validation and finding generation
+- `aliases.py`: low-confidence, explainable naming-drift heuristics
+- `secrets.py`: conservative secret-like and placeholder-like checks for committed `.env` values
+
+## Parser Layer
+
+`envdiff/parsers/` contains the currently supported input surface:
+
+- `dotenv.py`: `.env` and `.env.example` parsing with duplicate preservation and warnings
+- `python_ast.py`: `os.environ[...]` and `os.getenv(...)`
+- `compose.py`: Docker Compose `${VAR}` interpolation
+
+## Model Layer
+
+`envdiff/models.py` defines the shared data contract:
+
+- `EnvVarDefinition`
+- `EnvVarUsage`
+- `EnvVarContract`
+- `Finding`
+- `RepoScanResult`
+- `JsonEnvelope`
+
+The JSON envelope is versioned and intended to remain a stable machine contract.
+
+## Utilities
+
+`envdiff/utils/` provides deterministic helpers for:
+
+- value normalization
+- stable ordering
+- repo traversal
+- nearest file resolution
+
+## Directory Map
+
+```text
+envdiff/analyzers/         # Comparison, scan, doctor, alias, and secret logic
+envdiff/parsers/           # Dotenv, Python AST, and Compose scanners
+envdiff/render/            # Human and JSON renderers
+envdiff/utils/             # Ordering, normalization, and path helpers
+tests/fixtures/            # Runnable example repos and file fixtures
+docs/system/               # Architecture, features, operations
+docs/project/              # Spec and roadmap
+docs/research/             # Market and comparative analysis
+docs/plans/                # Implementation planning artifacts
+```
+

@@ -2,33 +2,74 @@
 
 `envdiff` is a local-first CLI for analyzing a repository's environment contract.
 
-The active design references for this implementation are:
+It focuses on the gap between dotenv files, source code, and deployment-oriented config: what is required, what is defined, what is stale, and what looks suspicious.
 
-- `envdiff-spec.md`
-- `envdiff-roadmap.md`
-- `envdiff-market-research.md`
+## Current Features
 
-Milestone A scope:
+- `compare` for deterministic dotenv file comparison
+- `scan` for repo-local env usage and definition analysis
+- `doctor` for contract validation and findings
+- stable JSON output for automation and agent use
+- nearest `.env` / `.env.example` resolution for repo-local and monorepo layouts
+- conservative alias, secret-like, and placeholder-like heuristics
 
-- `compare` for dotenv file comparison
-- `scan` for repo-local environment usage and definition analysis
-- `doctor` for deterministic contract validation
+## Tech Stack
 
-Current supported inputs:
+- Python 3.11+
+- `uv` for dependency and environment management
+- Typer for the CLI
+- Pydantic for shared models
+- Rich-compatible human rendering plus deterministic JSON output
 
-- `.env`
-- `.env.example`
-- Python `os.environ[...]` and `os.getenv(...)`
-- Docker Compose `${VAR}` interpolation
+## Setup
 
-Example commands:
+```bash
+uv sync --extra dev
+```
 
-- `uv run python -m envdiff.cli compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env`
-- `uv run python -m envdiff.cli scan tests/fixtures/repos/simple_repo --json`
-- `uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --fail-on warning`
+## Usage
 
-Current limitations:
+```bash
+uv run python -m envdiff.cli compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env
+uv run python -m envdiff.cli scan tests/fixtures/repos/simple_repo --json
+uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --fail-on warning
+```
 
-- Alias detection and secret heuristics are not part of this first implementation pass.
-- Repo-local resolution is nearest `.env` / `.env.example`; broader shell semantics are intentionally out of scope.
+The fixture repos under `tests/fixtures/` are intentionally runnable examples for local inspection.
+
+## Project Structure
+
+```text
+envdiff/
+├── docs/
+│   ├── plans/
+│   ├── project/
+│   ├── research/
+│   └── system/
+├── envdiff/
+│   ├── analyzers/
+│   ├── parsers/
+│   ├── render/
+│   └── utils/
+├── tests/
+└── pyproject.toml
+```
+
+## Documentation
+
+- Architecture and code organization: [docs/system/ARCHITECTURE.md](docs/system/ARCHITECTURE.md)
+- Current capabilities and finding surface: [docs/system/FEATURES.md](docs/system/FEATURES.md)
+- Local setup, verification, and fixture usage: [docs/system/OPERATIONS.md](docs/system/OPERATIONS.md)
+- Detailed product specification: [docs/project/SPEC.md](docs/project/SPEC.md)
+- Roadmap snapshot: [docs/project/ROADMAP.md](docs/project/ROADMAP.md)
+- Market and competitive analysis: [docs/research/MARKET_RESEARCH.md](docs/research/MARKET_RESEARCH.md)
+- Active implementation plan: [docs/plans/2026-03-17-milestone-a-usable-core-implementation.md](docs/plans/2026-03-17-milestone-a-usable-core-implementation.md)
+
+## Current Boundaries
+
+- repo-local analysis only
+- no shell startup file parsing
+- no env loading or injection
+- no secret manager integration
+- no matrix or `.env.example` generation workflow yet
 

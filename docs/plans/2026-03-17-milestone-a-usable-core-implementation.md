@@ -35,7 +35,7 @@ Deliver a working Milestone A for `envdiff`: a deterministic, offline-first CLI 
 ## Assumptions And Constraints
 
 - Python 3.11+ with `uv` is the project toolchain.
-- Existing files `envdiff-spec.md`, `envdiff-roadmap.md`, `envdiff-market-research.md`, and `envdiff-README.md` remain reference docs during implementation.
+- Existing files `docs/project/SPEC.md`, `docs/project/ROADMAP.md`, `docs/research/MARKET_RESEARCH.md`, and the root `README.md` remain reference docs during implementation.
 - Milestone A follows the updated roadmap: repo-local resolution is part of the core, not later polish.
 - Stable JSON is a first-class product surface and should be modeled before command wiring.
 - Determinism is mandatory: fixed ordering, fixed thresholds where used, no network access, no LLM dependencies.
