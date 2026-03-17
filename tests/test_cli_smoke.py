@@ -51,6 +51,10 @@ def test_cli_doctor_threshold_smoke() -> None:
 
     assert result.exit_code == 2
     assert "ENV001" in result.stdout
+    assert "Summary:" in result.stdout
+    assert "Errors:" in result.stdout
+    assert "Warnings:" in result.stdout
+    assert "Infos:" in result.stdout
 
 
 def test_cli_doctor_write_baseline_smoke(tmp_path) -> None:
@@ -98,3 +102,4 @@ def test_cli_doctor_baseline_suppresses_findings(tmp_path) -> None:
 
     assert second.exit_code == 0
     assert "Findings: 0" in second.stdout
+    assert "No active findings." in second.stdout

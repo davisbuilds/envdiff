@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from pathlib import Path
 
 from envdiff.analyzers.aliases import find_alias_candidates
 from envdiff.analyzers.secrets import secret_and_placeholder_findings
@@ -109,6 +110,8 @@ def doctor_repository(scan_result: RepoScanResult) -> tuple[Finding, ...]:
                 )
 
     for definition in scan_result.definitions:
+        if _is_example_file(definition.file_path):
+            continue
         associated_names = associated_usage_names[definition.file_path]
         if definition.name not in associated_names:
             key = ("ENV003", definition.name, definition.file_path)
@@ -136,7 +139,14 @@ def doctor_repository(scan_result: RepoScanResult) -> tuple[Finding, ...]:
                 )
             )
 
-    findings.extend(_skew_findings(scan_result, definitions_by_file, seen))
+    findings.extend(
+        _skew_findings(
+            scan_result,
+            definitions_by_file,
+            associated_usage_names,
+            seen,
+        )
+    )
     findings.extend(secret_and_placeholder_findings(scan_result))
     return sort_findings(findings)
 
@@ -156,35 +166,46 @@ def _missing_details(usage, resolution: ResolutionDecision | None) -> str:
     return f"{usage.name} is referenced by {usage.file_path} but no associated .env defines it."
 
 
-def _skew_findings(scan_result: RepoScanResult, definitions_by_file, seen) -> list[Finding]:
+def _skew_findings(
+    scan_result: RepoScanResult,
+    definitions_by_file,
+    associated_usage_names,
+    seen,
+) -> list[Finding]:
     findings: list[Finding] = []
     for resolution in scan_result.resolutions:
         if not resolution.env_file or not resolution.example_file:
             continue
         env_names = _definition_names(definitions_by_file, resolution.env_file)
         example_names = _definition_names(definitions_by_file, resolution.example_file)
+        associated_names = (
+            associated_usage_names[resolution.env_file]
+            | associated_usage_names[resolution.example_file]
+        )
 
-        for name in sorted(env_names - example_names):
-            key = ("ENV005", name, resolution.env_file)
+        for name in sorted(example_names - env_names):
+            if name in associated_names:
+                continue
+            key = ("ENV005", name, resolution.example_file)
             if key in seen:
                 continue
             seen.add(key)
             findings.append(
                 Finding(
                     code="ENV005",
-                    severity="warning",
-                    title="Environment skew",
+                    severity="info",
+                    title="Template skew",
                     details=(
-                        f"{name} is present in {resolution.env_file} but absent from "
-                        f"{resolution.example_file}."
+                        f"{name} appears in {resolution.example_file} but is absent from "
+                        f"{resolution.env_file} and not referenced."
                     ),
                     variable_name=name,
-                    locations=(Location(file_path=resolution.env_file),),
+                    locations=(Location(file_path=resolution.example_file),),
                     reason=(
-                        "Nearest .env and .env.example should describe the same "
-                        "contract surface."
+                        "Template-only variables with no matching local definition or "
+                        "usage are likely stale."
                     ),
-                    suppression_key=f"skew:{resolution.env_file}:{name}",
+                    suppression_key=f"skew:{resolution.example_file}:{name}",
                 )
             )
     return findings
@@ -223,3 +244,7 @@ def _alias_findings_for_missing_usage(
             )
         )
     return findings
+
+
+def _is_example_file(file_path: str) -> bool:
+    return Path(file_path).name == ".env.example"

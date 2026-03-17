@@ -12,6 +12,7 @@ It focuses on the gap between dotenv files, source code, and deployment-oriented
 - stable JSON output for automation and agent use
 - nearest `.env` / `.env.example` resolution for repo-local and monorepo layouts
 - conservative alias, secret-like, and placeholder-like heuristics
+- baseline snapshots and ignore-based suppression for incremental adoption
 
 ## Tech Stack
 
@@ -72,4 +73,3 @@ envdiff/
 - no env loading or injection
 - no secret manager integration
 - no matrix or `.env.example` generation workflow yet
-

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections import Counter
+
 from envdiff.models import Finding, RepoScanResult
 
 
@@ -49,11 +51,30 @@ def render_doctor_result(
     suppressed_count: int = 0,
     baseline_written: str | None = None,
 ) -> str:
-    lines = [f"Doctor root: {root_path}", f"Findings: {len(findings)}"]
+    counts = Counter(finding.severity for finding in findings)
+    lines = [
+        f"Doctor root: {root_path}",
+        f"Findings: {len(findings)}",
+        (
+            "Summary: "
+            f"{counts.get('error', 0)} error, "
+            f"{counts.get('warning', 0)} warning, "
+            f"{counts.get('info', 0)} info"
+        ),
+    ]
     if suppressed_count:
         lines.append(f"Suppressed: {suppressed_count}")
     if baseline_written:
         lines.append(f"Baseline written: {baseline_written}")
-    for finding in findings:
-        lines.append(f"{finding.severity.upper()} {finding.code} {finding.details}")
+    if not findings:
+        lines.append("No active findings.")
+        return "\n".join(lines)
+
+    for severity in ("error", "warning", "info"):
+        scoped = [finding for finding in findings if finding.severity == severity]
+        if not scoped:
+            continue
+        lines.append(f"{severity.capitalize()}s:")
+        for finding in scoped:
+            lines.append(f"  {finding.code} {finding.details}")
     return "\n".join(lines)

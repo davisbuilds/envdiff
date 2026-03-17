@@ -20,7 +20,7 @@ Current product-surface reference for `envdiff`.
 | --- | --- | --- |
 | `compare` | Compare two dotenv files | Reports missing keys, duplicates, and value-kind differences |
 | `scan` | Analyze a repo's env contract surface | Aggregates definitions, usages, and repo-local resolution |
-| `doctor` | Validate the inferred contract | Emits structured findings and supports `--fail-on` |
+| `doctor` | Validate the inferred contract | Emits structured findings, supports `--fail-on`, and can baseline or suppress findings |
 
 ## Finding Surface
 
@@ -28,9 +28,9 @@ Current product-surface reference for `envdiff`.
 | --- | --- | --- |
 | `ENV001` | Missing required variable | Deterministic |
 | `ENV002` | Missing optional variable | Deterministic |
-| `ENV003` | Unused variable | Deterministic |
+| `ENV003` | Unused committed variable | Deterministic |
 | `ENV004` | Referenced variable missing from nearest `.env.example` | Deterministic |
-| `ENV005` | `.env` / `.env.example` skew | Deterministic |
+| `ENV005` | Stale template-only `.env.example` entry | Deterministic |
 | `ENV006` | Duplicate definition | Deterministic |
 | `ENV007` | Possible alias candidate | Heuristic |
 | `ENV008` | Secret-like committed value | Heuristic |
@@ -56,13 +56,15 @@ Current product-surface reference for `envdiff`.
 ### Human Output
 
 - concise command summaries
-- doctor findings in severity order
+- grouped doctor findings by severity
+- summary counts and suppression counts when applicable
 
 ### JSON Output
 
 - schema-versioned envelope
 - explicit `meta`, `inputs`, `summary`, `findings`, and `data` fields
 - deterministic ordering for contracts and findings
+- suppression metadata and suppressed finding lists for `doctor`
 
 ## Deferred Features
 
@@ -70,6 +72,4 @@ Current product-surface reference for `envdiff`.
 - shell script or `.envrc` parsing
 - matrix mode
 - `.env.example` generation
-- baseline / snapshot workflows
 - secret manager integration
-

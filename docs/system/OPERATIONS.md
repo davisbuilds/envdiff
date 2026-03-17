@@ -30,6 +30,8 @@ Examples:
 uv run python -m envdiff.cli scan tests/fixtures/repos/simple_repo --json
 uv run python -m envdiff.cli scan tests/fixtures/repos/monorepo --json
 uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --fail-on warning
+uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --write-baseline .envdiff.baseline.json
+uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --baseline .envdiff.baseline.json
 ```
 
 ## Exit Codes
@@ -44,7 +46,6 @@ uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --fail-on warn
 - no user-shell startup files
 - no env loading or process injection
 - no external secret APIs
-- no baseline / suppression workflow yet
 
 ## Implementation Status
 
@@ -54,11 +55,12 @@ What is implemented:
 - repo-local `.env` and `.env.example` resolution
 - deterministic JSON output
 - alias, secret-like, and placeholder-like heuristics
+- baseline snapshots and ignore-based suppression
+- grouped doctor summaries in human output
 
 What is still open:
 
-- richer human rendering
-- suppression and baseline support
+- finding-noise reduction beyond the initial heuristic pass
+- JSON schema documentation and finding-code reference docs
 - matrix and generate workflows
 - broader parser coverage
-
