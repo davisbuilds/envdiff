@@ -1,0 +1,6 @@
+services:
+  app:
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      DEBUG: ${DEBUG:-false}
+
