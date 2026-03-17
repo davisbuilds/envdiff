@@ -1,9 +1,16 @@
 from __future__ import annotations
 
 from collections import Counter
+from pathlib import Path
 
 import typer
 
+from envdiff.analyzers.baseline import (
+    apply_suppressions,
+    load_baseline_snapshot,
+    load_ignore_keys,
+    write_baseline_snapshot,
+)
 from envdiff.analyzers.compare import compare_dotenv_files
 from envdiff.analyzers.doctor import doctor_repository
 from envdiff.analyzers.scan import scan_repository
@@ -57,23 +64,86 @@ def scan(
 def doctor(
     path: str = typer.Argument(..., help="Repository path to validate."),
     fail_on: str = typer.Option("error", "--fail-on", help="Exit on severity threshold."),
+    baseline: str | None = typer.Option(
+        None,
+        "--baseline",
+        help="Suppress findings that match suppression keys in a baseline JSON file.",
+    ),
+    write_baseline: str | None = typer.Option(
+        None,
+        "--write-baseline",
+        help="Write the current finding set to a baseline JSON file and exit successfully.",
+    ),
+    ignore_file: str | None = typer.Option(
+        None,
+        "--ignore-file",
+        help="Path to a newline-delimited suppression file.",
+    ),
     json_output: bool = typer.Option(False, "--json", help="Emit JSON output."),
 ) -> None:
     scan_result = scan_repository(path)
     findings = doctor_repository(scan_result)
-    summary = _summarize(findings)
+
+    default_ignore_path = Path(path) / ".envdiffignore"
+    suppression_keys = set()
+    baseline_entry_count = 0
+
+    if baseline:
+        snapshot = load_baseline_snapshot(baseline)
+        baseline_entry_count = len(snapshot.entries)
+        suppression_keys.update(entry.suppression_key for entry in snapshot.entries)
+
+    if ignore_file:
+        suppression_keys.update(load_ignore_keys(ignore_file))
+    elif default_ignore_path.is_file():
+        ignore_file = str(default_ignore_path)
+        suppression_keys.update(load_ignore_keys(default_ignore_path))
+
+    active_findings, suppressed_findings = apply_suppressions(findings, suppression_keys)
+    summary = _summarize(active_findings)
+
+    baseline_written = None
+    if write_baseline:
+        write_baseline_snapshot(write_baseline, findings)
+        baseline_written = write_baseline
 
     if json_output:
         envelope = JsonEnvelope(
             meta=CommandMeta(command="doctor"),
-            inputs={"path": path, "fail_on": fail_on},
+            inputs={
+                "path": path,
+                "fail_on": fail_on,
+                "baseline": baseline,
+                "write_baseline": write_baseline,
+                "ignore_file": ignore_file,
+            },
             summary=summary,
-            findings=findings,
-            data=scan_result.model_dump(mode="json"),
+            findings=active_findings,
+            data={
+                "scan": scan_result.model_dump(mode="json"),
+                "filtering": {
+                    "baseline_entries": baseline_entry_count,
+                    "suppressed_count": len(suppressed_findings),
+                    "baseline_written": baseline_written,
+                },
+                "suppressed_findings": [
+                    finding.model_dump(mode="json") for finding in suppressed_findings
+                ],
+            },
         )
         typer.echo(render_json(envelope))
     else:
-        typer.echo(render_doctor_result(scan_result.root_path, findings))
+        typer.echo(
+            render_doctor_result(
+                scan_result.root_path,
+                active_findings,
+                suppressed_count=len(suppressed_findings),
+                baseline_written=baseline_written,
+            )
+        )
+
+    if write_baseline:
+        return
 
     if _should_fail(summary, fail_on):
         raise typer.Exit(code=2)

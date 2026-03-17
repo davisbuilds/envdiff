@@ -51,3 +51,50 @@ def test_cli_doctor_threshold_smoke() -> None:
 
     assert result.exit_code == 2
     assert "ENV001" in result.stdout
+
+
+def test_cli_doctor_write_baseline_smoke(tmp_path) -> None:
+    baseline_path = tmp_path / "doctor-baseline.json"
+
+    result = runner.invoke(
+        app,
+        [
+            "doctor",
+            "tests/fixtures/doctor/project",
+            "--write-baseline",
+            str(baseline_path),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert baseline_path.exists()
+    assert "Baseline written:" in result.stdout
+
+
+def test_cli_doctor_baseline_suppresses_findings(tmp_path) -> None:
+    baseline_path = tmp_path / "doctor-baseline.json"
+    first = runner.invoke(
+        app,
+        [
+            "doctor",
+            "tests/fixtures/doctor/project",
+            "--write-baseline",
+            str(baseline_path),
+        ],
+    )
+    assert first.exit_code == 0
+
+    second = runner.invoke(
+        app,
+        [
+            "doctor",
+            "tests/fixtures/doctor/project",
+            "--baseline",
+            str(baseline_path),
+            "--fail-on",
+            "warning",
+        ],
+    )
+
+    assert second.exit_code == 0
+    assert "Findings: 0" in second.stdout

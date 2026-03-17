@@ -81,6 +81,20 @@ class RepoScanResult(ModelBase):
     warnings: tuple[str, ...] = ()
 
 
+class BaselineEntry(ModelBase):
+    suppression_key: str
+    code: str
+    severity: str
+    variable_name: str | None = None
+    title: str
+    reason: str | None = None
+
+
+class BaselineSnapshot(ModelBase):
+    schema_version: str = Field(default=SCHEMA_VERSION)
+    entries: tuple[BaselineEntry, ...] = ()
+
+
 class Finding(ModelBase):
     code: str
     severity: str

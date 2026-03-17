@@ -42,8 +42,18 @@ def render_scan_result(scan_result: RepoScanResult) -> str:
     return "\n".join(lines)
 
 
-def render_doctor_result(root_path: str, findings: tuple[Finding, ...]) -> str:
+def render_doctor_result(
+    root_path: str,
+    findings: tuple[Finding, ...],
+    *,
+    suppressed_count: int = 0,
+    baseline_written: str | None = None,
+) -> str:
     lines = [f"Doctor root: {root_path}", f"Findings: {len(findings)}"]
+    if suppressed_count:
+        lines.append(f"Suppressed: {suppressed_count}")
+    if baseline_written:
+        lines.append(f"Baseline written: {baseline_written}")
     for finding in findings:
         lines.append(f"{finding.severity.upper()} {finding.code} {finding.details}")
     return "\n".join(lines)
