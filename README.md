@@ -13,6 +13,7 @@ It focuses on the gap between dotenv files, source code, and deployment-oriented
 - `doctor` for contract validation and findings
 - stable JSON output for automation and agent use
 - nearest `.env` / `.env.example` resolution for repo-local and monorepo layouts
+- GitHub Actions workflow expression scanning for `secrets.*` and `vars.*`
 - conservative alias, secret-like, and placeholder-like heuristics
 - baseline snapshots and ignore-based suppression for incremental adoption
 
@@ -37,6 +38,7 @@ uv run python -m envdiff.cli compare tests/fixtures/compare/left.env tests/fixtu
 uv run python -m envdiff.cli generate tests/fixtures/repos/simple_repo --annotate
 uv run python -m envdiff.cli generate tests/fixtures/repos/simple_repo --check
 uv run python -m envdiff.cli matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
+uv run python -m envdiff.cli scan tests/fixtures/repos/workflow_repo --json
 uv run python -m envdiff.cli scan tests/fixtures/repos/simple_repo --json
 uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --fail-on warning
 ```

@@ -13,6 +13,10 @@ Current product-surface reference for `envdiff`.
 - Docker Compose:
   - `${VAR}`
   - `${VAR:-default}`
+- GitHub Actions:
+  - `${{ secrets.NAME }}`
+  - `${{ vars.NAME }}`
+  - `${{ vars.NAME || 'default' }}`
 
 ## Commands
 
@@ -75,6 +79,5 @@ Current product-surface reference for `envdiff`.
 
 ## Deferred Features
 
-- GitHub Actions parsing
 - shell script or `.envrc` parsing
 - secret manager integration

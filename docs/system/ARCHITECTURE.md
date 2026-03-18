@@ -41,6 +41,7 @@ Each command supports a human-oriented terminal rendering path and a stable JSON
 - `dotenv.py`: `.env` and `.env.example` parsing with duplicate preservation and warnings
 - `python_ast.py`: `os.environ[...]` and `os.getenv(...)`
 - `compose.py`: Docker Compose `${VAR}` interpolation
+- `github_actions.py`: workflow expression scanning for `secrets.*` and `vars.*`
 
 ## Model Layer
 
@@ -68,7 +69,7 @@ The JSON envelope is versioned and intended to remain a stable machine contract.
 
 ```text
 envdiff/analyzers/         # Comparison, scan, doctor, alias, and secret logic
-envdiff/parsers/           # Dotenv, Python AST, and Compose scanners
+envdiff/parsers/           # Dotenv, Python AST, Compose, and GitHub Actions scanners
 envdiff/render/            # Human and JSON renderers
 envdiff/utils/             # Ordering, normalization, and path helpers
 tests/fixtures/            # Runnable example repos and file fixtures

@@ -30,3 +30,20 @@ def test_scan_repository_uses_nearest_env_files_in_monorepo() -> None:
 
     assert api_resolution.env_file.endswith("apps/api/.env")
     assert web_resolution.env_file.endswith("apps/web/.env")
+
+
+def test_scan_repository_includes_github_actions_workflow_usages() -> None:
+    result = scan_repository("tests/fixtures/repos/workflow_repo")
+
+    contract_names = [contract.name for contract in result.contracts]
+    workflow_resolution = next(
+        resolution
+        for resolution in result.resolutions
+        if resolution.source_file.endswith(".github/workflows/deploy.yml")
+    )
+
+    assert contract_names == ["API_KEY", "DATABASE_URL", "DEPLOY_ENV"]
+    assert workflow_resolution.env_file.endswith("tests/fixtures/repos/workflow_repo/.env")
+    assert workflow_resolution.example_file.endswith(
+        "tests/fixtures/repos/workflow_repo/.env.example"
+    )

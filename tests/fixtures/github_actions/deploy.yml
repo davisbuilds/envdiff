@@ -1,0 +1,14 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DEPLOY_ENV: ${{ vars.DEPLOY_ENV || 'staging' }}
+    steps:
+      - run: echo "${{ secrets.API_KEY }}"

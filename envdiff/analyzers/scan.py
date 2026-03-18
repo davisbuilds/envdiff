@@ -6,6 +6,7 @@ from pathlib import Path
 from envdiff.models import EnvVarContract, RepoScanResult, ResolutionDecision
 from envdiff.parsers.compose import scan_compose_file
 from envdiff.parsers.dotenv import parse_dotenv
+from envdiff.parsers.github_actions import scan_github_actions_file
 from envdiff.parsers.python_ast import scan_python_file
 from envdiff.utils.ordering import sort_contracts, sort_definitions, sort_usages
 from envdiff.utils.paths import find_nearest_named_file, iter_repo_files
@@ -36,6 +37,13 @@ def scan_repository(path: str | Path) -> RepoScanResult:
 
         if file_path.name in COMPOSE_FILENAMES:
             result = scan_compose_file(file_path)
+            usages.extend(result.usages)
+            warnings.extend(result.warnings)
+            resolution_map[str(file_path)] = _resolve_usage_file(file_path, root)
+            continue
+
+        if _is_github_actions_workflow(file_path):
+            result = scan_github_actions_file(file_path)
             usages.extend(result.usages)
             warnings.extend(result.warnings)
             resolution_map[str(file_path)] = _resolve_usage_file(file_path, root)
@@ -135,3 +143,13 @@ def _infer_requiredness(usages) -> str:
     if "optional" in requirednesses:
         return "optional"
     return "unknown"
+
+
+def _is_github_actions_workflow(file_path: Path) -> bool:
+    parts = file_path.parts
+    return (
+        len(parts) >= 3
+        and parts[-3] == ".github"
+        and parts[-2] == "workflows"
+        and file_path.suffix in {".yml", ".yaml"}
+    )
