@@ -19,7 +19,7 @@ Current product-surface reference for `envdiff`.
 | Command | Purpose | Current Notes |
 | --- | --- | --- |
 | `compare` | Compare two dotenv files | Reports missing keys, duplicates, and value-kind differences |
-| `generate` | Produce a `.env.example` candidate | Prints generated dotenv to stdout or writes explicitly via `--output` |
+| `generate` | Produce a `.env.example` candidate | Prints generated dotenv to stdout, writes via `--output`, or checks drift with `--check` |
 | `matrix` | Compare multiple dotenv files | Reports presence, kind mismatches, and duplicate signals across two or more files |
 | `scan` | Analyze a repo's env contract surface | Aggregates definitions, usages, and repo-local resolution |
 | `doctor` | Validate the inferred contract | Emits structured findings, supports `--fail-on`, and can baseline or suppress findings |
@@ -59,6 +59,7 @@ Current product-surface reference for `envdiff`.
 
 - concise command summaries
 - generated dotenv content to stdout by default, with summary output on explicit writes
+- `generate --check` reports whether the committed template matches inferred output
 - mismatch-focused matrix summaries across multiple dotenv files
 - grouped doctor findings by severity
 - summary counts and suppression counts when applicable
@@ -69,6 +70,7 @@ Current product-surface reference for `envdiff`.
 - explicit `meta`, `inputs`, `summary`, `findings`, and `data` fields
 - deterministic ordering for contracts and findings
 - generated dotenv text and output-path metadata for `generate`
+- generate drift-check metadata for CI use
 - suppression metadata and suppressed finding lists for `doctor`
 
 ## Deferred Features

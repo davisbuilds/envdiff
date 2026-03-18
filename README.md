@@ -35,6 +35,7 @@ uv sync --extra dev
 ```bash
 uv run python -m envdiff.cli compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env
 uv run python -m envdiff.cli generate tests/fixtures/repos/simple_repo --annotate
+uv run python -m envdiff.cli generate tests/fixtures/repos/simple_repo --check
 uv run python -m envdiff.cli matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
 uv run python -m envdiff.cli scan tests/fixtures/repos/simple_repo --json
 uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --fail-on warning
@@ -64,6 +65,8 @@ envdiff/
 
 - Architecture and code organization: [docs/system/ARCHITECTURE.md](docs/system/ARCHITECTURE.md)
 - Current capabilities and finding surface: [docs/system/FEATURES.md](docs/system/FEATURES.md)
+- JSON contract reference: [docs/system/JSON_SCHEMA.md](docs/system/JSON_SCHEMA.md)
+- Finding code reference: [docs/system/FINDING_CODES.md](docs/system/FINDING_CODES.md)
 - Local setup, verification, and fixture usage: [docs/system/OPERATIONS.md](docs/system/OPERATIONS.md)
 - Detailed product specification: [docs/project/SPEC.md](docs/project/SPEC.md)
 - Roadmap snapshot: [docs/project/ROADMAP.md](docs/project/ROADMAP.md)

@@ -86,9 +86,16 @@ def render_matrix_result(result: dict[str, object]) -> str:
 def render_generate_result(
     variable_count: int,
     *,
-    output_path: str,
+    output_path: str | None = None,
     annotate: bool,
+    check_path: str | None = None,
+    check_matches: bool | None = None,
 ) -> str:
+    if check_path is not None and check_matches is not None:
+        if check_matches:
+            return f"Generated output matches {check_path}"
+        return f"Generated output drifted from {check_path}"
+
     suffix = " with annotations" if annotate else ""
     return (
         f"Generated {variable_count} variables{suffix} to {output_path}"

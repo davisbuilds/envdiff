@@ -50,6 +50,24 @@ def write_generated_example(path: str | Path, generated_text: str) -> str:
     return str(output_path)
 
 
+def check_generated_example(
+    root_path: str | Path,
+    generated_text: str,
+    *,
+    output: str | Path | None = None,
+) -> dict[str, object]:
+    target_path = Path(output) if output else Path(root_path) / ".env.example"
+    exists = target_path.is_file()
+    existing_text = target_path.read_text(encoding="utf-8") if exists else None
+    matches = existing_text == generated_text
+
+    return {
+        "target_path": str(target_path),
+        "exists": exists,
+        "matches": matches,
+    }
+
+
 def _plain_lines(contracts: list[EnvVarContract]) -> list[str]:
     return [f"{contract.name}=" for contract in contracts]
 

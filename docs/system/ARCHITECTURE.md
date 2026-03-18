@@ -2,11 +2,13 @@
 
 ## High-Level Flow
 
-`envdiff` currently has three top-level workflows:
+`envdiff` currently has five top-level workflows:
 
 1. `compare`: parse two dotenv files and compute missing keys, duplicates, and value-kind differences.
-2. `scan`: walk a repo, parse supported definition files, scan supported source files, and aggregate contracts.
-3. `doctor`: run deterministic validation on the scan result and emit structured findings.
+2. `generate`: infer a repo-local `.env.example` candidate and optionally check drift.
+3. `matrix`: compare multiple dotenv files across presence, value-kind, and duplicate signals.
+4. `scan`: walk a repo, parse supported definition files, scan supported source files, and aggregate contracts.
+5. `doctor`: run deterministic validation on the scan result and emit structured findings.
 
 The current implementation is intentionally local-first and deterministic. There are no network dependencies in core analysis.
 
@@ -15,7 +17,7 @@ The current implementation is intentionally local-first and deterministic. There
 `envdiff/cli.py` exposes the current command surface:
 
 ```text
-compare, scan, doctor
+compare, generate, matrix, scan, doctor
 ```
 
 Each command supports a human-oriented terminal rendering path and a stable JSON path.
@@ -25,6 +27,8 @@ Each command supports a human-oriented terminal rendering path and a stable JSON
 `envdiff/analyzers/` contains the main product logic:
 
 - `compare.py`: dotenv file-to-file comparison
+- `generate.py`: inferred `.env.example` generation and drift checks
+- `matrix.py`: multi-file dotenv comparison
 - `scan.py`: repository traversal, parser dispatch, contract aggregation, and repo-local resolution
 - `doctor.py`: contract validation and finding generation
 - `aliases.py`: low-confidence, explainable naming-drift heuristics
@@ -69,8 +73,8 @@ envdiff/render/            # Human and JSON renderers
 envdiff/utils/             # Ordering, normalization, and path helpers
 tests/fixtures/            # Runnable example repos and file fixtures
 docs/system/               # Architecture, features, operations
+                           # JSON contract and finding-code references
 docs/project/              # Spec and roadmap
 docs/research/             # Market and comparative analysis
 docs/plans/                # Implementation planning artifacts
 ```
-

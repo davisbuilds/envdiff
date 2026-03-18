@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from envdiff.analyzers.generate import generate_example_file
+from envdiff.analyzers.generate import check_generated_example, generate_example_file
 from envdiff.analyzers.scan import scan_repository
 
 
@@ -25,3 +25,14 @@ def test_generate_annotate_groups_by_requiredness_and_defaults() -> None:
     assert "# optional" in result["generated_text"]
     assert "# optional with default" in result["generated_text"]
     assert "# defaults in code: false" in result["generated_text"]
+
+
+def test_generate_check_detects_drift_against_default_example() -> None:
+    scan_result = scan_repository("tests/fixtures/repos/simple_repo")
+    result = generate_example_file(scan_result)
+
+    check = check_generated_example(scan_result.root_path, result["generated_text"])
+
+    assert check["target_path"].endswith(".env.example")
+    assert check["exists"] is True
+    assert check["matches"] is False

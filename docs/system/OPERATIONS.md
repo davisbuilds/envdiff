@@ -29,6 +29,7 @@ Examples:
 
 ```bash
 uv run python -m envdiff.cli generate tests/fixtures/repos/simple_repo --annotate
+uv run python -m envdiff.cli generate tests/fixtures/repos/simple_repo --check
 uv run python -m envdiff.cli matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
 uv run python -m envdiff.cli scan tests/fixtures/repos/simple_repo --json
 uv run python -m envdiff.cli scan tests/fixtures/repos/monorepo --json
@@ -64,5 +65,4 @@ What is implemented:
 What is still open:
 
 - finding-noise reduction beyond the initial heuristic pass
-- JSON schema documentation and finding-code reference docs
 - broader parser coverage

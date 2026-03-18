@@ -105,6 +105,38 @@ def test_cli_generate_json_smoke() -> None:
     assert '"generated_text"' in result.stdout
 
 
+def test_cli_generate_check_detects_drift() -> None:
+    result = runner.invoke(
+        app,
+        ["generate", "tests/fixtures/repos/simple_repo", "--check"],
+    )
+
+    assert result.exit_code == 2
+    assert "drifted from" in result.stdout
+
+
+def test_cli_generate_check_can_target_explicit_file(tmp_path) -> None:
+    project = tmp_path / "project"
+    app_dir = project / "app"
+    app_dir.mkdir(parents=True)
+    (project / ".env").write_text("DATABASE_URL=postgres://localhost/db\n", encoding="utf-8")
+    (project / ".env.example").write_text("", encoding="utf-8")
+    (app_dir / "main.py").write_text(
+        'import os\n\ndatabase_url = os.environ["DATABASE_URL"]\n',
+        encoding="utf-8",
+    )
+    target_path = tmp_path / "generated.env.example"
+    target_path.write_text("DATABASE_URL=\n", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        ["generate", str(project), "--check", "--output", str(target_path)],
+    )
+
+    assert result.exit_code == 0
+    assert "matches" in result.stdout
+
+
 def test_cli_doctor_threshold_smoke() -> None:
     result = runner.invoke(
         app,

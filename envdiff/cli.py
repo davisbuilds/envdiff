@@ -13,7 +13,11 @@ from envdiff.analyzers.baseline import (
 )
 from envdiff.analyzers.compare import compare_dotenv_files
 from envdiff.analyzers.doctor import doctor_repository
-from envdiff.analyzers.generate import generate_example_file, write_generated_example
+from envdiff.analyzers.generate import (
+    check_generated_example,
+    generate_example_file,
+    write_generated_example,
+)
 from envdiff.analyzers.matrix import matrix_dotenv_files
 from envdiff.analyzers.scan import scan_repository
 from envdiff.models import CommandMeta, JsonEnvelope, SummaryCounts
@@ -191,30 +195,55 @@ def generate(
         "--annotate",
         help="Include grouped comments and default notes in the generated output.",
     ),
+    check: bool = typer.Option(
+        False,
+        "--check",
+        help="Fail if the target dotenv example differs from the generated output.",
+    ),
     output: str | None = typer.Option(
         None,
         "--output",
-        help="Write the generated dotenv example to a file instead of stdout.",
+        help="Write the generated dotenv example to a file, or use this file as the check target.",
     ),
     json_output: bool = typer.Option(False, "--json", help="Emit JSON output."),
 ) -> None:
     scan_result = scan_repository(path)
     result = generate_example_file(scan_result, annotate=annotate)
 
+    check_result = None
+    if check:
+        check_result = check_generated_example(
+            scan_result.root_path,
+            result["generated_text"],
+            output=output,
+        )
+
     output_path = None
-    if output:
+    if output and not check:
         output_path = write_generated_example(output, result["generated_text"])
 
     if json_output:
         envelope = JsonEnvelope(
             meta=CommandMeta(command="generate"),
-            inputs={"path": path, "annotate": annotate, "output": output},
-            data={**result, "output_path": output_path},
+            inputs={
+                "path": path,
+                "annotate": annotate,
+                "check": check,
+                "output": output,
+            },
+            data={**result, "output_path": output_path, "check": check_result},
         )
         typer.echo(render_json(envelope))
-        return
-
-    if output_path:
+    elif check_result is not None:
+        typer.echo(
+            render_generate_result(
+                result["variable_count"],
+                annotate=annotate,
+                check_path=check_result["target_path"],
+                check_matches=check_result["matches"],
+            )
+        )
+    elif output_path:
         typer.echo(
             render_generate_result(
                 result["variable_count"],
@@ -222,9 +251,11 @@ def generate(
                 annotate=annotate,
             )
         )
-        return
+    else:
+        typer.echo(result["generated_text"], nl=False)
 
-    typer.echo(result["generated_text"], nl=False)
+    if check_result is not None and not check_result["matches"]:
+        raise typer.Exit(code=2)
 
 
 def main() -> None:
