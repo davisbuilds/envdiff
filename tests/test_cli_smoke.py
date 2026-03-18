@@ -11,7 +11,7 @@ runner = CliRunner()
 
 def test_bin_launcher_help_smoke() -> None:
     result = subprocess.run(
-        ["./bin/envdiff", "--help"],
+        ["./envdiff", "--help"],
         capture_output=True,
         text=True,
         check=False,

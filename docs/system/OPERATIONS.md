@@ -12,7 +12,7 @@ uv sync --extra dev
 
 ## Key Commands
 
-- Run CLI help: `./bin/envdiff --help`
+- Run CLI help: `./envdiff --help`
 - Run tests: `uv run pytest -q`
 - Lint: `uv run ruff check .`
 
@@ -29,15 +29,15 @@ Use these paths as local demo environments:
 Examples:
 
 ```bash
-./bin/envdiff generate tests/fixtures/repos/simple_repo --annotate
-./bin/envdiff generate tests/fixtures/repos/simple_repo --check
-./bin/envdiff matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
-./bin/envdiff scan tests/fixtures/repos/workflow_repo --json
-./bin/envdiff scan tests/fixtures/repos/simple_repo --json
-./bin/envdiff scan tests/fixtures/repos/monorepo --json
-./bin/envdiff doctor tests/fixtures/doctor/project --fail-on warning
-./bin/envdiff doctor tests/fixtures/doctor/project --write-baseline .envdiff.baseline.json
-./bin/envdiff doctor tests/fixtures/doctor/project --baseline .envdiff.baseline.json
+./envdiff generate tests/fixtures/repos/simple_repo --annotate
+./envdiff generate tests/fixtures/repos/simple_repo --check
+./envdiff matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
+./envdiff scan tests/fixtures/repos/workflow_repo --json
+./envdiff scan tests/fixtures/repos/simple_repo --json
+./envdiff scan tests/fixtures/repos/monorepo --json
+./envdiff doctor tests/fixtures/doctor/project --fail-on warning
+./envdiff doctor tests/fixtures/doctor/project --write-baseline .envdiff.baseline.json
+./envdiff doctor tests/fixtures/doctor/project --baseline .envdiff.baseline.json
 ```
 
 ## Exit Codes

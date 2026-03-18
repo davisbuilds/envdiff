@@ -34,16 +34,16 @@ uv sync --extra dev
 ## Usage
 
 ```bash
-./bin/envdiff compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env
-./bin/envdiff generate tests/fixtures/repos/simple_repo --annotate
-./bin/envdiff generate tests/fixtures/repos/simple_repo --check
-./bin/envdiff matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
-./bin/envdiff scan tests/fixtures/repos/workflow_repo --json
-./bin/envdiff scan tests/fixtures/repos/simple_repo --json
-./bin/envdiff doctor tests/fixtures/doctor/project --fail-on warning
+./envdiff compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env
+./envdiff generate tests/fixtures/repos/simple_repo --annotate
+./envdiff generate tests/fixtures/repos/simple_repo --check
+./envdiff matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
+./envdiff scan tests/fixtures/repos/workflow_repo --json
+./envdiff scan tests/fixtures/repos/simple_repo --json
+./envdiff doctor tests/fixtures/doctor/project --fail-on warning
 ```
 
-The repo includes `./bin/envdiff` as a local launcher, so you do not need to type
+The repo includes `./envdiff` as a local launcher, so you do not need to type
 `uv run envdiff ...` during development. The fixture repos under
 `tests/fixtures/` are intentionally runnable examples for local inspection.
 
@@ -51,12 +51,12 @@ The repo includes `./bin/envdiff` as a local launcher, so you do not need to typ
 
 ```text
 envdiff/
-├── bin/
 ├── docs/
 │   ├── plans/
 │   ├── project/
 │   ├── research/
 │   └── system/
+├── envdiff
 ├── src/
 │   ├── analyzers/
 │   ├── parsers/

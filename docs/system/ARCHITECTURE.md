@@ -68,7 +68,7 @@ The JSON envelope is versioned and intended to remain a stable machine contract.
 ## Directory Map
 
 ```text
-bin/envdiff                # Local launcher wrapper
+envdiff                    # Local launcher wrapper
 src/analyzers/             # Comparison, scan, doctor, alias, and secret logic
 src/parsers/               # Dotenv, Python AST, Compose, and GitHub Actions scanners
 src/render/                # Human and JSON renderers
