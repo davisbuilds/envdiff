@@ -7,6 +7,7 @@ It focuses on the gap between dotenv files, source code, and deployment-oriented
 ## Current Features
 
 - `compare` for deterministic dotenv file comparison
+- `generate` for safe `.env.example` candidate generation
 - `matrix` for deterministic multi-file dotenv comparison
 - `scan` for repo-local env usage and definition analysis
 - `doctor` for contract validation and findings
@@ -33,6 +34,7 @@ uv sync --extra dev
 
 ```bash
 uv run python -m envdiff.cli compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env
+uv run python -m envdiff.cli generate tests/fixtures/repos/simple_repo --annotate
 uv run python -m envdiff.cli matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
 uv run python -m envdiff.cli scan tests/fixtures/repos/simple_repo --json
 uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --fail-on warning
@@ -74,4 +76,3 @@ envdiff/
 - no shell startup file parsing
 - no env loading or injection
 - no secret manager integration
-- no `.env.example` generation workflow yet

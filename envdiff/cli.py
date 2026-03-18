@@ -13,12 +13,14 @@ from envdiff.analyzers.baseline import (
 )
 from envdiff.analyzers.compare import compare_dotenv_files
 from envdiff.analyzers.doctor import doctor_repository
+from envdiff.analyzers.generate import generate_example_file, write_generated_example
 from envdiff.analyzers.matrix import matrix_dotenv_files
 from envdiff.analyzers.scan import scan_repository
 from envdiff.models import CommandMeta, JsonEnvelope, SummaryCounts
 from envdiff.render.human import (
     render_compare_result,
     render_doctor_result,
+    render_generate_result,
     render_matrix_result,
     render_scan_result,
 )
@@ -179,6 +181,50 @@ def doctor(
 
     if _should_fail(summary, fail_on):
         raise typer.Exit(code=2)
+
+
+@app.command()
+def generate(
+    path: str = typer.Argument(..., help="Repository path to analyze."),
+    annotate: bool = typer.Option(
+        False,
+        "--annotate",
+        help="Include grouped comments and default notes in the generated output.",
+    ),
+    output: str | None = typer.Option(
+        None,
+        "--output",
+        help="Write the generated dotenv example to a file instead of stdout.",
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Emit JSON output."),
+) -> None:
+    scan_result = scan_repository(path)
+    result = generate_example_file(scan_result, annotate=annotate)
+
+    output_path = None
+    if output:
+        output_path = write_generated_example(output, result["generated_text"])
+
+    if json_output:
+        envelope = JsonEnvelope(
+            meta=CommandMeta(command="generate"),
+            inputs={"path": path, "annotate": annotate, "output": output},
+            data={**result, "output_path": output_path},
+        )
+        typer.echo(render_json(envelope))
+        return
+
+    if output_path:
+        typer.echo(
+            render_generate_result(
+                result["variable_count"],
+                output_path=output_path,
+                annotate=annotate,
+            )
+        )
+        return
+
+    typer.echo(result["generated_text"], nl=False)
 
 
 def main() -> None:

@@ -83,6 +83,18 @@ def render_matrix_result(result: dict[str, object]) -> str:
     return "\n".join(lines)
 
 
+def render_generate_result(
+    variable_count: int,
+    *,
+    output_path: str,
+    annotate: bool,
+) -> str:
+    suffix = " with annotations" if annotate else ""
+    return (
+        f"Generated {variable_count} variables{suffix} to {output_path}"
+    )
+
+
 def render_doctor_result(
     root_path: str,
     findings: tuple[Finding, ...],

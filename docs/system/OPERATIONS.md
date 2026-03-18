@@ -28,6 +28,7 @@ Use these paths as local demo environments:
 Examples:
 
 ```bash
+uv run python -m envdiff.cli generate tests/fixtures/repos/simple_repo --annotate
 uv run python -m envdiff.cli matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
 uv run python -m envdiff.cli scan tests/fixtures/repos/simple_repo --json
 uv run python -m envdiff.cli scan tests/fixtures/repos/monorepo --json
@@ -53,7 +54,7 @@ uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --baseline .en
 
 What is implemented:
 
-- compare / matrix / scan / doctor
+- compare / generate / matrix / scan / doctor
 - repo-local `.env` and `.env.example` resolution
 - deterministic JSON output
 - alias, secret-like, and placeholder-like heuristics
@@ -64,5 +65,4 @@ What is still open:
 
 - finding-noise reduction beyond the initial heuristic pass
 - JSON schema documentation and finding-code reference docs
-- generate workflows
 - broader parser coverage
