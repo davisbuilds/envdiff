@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-# Shortcut to run the envdiff CLI without typing "uv run envdiff".
-# Usage: ./bin/envdiff scan . | ./bin/envdiff doctor . | ./bin/envdiff generate . --check
-exec uv run envdiff "$@"
