@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from envdiff.analyzers.doctor import doctor_repository
-from envdiff.analyzers.scan import scan_repository
+from src.analyzers.doctor import doctor_repository
+from src.analyzers.scan import scan_repository
 
 
 def test_doctor_repository_emits_core_findings() -> None:

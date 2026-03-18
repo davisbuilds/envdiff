@@ -34,27 +34,30 @@ uv sync --extra dev
 ## Usage
 
 ```bash
-uv run python -m envdiff.cli compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env
-uv run python -m envdiff.cli generate tests/fixtures/repos/simple_repo --annotate
-uv run python -m envdiff.cli generate tests/fixtures/repos/simple_repo --check
-uv run python -m envdiff.cli matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
-uv run python -m envdiff.cli scan tests/fixtures/repos/workflow_repo --json
-uv run python -m envdiff.cli scan tests/fixtures/repos/simple_repo --json
-uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --fail-on warning
+./bin/envdiff compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env
+./bin/envdiff generate tests/fixtures/repos/simple_repo --annotate
+./bin/envdiff generate tests/fixtures/repos/simple_repo --check
+./bin/envdiff matrix tests/fixtures/matrix/a.env tests/fixtures/matrix/b.env tests/fixtures/matrix/c.env
+./bin/envdiff scan tests/fixtures/repos/workflow_repo --json
+./bin/envdiff scan tests/fixtures/repos/simple_repo --json
+./bin/envdiff doctor tests/fixtures/doctor/project --fail-on warning
 ```
 
-The fixture repos under `tests/fixtures/` are intentionally runnable examples for local inspection.
+The repo includes `./bin/envdiff` as a local launcher, so you do not need to type
+`uv run envdiff ...` during development. The fixture repos under
+`tests/fixtures/` are intentionally runnable examples for local inspection.
 
 ## Project Structure
 
 ```text
 envdiff/
+├── bin/
 ├── docs/
 │   ├── plans/
 │   ├── project/
 │   ├── research/
 │   └── system/
-├── envdiff/
+├── src/
 │   ├── analyzers/
 │   ├── parsers/
 │   ├── render/

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from envdiff.parsers.dotenv import parse_dotenv
+from src.parsers.dotenv import parse_dotenv
 
 
 def compare_dotenv_files(left: str | Path, right: str | Path) -> dict[str, object]:

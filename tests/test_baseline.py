@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import json
 
-from envdiff.analyzers.baseline import (
+from src.analyzers.baseline import (
     apply_suppressions,
     build_baseline_snapshot,
     load_baseline_snapshot,
     load_ignore_keys,
     write_baseline_snapshot,
 )
-from envdiff.analyzers.doctor import doctor_repository
-from envdiff.analyzers.scan import scan_repository
+from src.analyzers.doctor import doctor_repository
+from src.analyzers.scan import scan_repository
 
 
 def test_baseline_snapshot_round_trip(tmp_path) -> None:

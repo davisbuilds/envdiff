@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from envdiff.models import CommandMeta, Finding, JsonEnvelope, Location
-from envdiff.render.json import render_json
+from src.models import CommandMeta, Finding, JsonEnvelope, Location
+from src.render.json import render_json
 
 
 def test_json_envelope_has_schema_version() -> None:

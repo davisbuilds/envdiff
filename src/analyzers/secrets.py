@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from envdiff.models import Finding, Location, RepoScanResult
-from envdiff.utils.normalize import is_non_empty_placeholder
-from envdiff.utils.ordering import sort_findings
+from src.models import Finding, Location, RepoScanResult
+from src.utils.normalize import is_non_empty_placeholder
+from src.utils.ordering import sort_findings
 
 
 def secret_and_placeholder_findings(scan_result: RepoScanResult) -> tuple[Finding, ...]:

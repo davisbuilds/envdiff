@@ -3,10 +3,10 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
-from envdiff.analyzers.aliases import find_alias_candidates
-from envdiff.analyzers.secrets import secret_and_placeholder_findings
-from envdiff.models import Finding, Location, RepoScanResult, ResolutionDecision
-from envdiff.utils.ordering import sort_findings
+from src.analyzers.aliases import find_alias_candidates
+from src.analyzers.secrets import secret_and_placeholder_findings
+from src.models import Finding, Location, RepoScanResult, ResolutionDecision
+from src.utils.ordering import sort_findings
 
 
 def doctor_repository(scan_result: RepoScanResult) -> tuple[Finding, ...]:

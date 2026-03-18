@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from envdiff.analyzers.scan import scan_repository
+from src.analyzers.scan import scan_repository
 
 
 def test_scan_repository_builds_contracts_for_simple_repo() -> None:

@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from envdiff.models import EnvVarUsage, UsageScanResult
-from envdiff.utils.ordering import sort_usages
+from src.models import EnvVarUsage, UsageScanResult
+from src.utils.ordering import sort_usages
 
 EXPRESSION_RE = re.compile(r"\$\{\{\s*(.*?)\s*\}\}")
 ACTIONS_REFERENCE_RE = re.compile(r"\b(secrets|vars)\.([A-Z_][A-Z0-9_]*)\b")

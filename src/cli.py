@@ -5,30 +5,30 @@ from pathlib import Path
 
 import typer
 
-from envdiff.analyzers.baseline import (
+from src.analyzers.baseline import (
     apply_suppressions,
     load_baseline_snapshot,
     load_ignore_keys,
     write_baseline_snapshot,
 )
-from envdiff.analyzers.compare import compare_dotenv_files
-from envdiff.analyzers.doctor import doctor_repository
-from envdiff.analyzers.generate import (
+from src.analyzers.compare import compare_dotenv_files
+from src.analyzers.doctor import doctor_repository
+from src.analyzers.generate import (
     check_generated_example,
     generate_example_file,
     write_generated_example,
 )
-from envdiff.analyzers.matrix import matrix_dotenv_files
-from envdiff.analyzers.scan import scan_repository
-from envdiff.models import CommandMeta, JsonEnvelope, SummaryCounts
-from envdiff.render.human import (
+from src.analyzers.matrix import matrix_dotenv_files
+from src.analyzers.scan import scan_repository
+from src.models import CommandMeta, JsonEnvelope, SummaryCounts
+from src.render.human import (
     render_compare_result,
     render_doctor_result,
     render_generate_result,
     render_matrix_result,
     render_scan_result,
 )
-from envdiff.render.json import render_json
+from src.render.json import render_json
 
 app = typer.Typer(
     add_completion=False,

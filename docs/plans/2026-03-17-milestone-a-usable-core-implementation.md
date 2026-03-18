@@ -53,13 +53,13 @@ Create the Python package, CLI entrypoint, development tooling, and baseline tes
 
 - Create: `pyproject.toml`
 - Create: `README.md`
-- Create: `envdiff/__init__.py`
-- Create: `envdiff/cli.py`
-- Create: `envdiff/models.py`
-- Create: `envdiff/parsers/__init__.py`
-- Create: `envdiff/analyzers/__init__.py`
-- Create: `envdiff/render/__init__.py`
-- Create: `envdiff/utils/__init__.py`
+- Create: `src/__init__.py`
+- Create: `src/cli.py`
+- Create: `src/models.py`
+- Create: `src/parsers/__init__.py`
+- Create: `src/analyzers/__init__.py`
+- Create: `src/render/__init__.py`
+- Create: `src/utils/__init__.py`
 - Create: `tests/__init__.py`
 - Create: `tests/conftest.py`
 - Create: `tests/fixtures/.gitkeep`
@@ -78,7 +78,7 @@ None
 
 **Verification**
 
-- Run: `uv run python -m envdiff.cli --help`
+- Run: `uv run python -m src.cli --help`
 - Expect: process exits `0` and prints the top-level CLI help.
 - Run: `uv run pytest -q`
 - Expect: test discovery completes successfully, even if only smoke tests exist.
@@ -99,9 +99,9 @@ Define the shared data structures and deterministic serialization rules that all
 
 **Files**
 
-- Modify: `envdiff/models.py`
-- Create: `envdiff/render/json.py`
-- Create: `envdiff/utils/ordering.py`
+- Modify: `src/models.py`
+- Create: `src/render/json.py`
+- Create: `src/utils/ordering.py`
 - Create: `tests/test_models.py`
 
 **Dependencies**
@@ -120,7 +120,7 @@ Define the shared data structures and deterministic serialization rules that all
 
 - Run: `uv run pytest tests/test_models.py -q`
 - Expect: model tests pass.
-- Run: `uv run python - <<'PY'\nfrom envdiff.models import JsonEnvelope\nprint(JsonEnvelope.schema_version())\nPY`
+- Run: `uv run python - <<'PY'\nfrom src.models import JsonEnvelope\nprint(JsonEnvelope.schema_version())\nPY`
 - Expect: prints a schema version string without import failures.
 
 **Done When**
@@ -137,7 +137,7 @@ Implement robust dotenv parsing with warning capture and full source-location tr
 
 **Files**
 
-- Create: `envdiff/parsers/dotenv.py`
+- Create: `src/parsers/dotenv.py`
 - Create: `tests/fixtures/dotenv/basic.env`
 - Create: `tests/fixtures/dotenv/duplicates.env`
 - Create: `tests/fixtures/dotenv/malformed.env`
@@ -159,7 +159,7 @@ Implement robust dotenv parsing with warning capture and full source-location tr
 
 - Run: `uv run pytest tests/test_dotenv.py -q`
 - Expect: dotenv parser tests pass.
-- Run: `uv run python - <<'PY'\nfrom envdiff.parsers.dotenv import parse_dotenv\nresult = parse_dotenv('tests/fixtures/dotenv/duplicates.env')\nprint(len(result.definitions), len(result.warnings))\nPY`
+- Run: `uv run python - <<'PY'\nfrom src.parsers.dotenv import parse_dotenv\nresult = parse_dotenv('tests/fixtures/dotenv/duplicates.env')\nprint(len(result.definitions), len(result.warnings))\nPY`
 - Expect: prints stable counts and does not crash.
 
 **Done When**
@@ -176,8 +176,8 @@ Infer required and optional env-variable usage from Python and Docker Compose so
 
 **Files**
 
-- Create: `envdiff/parsers/python_ast.py`
-- Create: `envdiff/parsers/compose.py`
+- Create: `src/parsers/python_ast.py`
+- Create: `src/parsers/compose.py`
 - Create: `tests/fixtures/python/sample_app.py`
 - Create: `tests/fixtures/python/unsupported.py`
 - Create: `tests/fixtures/compose/docker-compose.yml`
@@ -200,7 +200,7 @@ Infer required and optional env-variable usage from Python and Docker Compose so
 
 - Run: `uv run pytest tests/test_python_ast.py tests/test_compose.py -q`
 - Expect: both scanner suites pass.
-- Run: `uv run python - <<'PY'\nfrom envdiff.parsers.python_ast import scan_python_file\nprint(len(scan_python_file('tests/fixtures/python/sample_app.py').usages))\nPY`
+- Run: `uv run python - <<'PY'\nfrom src.parsers.python_ast import scan_python_file\nprint(len(scan_python_file('tests/fixtures/python/sample_app.py').usages))\nPY`
 - Expect: prints a stable usage count.
 
 **Done When**
@@ -217,8 +217,8 @@ Aggregate definitions and usages into contracts and make repo-local association 
 
 **Files**
 
-- Create: `envdiff/analyzers/scan.py`
-- Create: `envdiff/utils/paths.py`
+- Create: `src/analyzers/scan.py`
+- Create: `src/utils/paths.py`
 - Create: `tests/fixtures/repos/simple_repo/...`
 - Create: `tests/fixtures/repos/monorepo/...`
 - Create: `tests/test_scan.py`
@@ -240,7 +240,7 @@ Aggregate definitions and usages into contracts and make repo-local association 
 
 - Run: `uv run pytest tests/test_scan.py -q`
 - Expect: scan and resolution tests pass.
-- Run: `uv run python -m envdiff.cli scan tests/fixtures/repos/monorepo --json`
+- Run: `uv run python -m src.cli scan tests/fixtures/repos/monorepo --json`
 - Expect: exits `0` and emits stable JSON with contracts, locations, and resolution metadata.
 
 **Done When**
@@ -257,9 +257,9 @@ Ship the first fully user-visible command for file-to-file dotenv comparison in 
 
 **Files**
 
-- Create: `envdiff/analyzers/compare.py`
-- Create: `envdiff/render/human.py`
-- Modify: `envdiff/cli.py`
+- Create: `src/analyzers/compare.py`
+- Create: `src/render/human.py`
+- Modify: `src/cli.py`
 - Create: `tests/fixtures/compare/left.env`
 - Create: `tests/fixtures/compare/right.env`
 - Create: `tests/test_compare.py`
@@ -281,7 +281,7 @@ Ship the first fully user-visible command for file-to-file dotenv comparison in 
 
 - Run: `uv run pytest tests/test_compare.py -q`
 - Expect: compare tests pass.
-- Run: `uv run python -m envdiff.cli compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env --json`
+- Run: `uv run python -m src.cli compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env --json`
 - Expect: exits `0` and emits machine-readable compare results.
 
 **Done When**
@@ -298,8 +298,8 @@ Build repo-level validation on top of the scan contract model and emit structure
 
 **Files**
 
-- Create: `envdiff/analyzers/doctor.py`
-- Modify: `envdiff/cli.py`
+- Create: `src/analyzers/doctor.py`
+- Modify: `src/cli.py`
 - Create: `tests/fixtures/doctor/project/...`
 - Create: `tests/test_doctor.py`
 
@@ -320,9 +320,9 @@ Build repo-level validation on top of the scan contract model and emit structure
 
 - Run: `uv run pytest tests/test_doctor.py -q`
 - Expect: doctor tests pass.
-- Run: `uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --fail-on warning`
+- Run: `uv run python -m src.cli doctor tests/fixtures/doctor/project --fail-on warning`
 - Expect: exits `2` when warning-or-higher findings are present.
-- Run: `uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --json`
+- Run: `uv run python -m src.cli doctor tests/fixtures/doctor/project --json`
 - Expect: emits stable findings with codes, severities, and locations.
 
 **Done When**
@@ -339,7 +339,7 @@ Finish command wiring, regression coverage, and minimal user-facing documentatio
 
 **Files**
 
-- Modify: `envdiff/cli.py`
+- Modify: `src/cli.py`
 - Modify: `README.md`
 - Modify: `pyproject.toml`
 - Create: `tests/test_cli_smoke.py`
@@ -362,9 +362,9 @@ Finish command wiring, regression coverage, and minimal user-facing documentatio
 - Expect: full test suite passes.
 - Run: `uv run ruff check .`
 - Expect: exits `0`.
-- Run: `uv run python -m envdiff.cli --help`
+- Run: `uv run python -m src.cli --help`
 - Expect: exits `0`.
-- Run: `uv run python -m envdiff.cli scan tests/fixtures/repos/simple_repo --json`
+- Run: `uv run python -m src.cli scan tests/fixtures/repos/simple_repo --json`
 - Expect: exits `0` and emits stable JSON.
 
 **Done When**
@@ -390,13 +390,13 @@ Finish command wiring, regression coverage, and minimal user-facing documentatio
 
 | Requirement | Proof command | Expected signal |
 | --- | --- | --- |
-| CLI bootstrap works | `uv run python -m envdiff.cli --help` | Exit `0` and visible subcommand help |
+| CLI bootstrap works | `uv run python -m src.cli --help` | Exit `0` and visible subcommand help |
 | Shared models are importable and stable | `uv run pytest tests/test_models.py -q` | Model tests pass |
 | Dotenv parsing covers v1 syntax | `uv run pytest tests/test_dotenv.py -q` | Parser tests pass |
 | Python and Compose scanning infer requiredness | `uv run pytest tests/test_python_ast.py tests/test_compose.py -q` | Scanner tests pass |
 | Repo scan is deterministic and monorepo-aware | `uv run pytest tests/test_scan.py -q` | Scan tests pass |
-| Compare works in JSON mode | `uv run python -m envdiff.cli compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env --json` | Exit `0` and stable JSON output |
-| Doctor threshold behavior matches spec | `uv run python -m envdiff.cli doctor tests/fixtures/doctor/project --fail-on warning` | Exit `2` when warning-or-higher findings exist |
+| Compare works in JSON mode | `uv run python -m src.cli compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env --json` | Exit `0` and stable JSON output |
+| Doctor threshold behavior matches spec | `uv run python -m src.cli doctor tests/fixtures/doctor/project --fail-on warning` | Exit `2` when warning-or-higher findings exist |
 | Full Milestone A passes local quality gates | `uv run pytest -q && uv run ruff check .` | All tests pass and lint exits `0` |
 
 ## Handoff

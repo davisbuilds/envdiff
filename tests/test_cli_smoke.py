@@ -1,10 +1,24 @@
 from __future__ import annotations
 
+import subprocess
+
 from typer.testing import CliRunner
 
-from envdiff.cli import app
+from src.cli import app
 
 runner = CliRunner()
+
+
+def test_bin_launcher_help_smoke() -> None:
+    result = subprocess.run(
+        ["./bin/envdiff", "--help"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0
+    assert "Usage: envdiff" in result.stdout
 
 
 def test_cli_help_smoke() -> None:

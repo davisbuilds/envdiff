@@ -445,7 +445,9 @@ Suggested:
 envdiff/
 ├── pyproject.toml
 ├── README.md
-├── envdiff/
+├── bin/
+│   └── envdiff
+├── src/
 │   ├── cli.py
 │   ├── models.py
 │   ├── parsers/

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from envdiff.analyzers.generate import check_generated_example, generate_example_file
-from envdiff.analyzers.scan import scan_repository
+from src.analyzers.generate import check_generated_example, generate_example_file
+from src.analyzers.scan import scan_repository
 
 
 def test_generate_emits_referenced_contract_as_plain_dotenv() -> None:

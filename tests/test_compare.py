@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from envdiff.analyzers.compare import compare_dotenv_files
+from src.analyzers.compare import compare_dotenv_files
 
 
 def test_compare_dotenv_files_reports_missing_duplicates_and_kind_changes() -> None:
