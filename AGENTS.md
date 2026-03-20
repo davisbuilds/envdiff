@@ -1,6 +1,8 @@
 # AI Agent Guide
 
-This document is a guide for AI agents working on the envdiff project.
+Guidance for coding agents working in this repository.
+
+Deterministic CLI that scans repos for environment variable contracts, compares `.env` files, and flags mismatches.
 
 ## Project Structure
 
@@ -23,6 +25,28 @@ envdiff/
 │   └── plans/              # Implementation plans
 └── pyproject.toml
 ```
+
+## Key Files Reference
+
+| Purpose | Location |
+|---------|----------|
+| CLI entry point (Typer) | `src/cli.py` |
+| Shared data models and JSON envelope | `src/models.py` |
+| Repo scanner | `src/analyzers/scan.py` |
+| Environment comparison | `src/analyzers/compare.py` |
+| Health check / diagnostics | `src/analyzers/doctor.py` |
+| Config generation | `src/analyzers/generate.py` |
+| Cross-file matrix | `src/analyzers/matrix.py` |
+| Baseline analysis | `src/analyzers/baseline.py` |
+| Secrets detection | `src/analyzers/secrets.py` |
+| Dotenv parser | `src/parsers/dotenv.py` |
+| Python AST scanner | `src/parsers/python_ast.py` |
+| Docker Compose parser | `src/parsers/compose.py` |
+| GitHub Actions parser | `src/parsers/github_actions.py` |
+| Human-readable output | `src/render/human.py` |
+| JSON output | `src/render/json.py` |
+| CLI smoke tests | `tests/test_cli_smoke.py` |
+| Test fixtures (example repos) | `tests/fixtures/` |
 
 ## Key Commands
 
@@ -63,8 +87,13 @@ Ruff is configured with import sorting and modern-Python upgrade rules.
 - Treat JSON field names and finding codes as public contract.
 - When changing CLI behavior, update the docs in `docs/system/` at the same time.
 
-## Testing Expectations
+## Testing
 
+**Pre-push check**: Before pushing updates to the remote, run `uv run ruff check .` and `uv run pytest -q`.
+
+**TDD**: Use red/green TDD for new features and major changes.
+
+**Key patterns**:
 - Favor behavior-oriented tests over implementation-detail tests.
 - Use real fixture repos under `tests/fixtures/` instead of mocks where possible.
 - For parser work, add focused parser tests and at least one repo-scan integration test.
