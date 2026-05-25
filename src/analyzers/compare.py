@@ -55,4 +55,3 @@ def _latest_by_name(definitions) -> dict[str, object]:
     for definition in definitions:
         latest[definition.name] = definition
     return latest
-

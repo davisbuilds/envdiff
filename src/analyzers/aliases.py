@@ -92,4 +92,3 @@ def _jaccard(left: tuple[str, ...], right: tuple[str, ...]) -> float:
     if not union:
         return 0.0
     return len(left_set & right_set) / len(union)
-

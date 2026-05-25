@@ -43,8 +43,7 @@ def sort_findings(findings: Iterable[Finding]) -> tuple[Finding, ...]:
             finding.code,
             finding.variable_name or "",
             tuple(
-                (location.file_path, location.line_number or -1)
-                for location in finding.locations
+                (location.file_path, location.line_number or -1) for location in finding.locations
             ),
         ),
     )

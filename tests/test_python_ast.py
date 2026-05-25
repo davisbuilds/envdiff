@@ -17,4 +17,3 @@ def test_scan_python_file_ignores_dynamic_names() -> None:
     result = scan_python_file("tests/fixtures/python/unsupported.py")
 
     assert result.usages == ()
-

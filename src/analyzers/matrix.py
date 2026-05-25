@@ -48,9 +48,7 @@ def matrix_dotenv_files(
                 }
             )
 
-        inconsistent = (
-            len(missing_in) > 0 or len(kinds) > 1 or len(duplicates_in) > 0
-        )
+        inconsistent = len(missing_in) > 0 or len(kinds) > 1 or len(duplicates_in) > 0
         if inconsistent:
             inconsistent_count += 1
 
@@ -66,9 +64,7 @@ def matrix_dotenv_files(
         if show_all or inconsistent:
             variables.append(variable)
 
-    warnings = sorted(
-        warning for _, result in parsed for warning in result.warnings
-    )
+    warnings = sorted(warning for _, result in parsed for warning in result.warnings)
     return {
         "paths": list(normalized_paths),
         "show_all": show_all,

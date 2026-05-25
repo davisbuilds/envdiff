@@ -27,8 +27,7 @@ def doctor_repository(scan_result: RepoScanResult) -> tuple[Finding, ...]:
                     severity="warning",
                     title="Duplicate definition",
                     details=(
-                        f"{definition.name} is defined more than once in "
-                        f"{definition.file_path}."
+                        f"{definition.name} is defined more than once in {definition.file_path}."
                     ),
                     variable_name=definition.name,
                     locations=(

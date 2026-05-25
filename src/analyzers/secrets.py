@@ -54,8 +54,7 @@ def secret_and_placeholder_findings(scan_result: RepoScanResult) -> tuple[Findin
                         severity="warning",
                         title="Placeholder-like committed value",
                         details=(
-                            f"{definition.name} in {definition.file_path} uses a placeholder "
-                            "value."
+                            f"{definition.name} in {definition.file_path} uses a placeholder value."
                         ),
                         variable_name=definition.name,
                         locations=(
@@ -67,8 +66,7 @@ def secret_and_placeholder_findings(scan_result: RepoScanResult) -> tuple[Findin
                         confidence="low",
                         source_kind="heuristic",
                         reason=(
-                            "Common placeholder values in committed .env files "
-                            "are easy to miss."
+                            "Common placeholder values in committed .env files are easy to miss."
                         ),
                         suppression_key=(
                             f"placeholder:{definition.file_path}:{definition.line_number}:{definition.name}"

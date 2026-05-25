@@ -17,11 +17,7 @@ def generate_example_file(
     *,
     annotate: bool = False,
 ) -> dict[str, object]:
-    contracts = [
-        contract
-        for contract in scan_result.contracts
-        if "referenced" in contract.status
-    ]
+    contracts = [contract for contract in scan_result.contracts if "referenced" in contract.status]
     ordered_contracts = sorted(
         contracts,
         key=lambda contract: (
@@ -84,11 +80,7 @@ def _annotated_lines(contracts: list[EnvVarContract]) -> list[str]:
             lines.append(f"# {_label_for_requiredness(contract.requiredness)}")
 
         default_values = sorted(
-            {
-                usage.default_value
-                for usage in contract.usages
-                if usage.default_value is not None
-            }
+            {usage.default_value for usage in contract.usages if usage.default_value is not None}
         )
         if default_values:
             lines.append(f"# defaults in code: {', '.join(default_values)}")

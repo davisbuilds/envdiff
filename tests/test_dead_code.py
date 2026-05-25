@@ -78,9 +78,7 @@ def _iter_py_files(root: Path) -> list[Path]:
     if not root.exists():
         return []
     return sorted(
-        path
-        for path in root.rglob("*.py")
-        if not SKIP_DIR_NAMES.intersection(path.parts)
+        path for path in root.rglob("*.py") if not SKIP_DIR_NAMES.intersection(path.parts)
     )
 
 
@@ -223,9 +221,7 @@ def test_no_unused_public_symbols() -> None:
         return
 
     modules = _source_modules()
-    reference_files = sorted(
-        {p for d in REFERENCE_PY_DIRS for p in _iter_py_files(d)}
-    )
+    reference_files = sorted({p for d in REFERENCE_PY_DIRS for p in _iter_py_files(d)})
     loaded_by_file = {p: _loaded_names(p) for p in reference_files}
     text_corpus = "\n".join(
         f.read_text(encoding="utf-8") for f in REFERENCE_TEXT_FILES if f.exists()
@@ -250,8 +246,7 @@ def test_no_unused_public_symbols() -> None:
 
     if findings:
         report = "\n".join(
-            f"  {module}::{name}  ({path_line})"
-            for module, name, path_line in sorted(findings)
+            f"  {module}::{name}  ({path_line})" for module, name, path_line in sorted(findings)
         )
         raise AssertionError(
             f"Found {len(findings)} unused public symbol(s) referenced by no other "
@@ -264,9 +259,7 @@ def test_no_orphaned_modules() -> None:
         return
 
     modules = _source_modules()
-    importers = sorted(
-        {p for d in REFERENCE_PY_DIRS for p in _iter_py_files(d)}
-    )
+    importers = sorted({p for d in REFERENCE_PY_DIRS for p in _iter_py_files(d)})
     incoming: dict[str, int] = dict.fromkeys(modules, 0)
     for path in importers:
         for imported in _imported_modules(path, modules):

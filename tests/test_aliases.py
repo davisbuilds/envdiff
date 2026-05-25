@@ -13,4 +13,3 @@ def test_find_alias_candidates_detects_openai_key_drift() -> None:
 
     assert candidates
     assert candidates[0].candidate_name == "OPENAI_KEY"
-

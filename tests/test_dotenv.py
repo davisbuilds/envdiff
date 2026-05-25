@@ -29,4 +29,3 @@ def test_parse_dotenv_records_warnings_for_unsupported_syntax() -> None:
 
     assert len(result.warnings) == 1
     assert "unsupported dotenv syntax" in result.warnings[0]
-

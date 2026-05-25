@@ -97,9 +97,7 @@ def render_generate_result(
         return f"Generated output drifted from {check_path}"
 
     suffix = " with annotations" if annotate else ""
-    return (
-        f"Generated {variable_count} variables{suffix} to {output_path}"
-    )
+    return f"Generated {variable_count} variables{suffix} to {output_path}"
 
 
 def render_doctor_result(

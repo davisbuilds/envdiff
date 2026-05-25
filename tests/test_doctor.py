@@ -61,9 +61,7 @@ def test_doctor_repository_reports_missing_workflow_secret_references() -> None:
     findings = doctor_repository(scan_repository("tests/fixtures/repos/workflow_repo"))
 
     missing_names = {
-        finding.variable_name
-        for finding in findings
-        if finding.code in {"ENV001", "ENV002"}
+        finding.variable_name for finding in findings if finding.code in {"ENV001", "ENV002"}
     }
 
     assert missing_names == {"API_KEY", "DEPLOY_ENV"}
