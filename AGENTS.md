@@ -35,7 +35,7 @@ Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human
 
 ## Testing
 
-- **Pre-push**: `uv run ruff check .` and `uv run pytest -q`.
+- **Pre-push** (matches CI `.github/workflows/ci.yml`): `uv run ruff check .`, `uv run ruff format --check .`, and `uv run pytest -q`.
 - **TDD**: red/green for new features and major changes.
 - Favor behavior-oriented tests over implementation detail; use real fixture repos under `tests/fixtures/` instead of mocks.
 - For parser work add focused parser tests plus a repo-scan integration test; for CLI changes update `tests/test_cli_smoke.py`.
