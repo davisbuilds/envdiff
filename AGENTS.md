@@ -1,112 +1,50 @@
-# AI Agent Guide
+# AGENTS.md
 
-Guidance for coding agents working in this repository.
+`envdiff` is a deterministic CLI that scans repos for environment variable contracts,
+compares `.env` files, and flags mismatches. Local-first; no network in core analysis.
 
-Deterministic CLI that scans repos for environment variable contracts, compares `.env` files, and flags mismatches.
+## Documentation Map
 
-## Project Structure
+- `docs/system/ARCHITECTURE.md` — high-level flow, CLI/analyzer/parser/model/utils layers, directory map.
+- `docs/system/FEATURES.md` — supported inputs, command table, finding codes (ENV001–009), heuristics, output modes, deferred features.
+- `docs/system/OPERATIONS.md` — setup, runnable fixture repos, exit codes, constraints, implementation status.
+- `docs/system/JSON_SCHEMA.md` — JSON envelope contract.
+- `docs/system/FINDING_CODES.md` — finding-code reference.
+- `docs/project/SPEC.md` — problem framing and in/out scope.
+- `docs/project/ROADMAP.md` — shipped highlights and open items.
 
-```text
-envdiff/
-├── envdiff                 # Repo-local launcher wrapper
-├── src/                    # Application source code
-│   ├── analyzers/          # Contract analysis, compare, doctor, matrix, generate, baselines
-│   ├── parsers/            # Dotenv, Python AST, Compose, and GitHub Actions scanners
-│   ├── render/             # Human and JSON renderers
-│   ├── utils/              # Deterministic ordering, normalization, and path helpers
-│   ├── cli.py              # Typer CLI entry point
-│   └── models.py           # Shared Pydantic data models and JSON envelope
-├── tests/                  # Pytest suite
-│   └── fixtures/           # Runnable example repos and parser fixtures
-├── docs/
-│   ├── system/             # Architecture, features, operations, JSON schema, finding codes
-│   ├── project/            # Spec and roadmap
-│   ├── research/           # Market research
-│   └── plans/              # Implementation plans
-└── pyproject.toml
+## Command Quickstart
+
+```bash
+uv sync --extra dev                  # install deps + dev tools
+./envdiff --help                     # list all commands (or: uv run envdiff <cmd>)
+uv run pytest -q                     # tests
+uv run ruff check .                  # lint
 ```
 
-## Key Files Reference
-
-| Purpose | Location |
-|---------|----------|
-| CLI entry point (Typer) | `src/cli.py` |
-| Shared data models and JSON envelope | `src/models.py` |
-| Repo scanner | `src/analyzers/scan.py` |
-| Environment comparison | `src/analyzers/compare.py` |
-| Health check / diagnostics | `src/analyzers/doctor.py` |
-| Config generation | `src/analyzers/generate.py` |
-| Cross-file matrix | `src/analyzers/matrix.py` |
-| Baseline analysis | `src/analyzers/baseline.py` |
-| Secrets detection | `src/analyzers/secrets.py` |
-| Dotenv parser | `src/parsers/dotenv.py` |
-| Python AST scanner | `src/parsers/python_ast.py` |
-| Docker Compose parser | `src/parsers/compose.py` |
-| GitHub Actions parser | `src/parsers/github_actions.py` |
-| Human-readable output | `src/render/human.py` |
-| JSON output | `src/render/json.py` |
-| CLI smoke tests | `tests/test_cli_smoke.py` |
-| Test fixtures (example repos) | `tests/fixtures/` |
-
-## Key Commands
-
-The project uses `uv` for dependency management.
-
-- **Run CLI**: `./envdiff <command>` (or `uv run envdiff <command>`)
-- **Run Tests**: `uv run pytest -q`
-- **Lint**: `uv run ruff check .`
-- **Install**: `uv sync --extra dev`
+Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `src.cli:main` (Typer).
 
 ## Project Boundaries
 
-`envdiff` is a deterministic, repo-local env contract analyzer.
+`envdiff` is a deterministic, repo-local env contract analyzer — keep it that way.
 
-- Do not expand it into an env loader, injector, or secret distribution tool.
+- Don't expand it into an env loader, injector, or secret-distribution tool.
 - Keep analysis repo-local; user-shell startup files are out of scope.
 - Prefer conservative heuristics over aggressive recall.
-- Preserve stable JSON output and deterministic ordering across commands.
-
-## Development Patterns
-
-- **CLI entrypoint**: `src.cli:main` via Typer.
-- **Shared models**: `src.models` defines contracts, findings, envelopes, and baselines.
-- **Repo scan pipeline**: `src.analyzers.scan.scan_repository()`.
-- **Validation pipeline**: `src.analyzers.doctor.doctor_repository()`.
-- **Generation flow**: `src.analyzers.generate`.
-- **Comparison flows**: `src.analyzers.compare` and `src.analyzers.matrix`.
-- **Human output**: `src.render.human`.
-- **Machine output**: `src.render.json`.
-
-## Coding Conventions
-
-Ruff is configured with import sorting and modern-Python upgrade rules.
-
-- Use `from __future__ import annotations` in Python modules.
-- Keep ordering deterministic for findings, contracts, usages, and definitions.
-- Prefer explicit small helpers over broad abstraction layers.
-- Treat JSON field names and finding codes as public contract.
-- When changing CLI behavior, update the docs in `docs/system/` at the same time.
+- **Treat the JSON envelope, field names, and finding codes as a public contract**, and keep finding/contract ordering deterministic. When CLI behavior changes, update `docs/system/` in the same change.
 
 ## Testing
 
-**Pre-push check**: Before pushing updates to the remote, run `uv run ruff check .` and `uv run pytest -q`.
+- **Pre-push**: `uv run ruff check .` and `uv run pytest -q`.
+- **TDD**: red/green for new features and major changes.
+- Favor behavior-oriented tests over implementation detail; use real fixture repos under `tests/fixtures/` instead of mocks.
+- For parser work add focused parser tests plus a repo-scan integration test; for CLI changes update `tests/test_cli_smoke.py`.
 
-**TDD**: Use red/green TDD for new features and major changes.
+## Conventions Enforced Elsewhere
 
-**Key patterns**:
-- Favor behavior-oriented tests over implementation-detail tests.
-- Use real fixture repos under `tests/fixtures/` instead of mocks where possible.
-- For parser work, add focused parser tests and at least one repo-scan integration test.
-- For CLI changes, add or update smoke coverage in `tests/test_cli_smoke.py`.
+Ruff handles modern-Python style (import sorting, `from __future__ import annotations`, upgrade rules) — fix violations the linter flags rather than restating them here.
 
-## CLI Overview
+## Working Agreement
 
-Commands: `compare`, `scan`, `matrix`, `doctor`, `generate`.
-
-Notable workflows:
-- `./envdiff doctor . --fail-on warning`
-- `./envdiff generate . --check`
-- `./envdiff matrix path/to/a.env path/to/b.env`
-- `./envdiff scan . --json`
-
-See `docs/system/FEATURES.md`, `docs/system/JSON_SCHEMA.md`, and `docs/system/FINDING_CODES.md` for the public command and output contract.
+- **Push back before building.** If a request is incoherent or self-contradictory, or a spec/plan is vague or skips key decisions, stop and interview me — ask clarifying questions and confirm intent before writing code or changing files. Don't guess at scope or comply silently. (Clear, well-scoped requests don't need this.)
+- **Keep docs current.** After a significant change, PR, or completed spec/plan, update any now-stale reference docs under `docs/system/` (and `docs/project/ROADMAP.md`) so they match shipped behavior. Skip this for trivial changes.
