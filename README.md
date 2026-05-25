@@ -4,6 +4,34 @@
 
 It focuses on the gap between dotenv files, source code, and deployment-oriented config: what is required, what is defined, what is stale, and what looks suspicious.
 
+## Agent Setup
+
+New here? Paste the prompt below into your coding agent (Claude Code, Codex, etc.) and it will install, verify against the bundled fixtures, and tell you how to run it on a real repo.
+
+```text
+Set up the `envdiff` repo for me. It's a local-first CLI that analyzes a
+repository's environment-variable contract (compares .env files, scans code for env
+usage, flags mismatches). Python 3.11+, uv, Typer, Pydantic. It's fully local — no
+network, no secrets, no env config.
+
+Do this, in order:
+1. Install deps. Ensure `uv` is installed (https://astral.sh/uv); run
+   `uv sync --extra dev` from the repo root. Clone
+   git@github.com:davisbuilds/envdiff.git (or the https URL) and cd in first if
+   needed.
+2. Verify it runs against the bundled fixtures: `./envdiff --help`,
+   `uv run pytest -q`, `uv run ruff check .`, and a real scan
+   `./envdiff scan tests/fixtures/repos/simple_repo --json`. All should succeed
+   offline. If any fail, show me the error and stop.
+3. Report back: confirm help + tests + lint + sample scan worked, and give me the
+   command to run it on my own repo (e.g. `./envdiff scan <path-to-repo>` or
+   `./envdiff doctor <path>`).
+
+Don't commit anything.
+```
+
+Prefer to do it yourself? The manual steps are below.
+
 ## Current Features
 
 - `compare` for deterministic dotenv file comparison
