@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import subprocess
 
 from typer.testing import CliRunner
@@ -7,6 +8,10 @@ from typer.testing import CliRunner
 from src.cli import app
 
 runner = CliRunner()
+
+# Typer's Rich help splits styled spans with ANSI SGR codes (e.g. "Usage: " and
+# the program name land in different styles), so assert against stripped output.
+_ANSI_SGR_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 
 def test_bin_launcher_help_smoke() -> None:
@@ -18,7 +23,7 @@ def test_bin_launcher_help_smoke() -> None:
     )
 
     assert result.returncode == 0
-    assert "Usage: envdiff" in result.stdout
+    assert "Usage: envdiff" in _ANSI_SGR_RE.sub("", result.stdout)
 
 
 def test_cli_help_smoke() -> None:
