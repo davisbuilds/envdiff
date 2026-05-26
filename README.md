@@ -1,8 +1,8 @@
 # envdiff
 
-`envdiff` is a local-first CLI for analyzing a repository's environment contract.
-
-It focuses on the gap between dotenv files, source code, and deployment-oriented config: what is required, what is defined, what is stale, and what looks suspicious.
+Local-first CLI for analyzing a repository's environment-variable contract.
+`envdiff` compares dotenv files, source-code usage, and deployment-oriented
+configuration to show what is required, defined, stale, suspicious, or missing.
 
 ## Agent Setup
 
@@ -32,34 +32,35 @@ Don't commit anything.
 
 Prefer to do it yourself? The manual steps are below.
 
-## Current Features
+## What It Does
 
-- `compare` for deterministic dotenv file comparison
-- `generate` for safe `.env.example` candidate generation
-- `matrix` for deterministic multi-file dotenv comparison
-- `scan` for repo-local env usage and definition analysis
-- `doctor` for contract validation and findings
-- stable JSON output for automation and agent use
-- nearest `.env` / `.env.example` resolution for repo-local and monorepo layouts
-- GitHub Actions workflow expression scanning for `secrets.*` and `vars.*`
-- conservative alias, secret-like, and placeholder-like heuristics
-- baseline snapshots and ignore-based suppression for incremental adoption
+- Compares dotenv files deterministically with `compare`.
+- Generates safe `.env.example` candidates with `generate`.
+- Builds multi-file dotenv matrices with `matrix`.
+- Scans repos for environment usage and definitions with `scan`.
+- Validates environment contracts and findings with `doctor`.
+- Emits stable JSON output for automation and agent workflows.
+- Resolves nearest `.env` and `.env.example` files for repo and monorepo layouts.
+- Scans GitHub Actions expressions for `secrets.*` and `vars.*`.
+- Flags alias, secret-like, placeholder-like, baseline, and suppression patterns.
 
-## Tech Stack
+## Quick Start
 
-- Python 3.11+
-- `uv` for dependency and environment management
-- Typer for the CLI
-- Pydantic for shared models
-- Rich-compatible human rendering plus deterministic JSON output
+Requirements:
 
-## Setup
+- Python `3.11+`
+- `uv`
 
 ```bash
 uv sync --extra dev
+./envdiff --help
+./envdiff scan tests/fixtures/repos/simple_repo --json
 ```
 
-## Usage
+The repo includes `./envdiff` as a local launcher, so development commands do
+not need `uv run envdiff ...`.
+
+## Common Commands
 
 ```bash
 ./envdiff compare tests/fixtures/compare/left.env tests/fixtures/compare/right.env
@@ -69,33 +70,41 @@ uv sync --extra dev
 ./envdiff scan tests/fixtures/repos/workflow_repo --json
 ./envdiff scan tests/fixtures/repos/simple_repo --json
 ./envdiff doctor tests/fixtures/doctor/project --fail-on warning
+
+uv run pytest -q
+uv run ruff check .
+uv run ruff format --check .
 ```
 
-The repo includes `./envdiff` as a local launcher, so you do not need to type
-`uv run envdiff ...` during development. The fixture repos under
-`tests/fixtures/` are intentionally runnable examples for local inspection.
+Fixture repos under `tests/fixtures/` are intentionally runnable examples for
+local inspection.
 
-## Project Structure
+## Output Contracts
+
+- Human output is optimized for local review.
+- JSON output is deterministic and intended for automation.
+- Finding codes and severity are treated as public contracts.
+- Baseline snapshots and ignore suppressions are stable adoption tools.
+
+See [docs/system/JSON_SCHEMA.md](docs/system/JSON_SCHEMA.md) and
+[docs/system/FINDING_CODES.md](docs/system/FINDING_CODES.md) before changing
+machine-readable output or finding semantics.
+
+## Code Layout
 
 ```text
-envdiff/
-├── docs/
-│   ├── plans/
-│   ├── project/
-│   ├── research/
-│   └── system/
-├── envdiff
-├── src/
-│   ├── analyzers/
-│   ├── parsers/
-│   ├── render/
-│   └── utils/
-├── tests/
-└── pyproject.toml
+src/analyzers/       repo and contract analyzers
+src/parsers/         dotenv, source, and workflow parsers
+src/render/          human and JSON renderers
+src/utils/           shared utility code
+tests/               pytest suite and fixture repos
+docs/                system, project, research, and plan docs
+envdiff              local launcher
 ```
 
 ## Documentation
 
+- Agent guidance: [AGENTS.md](AGENTS.md)
 - Architecture and code organization: [docs/system/ARCHITECTURE.md](docs/system/ARCHITECTURE.md)
 - Current capabilities and finding surface: [docs/system/FEATURES.md](docs/system/FEATURES.md)
 - JSON contract reference: [docs/system/JSON_SCHEMA.md](docs/system/JSON_SCHEMA.md)
@@ -108,7 +117,7 @@ envdiff/
 
 ## Current Boundaries
 
-- repo-local analysis only
-- no shell startup file parsing
-- no env loading or injection
-- no secret manager integration
+- Repo-local analysis only.
+- No shell startup file parsing.
+- No env loading or injection.
+- No secret manager integration.
