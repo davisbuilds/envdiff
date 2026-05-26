@@ -27,3 +27,24 @@ Stable finding-code reference for `envdiff doctor`.
 - `severity` is part of the public contract.
 - Heuristic findings include `reason`, `confidence`, and `source_kind`.
 - `suppression_key` is the stable identifier for ignore files and baseline snapshots.
+
+## Code Change Procedure
+
+Finding codes are a public contract. Baselines, ignore files, and CI policies can
+key on them.
+
+- Do not reuse a code for a different meaning.
+- Prefer adding a new code over changing the meaning of an existing code.
+- Changing severity is a compatibility change; update docs and tests in the same
+  commit.
+- If a suppression key format changes, document the migration path because existing
+  baselines and ignore files may stop suppressing findings.
+
+When adding or changing a finding:
+
+1. Update the analyzer that emits it.
+2. Update this file and `docs/system/FEATURES.md`.
+3. Add focused analyzer tests and a CLI smoke test when user-visible output changes.
+4. Keep finding ordering deterministic through `src/utils/ordering.py`.
+5. Run the full local gate: `uv run ruff check .`, `uv run ruff format --check .`,
+   and `uv run pytest -q`.

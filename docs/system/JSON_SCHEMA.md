@@ -136,3 +136,37 @@ Each `variables[]` entry includes:
 - New fields may be added in a future schema version.
 - Existing fields in schema version `1` should be treated as stable.
 - Consumers should key on `meta.command` and `meta.schema_version`.
+
+## Contract Change Procedure
+
+The JSON envelope is a public machine contract. Treat changes as compatibility work,
+not internal refactors.
+
+Schema version can stay the same when:
+
+- Adding optional fields that older consumers can ignore.
+- Adding a new command-specific `data` field without removing or renaming existing
+  fields.
+- Adding new warning strings while preserving existing structured fields.
+
+Bump `SCHEMA_VERSION` in `src/models.py` when:
+
+- Renaming or removing an existing field.
+- Changing a field's type or nullability.
+- Changing top-level envelope shape.
+- Changing deterministic ordering semantics.
+- Changing `summary`, `findings`, or `data` in a way an existing JSON consumer could
+  misinterpret.
+
+For any schema-affecting change:
+
+1. Update `src/models.py`.
+2. Update JSON rendering in `src/render/json.py` if needed.
+3. Update this file and affected command docs.
+4. Add or update tests in `tests/test_models.py`, `tests/test_cli_smoke.py`, and any
+   command-specific test that snapshots JSON shape.
+5. Run `uv run ruff check .`, `uv run ruff format --check .`, and
+   `uv run pytest -q`.
+
+Do not silently change field names to make human output cleaner. Human rendering and
+JSON rendering have different compatibility requirements.
