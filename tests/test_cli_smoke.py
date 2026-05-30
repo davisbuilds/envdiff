@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import re
+import runpy
 import subprocess
+import sys
 
+import pytest
 from typer.testing import CliRunner
 
+import src.cli as cli
 from src.cli import app
 
 runner = CliRunner()
@@ -53,6 +57,20 @@ def test_cli_compare_json_smoke() -> None:
     assert '"missing_in_left"' in result.stdout
 
 
+def test_cli_compare_human_smoke() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "compare",
+            "tests/fixtures/compare/left.env",
+            "tests/fixtures/compare/right.env",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Missing in left" in result.stdout
+
+
 def test_cli_scan_json_smoke() -> None:
     result = runner.invoke(
         app,
@@ -62,6 +80,13 @@ def test_cli_scan_json_smoke() -> None:
     assert result.exit_code == 0
     assert '"command": "scan"' in result.stdout
     assert '"contracts"' in result.stdout
+
+
+def test_cli_scan_human_smoke() -> None:
+    result = runner.invoke(app, ["scan", "tests/fixtures/repos/simple_repo"])
+
+    assert result.exit_code == 0
+    assert "Contracts: 3" in result.stdout
 
 
 def test_cli_matrix_json_smoke() -> None:
@@ -79,6 +104,28 @@ def test_cli_matrix_json_smoke() -> None:
     assert result.exit_code == 0
     assert '"command": "matrix"' in result.stdout
     assert '"inconsistent_variable_count"' in result.stdout
+
+
+def test_cli_matrix_human_smoke() -> None:
+    result = runner.invoke(
+        app,
+        [
+            "matrix",
+            "tests/fixtures/matrix/a.env",
+            "tests/fixtures/matrix/b.env",
+            "tests/fixtures/matrix/c.env",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Matrix files: 3" in result.stdout
+
+
+def test_cli_matrix_rejects_single_path() -> None:
+    result = runner.invoke(app, ["matrix", "tests/fixtures/matrix/a.env"])
+
+    assert result.exit_code != 0
+    assert "matrix requires at least two dotenv files" in result.output
 
 
 def test_cli_generate_stdout_smoke() -> None:
@@ -216,3 +263,120 @@ def test_cli_doctor_baseline_suppresses_findings(tmp_path) -> None:
     assert second.exit_code == 0
     assert "Findings: 0" in second.stdout
     assert "No active findings." in second.stdout
+
+
+def test_cli_doctor_json_reports_suppression_metadata(tmp_path) -> None:
+    baseline_path = tmp_path / "doctor-baseline.json"
+    ignore_path = tmp_path / ".envdiffignore"
+    write_result = runner.invoke(
+        app,
+        [
+            "doctor",
+            "tests/fixtures/doctor/project",
+            "--write-baseline",
+            str(baseline_path),
+        ],
+    )
+    assert write_result.exit_code == 0
+    ignore_path.write_text("missing:does-not-match:VALUE\n", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "doctor",
+            "tests/fixtures/doctor/project",
+            "--baseline",
+            str(baseline_path),
+            "--ignore-file",
+            str(ignore_path),
+            "--json",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert '"command": "doctor"' in result.stdout
+    assert '"baseline_entries"' in result.stdout
+    assert '"suppressed_findings"' in result.stdout
+
+
+def test_cli_doctor_uses_default_ignore_file(tmp_path) -> None:
+    project = tmp_path / "project"
+    app_dir = project / "app"
+    app_dir.mkdir(parents=True)
+    (project / ".env").write_text("", encoding="utf-8")
+    (project / ".env.example").write_text("API_KEY=\n", encoding="utf-8")
+    (project / ".envdiffignore").write_text(
+        f"missing:{app_dir / 'main.py'}:API_KEY\n",
+        encoding="utf-8",
+    )
+    (app_dir / "main.py").write_text('import os\nos.environ["API_KEY"]\n', encoding="utf-8")
+
+    result = runner.invoke(app, ["doctor", str(project), "--json"])
+
+    assert result.exit_code == 0
+    assert '"ignore_file":' in result.stdout
+    assert '"error": 0' in result.stdout
+
+
+def test_cli_doctor_fail_on_info_exits_for_info_only_findings(tmp_path) -> None:
+    project = tmp_path / "project"
+    project.mkdir()
+    (project / ".env").write_text("STALE=value\n", encoding="utf-8")
+
+    result = runner.invoke(app, ["doctor", str(project), "--fail-on", "info"])
+
+    assert result.exit_code == 2
+    assert "ENV003 STALE" in result.stdout
+
+
+def test_cli_generate_check_json_includes_check_result(tmp_path) -> None:
+    project = tmp_path / "project"
+    app_dir = project / "app"
+    app_dir.mkdir(parents=True)
+    (project / ".env").write_text("DATABASE_URL=postgres://localhost/db\n", encoding="utf-8")
+    (project / ".env.example").write_text("", encoding="utf-8")
+    (app_dir / "main.py").write_text(
+        'import os\n\ndatabase_url = os.environ["DATABASE_URL"]\n',
+        encoding="utf-8",
+    )
+    target_path = tmp_path / "generated.env.example"
+    target_path.write_text("DATABASE_URL=\n", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        ["generate", str(project), "--check", "--output", str(target_path), "--json"],
+    )
+
+    assert result.exit_code == 0
+    assert '"check": {' in result.stdout
+    assert '"matches": true' in result.stdout
+
+
+def test_should_fail_rejects_unknown_threshold() -> None:
+    result = runner.invoke(
+        app,
+        ["doctor", "tests/fixtures/doctor/project", "--fail-on", "debug"],
+    )
+
+    assert result.exit_code != 0
+    assert "fail-on must be one of" in result.output
+
+
+def test_main_invokes_typer_app(monkeypatch) -> None:
+    calls = []
+
+    monkeypatch.setattr(cli, "app", lambda: calls.append("called"))
+
+    cli.main()
+
+    assert calls == ["called"]
+
+
+def test_module_entrypoint_invokes_main(monkeypatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["envdiff", "--help"])
+
+    with pytest.warns(RuntimeWarning, match="'src.cli' found in sys.modules"):
+        try:
+            runpy.run_module("src.cli", run_name="__main__")
+        except SystemExit as exc:
+            assert exc.code == 0

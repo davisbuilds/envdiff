@@ -11,6 +11,7 @@ from src.analyzers.baseline import (
 )
 from src.analyzers.doctor import doctor_repository
 from src.analyzers.scan import scan_repository
+from src.models import Finding
 
 
 def test_baseline_snapshot_round_trip(tmp_path) -> None:
@@ -46,3 +47,18 @@ def test_load_ignore_keys_skips_comments_and_blank_lines(tmp_path) -> None:
     keys = load_ignore_keys(ignore_file)
 
     assert keys == {"missing:foo:BAR", "alias:OPENAI_API_KEY:OPENAI_KEY"}
+
+
+def test_baseline_snapshot_omits_findings_without_suppression_keys() -> None:
+    snapshot = build_baseline_snapshot(
+        (
+            Finding(
+                code="ENV999",
+                severity="info",
+                title="No suppression",
+                details="Finding is intentionally not suppressible.",
+            ),
+        )
+    )
+
+    assert snapshot.entries == ()

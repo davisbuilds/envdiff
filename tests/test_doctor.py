@@ -1,7 +1,10 @@
 from __future__ import annotations
 
-from src.analyzers.doctor import doctor_repository
+from collections import defaultdict
+
+from src.analyzers.doctor import _skew_findings, doctor_repository
 from src.analyzers.scan import scan_repository
+from src.models import EnvVarDefinition, RepoScanResult, ResolutionDecision
 
 
 def test_doctor_repository_emits_core_findings() -> None:
@@ -65,3 +68,66 @@ def test_doctor_repository_reports_missing_workflow_secret_references() -> None:
     }
 
     assert missing_names == {"API_KEY", "DEPLOY_ENV"}
+
+
+def test_doctor_repository_reports_missing_usage_without_associated_env(tmp_path) -> None:
+    app_file = tmp_path / "main.py"
+    app_file.write_text('import os\nos.environ["API_KEY"]\n', encoding="utf-8")
+
+    findings = doctor_repository(scan_repository(tmp_path))
+
+    missing = next(finding for finding in findings if finding.code == "ENV001")
+    assert missing.variable_name == "API_KEY"
+    assert "no associated .env defines it" in missing.details
+
+
+def test_doctor_repository_deduplicates_alias_findings_for_repeated_missing_usage(
+    tmp_path,
+) -> None:
+    app_file = tmp_path / "main.py"
+    (tmp_path / ".env").write_text("OPENAI_KEY=sk-test\n", encoding="utf-8")
+    app_file.write_text(
+        'import os\nos.environ["OPENAI_API_KEY"]\nos.environ["OPENAI_API_KEY"]\n',
+        encoding="utf-8",
+    )
+
+    findings = doctor_repository(scan_repository(tmp_path))
+
+    alias_findings = [finding for finding in findings if finding.code == "ENV007"]
+    assert len(alias_findings) == 1
+    assert alias_findings[0].related_variables == ("OPENAI_KEY",)
+
+
+def test_template_skew_findings_skip_keys_already_seen() -> None:
+    env_file = "/repo/.env"
+    example_file = "/repo/.env.example"
+    definition = EnvVarDefinition(
+        name="STALE",
+        value="",
+        normalized_value_kind="placeholder",
+        file_path=example_file,
+        line_number=1,
+        source_type="dotenv",
+    )
+    definitions_by_file = defaultdict(list, {env_file: [], example_file: [definition]})
+    associated_usage_names = defaultdict(set)
+    seen = {("ENV005", "STALE", example_file)}
+    scan_result = RepoScanResult(
+        root_path="/repo",
+        resolutions=(
+            ResolutionDecision(
+                source_file="/repo/app.py",
+                env_file=env_file,
+                example_file=example_file,
+            ),
+        ),
+    )
+
+    findings = _skew_findings(
+        scan_result,
+        definitions_by_file,
+        associated_usage_names,
+        seen,
+    )
+
+    assert findings == []

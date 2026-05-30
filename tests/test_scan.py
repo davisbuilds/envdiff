@@ -47,3 +47,19 @@ def test_scan_repository_includes_github_actions_workflow_usages() -> None:
     assert workflow_resolution.example_file.endswith(
         "tests/fixtures/repos/workflow_repo/.env.example"
     )
+
+
+def test_scan_repository_includes_compose_usages_and_missing_env_note(tmp_path) -> None:
+    compose_file = tmp_path / "docker-compose.yml"
+    compose_file.write_text(
+        "services:\n  api:\n    image: example\n    environment:\n"
+        "      DATABASE_URL: ${DATABASE_URL}\n",
+        encoding="utf-8",
+    )
+
+    result = scan_repository(tmp_path)
+
+    assert [usage.name for usage in result.usages] == ["DATABASE_URL"]
+    assert result.resolutions[0].source_file == str(compose_file)
+    assert result.resolutions[0].env_file is None
+    assert result.resolutions[0].notes == ("no associated dotenv files found",)
