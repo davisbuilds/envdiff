@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -11,12 +12,10 @@ def iter_repo_files(root: str | Path, ignore_dirs: Iterable[str] | None = None) 
     ignored = set(ignore_dirs or DEFAULT_IGNORED_DIRS)
     files: list[Path] = []
 
-    for path in root_path.rglob("*"):
-        relative_parts = path.relative_to(root_path).parts
-        if any(part in ignored for part in relative_parts):
-            continue
-        if path.is_file():
-            files.append(path)
+    for dirpath, dirnames, filenames in os.walk(root_path):
+        dirnames[:] = sorted(dirname for dirname in dirnames if dirname not in ignored)
+        current_dir = Path(dirpath)
+        files.extend(current_dir / filename for filename in filenames)
 
     return tuple(sorted(files))
 
