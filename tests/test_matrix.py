@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from src.analyzers.matrix import matrix_dotenv_files
+from envdiff.analyzers.matrix import matrix_dotenv_files
 
 FIXTURE_PATHS = (
     "tests/fixtures/matrix/a.env",

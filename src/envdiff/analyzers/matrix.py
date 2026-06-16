@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from src.parsers.dotenv import parse_dotenv
+from envdiff.parsers.dotenv import parse_dotenv
 
 
 def matrix_dotenv_files(

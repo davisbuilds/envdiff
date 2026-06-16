@@ -3,13 +3,13 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
-from src.models import EnvVarContract, RepoScanResult, ResolutionDecision
-from src.parsers.compose import scan_compose_file
-from src.parsers.dotenv import parse_dotenv
-from src.parsers.github_actions import scan_github_actions_file
-from src.parsers.python_ast import scan_python_file
-from src.utils.ordering import sort_contracts, sort_definitions, sort_usages
-from src.utils.paths import find_nearest_named_file, iter_repo_files
+from envdiff.models import EnvVarContract, RepoScanResult, ResolutionDecision
+from envdiff.parsers.compose import scan_compose_file
+from envdiff.parsers.dotenv import parse_dotenv
+from envdiff.parsers.github_actions import scan_github_actions_file
+from envdiff.parsers.python_ast import scan_python_file
+from envdiff.utils.ordering import sort_contracts, sort_definitions, sort_usages
+from envdiff.utils.paths import find_nearest_named_file, iter_repo_files
 
 COMPOSE_FILENAMES = {"docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"}
 

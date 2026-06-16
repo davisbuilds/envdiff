@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from src.analyzers.doctor import _skew_findings, doctor_repository
-from src.analyzers.scan import scan_repository
-from src.models import EnvVarDefinition, RepoScanResult, ResolutionDecision
+from envdiff.analyzers.doctor import _skew_findings, doctor_repository
+from envdiff.analyzers.scan import scan_repository
+from envdiff.models import EnvVarDefinition, RepoScanResult, ResolutionDecision
 
 
 def test_doctor_repository_emits_core_findings() -> None:

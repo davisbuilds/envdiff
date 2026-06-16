@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from src.models import EnvVarContract, EnvVarDefinition, EnvVarUsage, Finding, RepoScanResult
-from src.render.human import (
+from envdiff.models import EnvVarContract, EnvVarDefinition, EnvVarUsage, Finding, RepoScanResult
+from envdiff.render.human import (
     render_compare_result,
     render_doctor_result,
     render_generate_result,

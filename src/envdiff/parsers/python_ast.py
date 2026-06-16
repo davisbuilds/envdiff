@@ -3,8 +3,8 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from src.models import EnvVarUsage, UsageScanResult
-from src.utils.ordering import sort_usages
+from envdiff.models import EnvVarUsage, UsageScanResult
+from envdiff.utils.ordering import sort_usages
 
 
 class _PythonEnvVisitor(ast.NodeVisitor):

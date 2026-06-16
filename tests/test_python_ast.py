@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from src.parsers.python_ast import scan_python_file
+from envdiff.parsers.python_ast import scan_python_file
 
 
 def test_scan_python_file_detects_required_and_optional_usage() -> None:

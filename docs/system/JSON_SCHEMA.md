@@ -149,7 +149,7 @@ Schema version can stay the same when:
   fields.
 - Adding new warning strings while preserving existing structured fields.
 
-Bump `SCHEMA_VERSION` in `src/models.py` when:
+Bump `SCHEMA_VERSION` in `src/envdiff/models.py` when:
 
 - Renaming or removing an existing field.
 - Changing a field's type or nullability.
@@ -160,8 +160,8 @@ Bump `SCHEMA_VERSION` in `src/models.py` when:
 
 For any schema-affecting change:
 
-1. Update `src/models.py`.
-2. Update JSON rendering in `src/render/json.py` if needed.
+1. Update `src/envdiff/models.py`.
+2. Update JSON rendering in `src/envdiff/render/json.py` if needed.
 3. Update this file and affected command docs.
 4. Add or update tests in `tests/test_models.py`, `tests/test_cli_smoke.py`, and any
    command-specific test that snapshots JSON shape.

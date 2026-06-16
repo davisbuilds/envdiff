@@ -14,7 +14,7 @@ The current implementation is intentionally local-first and deterministic. There
 
 ## CLI Layer
 
-`src/cli.py` exposes the current command surface:
+`src/envdiff/cli.py` exposes the current command surface:
 
 ```text
 compare, generate, matrix, scan, doctor
@@ -24,7 +24,7 @@ Each command supports a human-oriented terminal rendering path and a stable JSON
 
 ## Analyzer Layer
 
-`src/analyzers/` contains the main product logic:
+`src/envdiff/analyzers/` contains the main product logic:
 
 - `compare.py`: dotenv file-to-file comparison
 - `generate.py`: inferred `.env.example` generation and drift checks
@@ -36,7 +36,7 @@ Each command supports a human-oriented terminal rendering path and a stable JSON
 
 ## Parser Layer
 
-`src/parsers/` contains the currently supported input surface:
+`src/envdiff/parsers/` contains the currently supported input surface:
 
 - `dotenv.py`: `.env` and `.env.example` parsing with duplicate preservation and warnings
 - `python_ast.py`: `os.environ[...]` and `os.getenv(...)`
@@ -45,7 +45,7 @@ Each command supports a human-oriented terminal rendering path and a stable JSON
 
 ## Model Layer
 
-`src/models.py` defines the shared data contract:
+`src/envdiff/models.py` defines the shared data contract:
 
 - `EnvVarDefinition`
 - `EnvVarUsage`
@@ -58,7 +58,7 @@ The JSON envelope is versioned and intended to remain a stable machine contract.
 
 ## Utilities
 
-`src/utils/` provides deterministic helpers for:
+`src/envdiff/utils/` provides deterministic helpers for:
 
 - value normalization
 - stable ordering
@@ -69,10 +69,10 @@ The JSON envelope is versioned and intended to remain a stable machine contract.
 
 ```text
 envdiff                    # Local launcher wrapper
-src/analyzers/             # Comparison, scan, doctor, alias, and secret logic
-src/parsers/               # Dotenv, Python AST, Compose, and GitHub Actions scanners
-src/render/                # Human and JSON renderers
-src/utils/                 # Ordering, normalization, and path helpers
+src/envdiff/analyzers/             # Comparison, scan, doctor, alias, and secret logic
+src/envdiff/parsers/               # Dotenv, Python AST, Compose, and GitHub Actions scanners
+src/envdiff/render/                # Human and JSON renderers
+src/envdiff/utils/                 # Ordering, normalization, and path helpers
 tests/fixtures/            # Runnable example repos and file fixtures
 docs/system/               # Architecture, features, operations
                            # JSON contract and finding-code references

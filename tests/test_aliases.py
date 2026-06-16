@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from src.analyzers.aliases import _jaccard, canonical_name, find_alias_candidates
+from envdiff.analyzers.aliases import _jaccard, canonical_name, find_alias_candidates
 
 
 def test_canonical_name_expands_common_alias_forms() -> None:

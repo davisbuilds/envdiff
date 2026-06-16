@@ -7,7 +7,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from src.utils.paths import iter_repo_files
+from envdiff.utils.paths import iter_repo_files
 
 
 def main() -> None:

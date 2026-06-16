@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from src.models import JsonEnvelope
+from envdiff.models import JsonEnvelope
 
 
 def render_json(envelope: JsonEnvelope) -> str:

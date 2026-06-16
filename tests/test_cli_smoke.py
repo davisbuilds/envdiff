@@ -8,8 +8,8 @@ import sys
 import pytest
 from typer.testing import CliRunner
 
-import src.cli as cli
-from src.cli import app
+import envdiff.cli as cli
+from envdiff.cli import app
 
 runner = CliRunner()
 
@@ -375,8 +375,8 @@ def test_main_invokes_typer_app(monkeypatch) -> None:
 def test_module_entrypoint_invokes_main(monkeypatch) -> None:
     monkeypatch.setattr(sys, "argv", ["envdiff", "--help"])
 
-    with pytest.warns(RuntimeWarning, match="'src.cli' found in sys.modules"):
+    with pytest.warns(RuntimeWarning, match="'envdiff.cli' found in sys.modules"):
         try:
-            runpy.run_module("src.cli", run_name="__main__")
+            runpy.run_module("envdiff.cli", run_name="__main__")
         except SystemExit as exc:
             assert exc.code == 0

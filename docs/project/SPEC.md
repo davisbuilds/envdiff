@@ -448,21 +448,22 @@ envdiff/
 ├── bin/
 │   └── envdiff
 ├── src/
-│   ├── cli.py
-│   ├── models.py
-│   ├── parsers/
-│   │   ├── dotenv.py
-│   │   ├── python_ast.py
-│   │   └── compose.py
-│   ├── analyzers/
-│   │   ├── compare.py
-│   │   ├── scan.py
-│   │   ├── doctor.py
-│   │   └── aliases.py
-│   ├── render/
-│   │   ├── human.py
-│   │   └── json.py
-│   └── utils/
+│   └── envdiff/
+│       ├── cli.py
+│       ├── models.py
+│       ├── parsers/
+│       │   ├── dotenv.py
+│       │   ├── python_ast.py
+│       │   └── compose.py
+│       ├── analyzers/
+│       │   ├── compare.py
+│       │   ├── scan.py
+│       │   ├── doctor.py
+│       │   └── aliases.py
+│       ├── render/
+│       │   ├── human.py
+│       │   └── json.py
+│       └── utils/
 │       ├── entropy.py
 │       ├── normalize.py
 │       └── paths.py

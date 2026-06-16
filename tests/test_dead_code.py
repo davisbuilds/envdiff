@@ -37,11 +37,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 # Where first-party source lives, and the base directory module names are
-# computed against. For a `src/`-as-package layout these differ from a
-# `src/<pkg>/` layout — keep them in sync with the import style used in code.
-SRC_DIR = ROOT / "src"
-MODULE_BASE = ROOT  # module names are relative to here -> "src.analyzers.scan"
-IMPORT_ROOT = "src"  # first-party import prefix
+# computed against. Keep these in sync with the src-layout package import style.
+SRC_DIR = ROOT / "src" / "envdiff"
+MODULE_BASE = ROOT / "src"  # module names are relative to here -> "envdiff.analyzers.scan"
+IMPORT_ROOT = "envdiff"  # first-party import prefix
 
 # Directories scanned for *references* in addition to source: any place a
 # symbol might legitimately be used. .py files are parsed (AST); other globs
@@ -53,7 +52,7 @@ SKIP_DIR_NAMES = {"__pycache__", ".venv", ".git", ".mypy_cache", ".ruff_cache"}
 
 # Modules invoked via console-scripts / frameworks, never imported by name.
 MODULE_EXCEPTIONS = {
-    "src.cli",  # console_scripts entry point (src.cli:main)
+    "envdiff.cli",  # console_scripts entry point (envdiff.cli:main)
 }
 
 # Public symbols intentionally unreferenced internally (external API, reflection,
@@ -164,7 +163,7 @@ def _resolve_import_from(
 
 def _imported_modules(path: Path, modules: dict[str, Path]) -> set[str]:
     tree = ast.parse(path.read_text(encoding="utf-8"))
-    current_module = _module_name(path)
+    current_module = _module_name(path) if path.is_relative_to(MODULE_BASE) else ""
     is_package_module = path.name == "__init__.py"
     imported: set[str] = set()
 

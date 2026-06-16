@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from src.analyzers.scan import scan_repository
-from src.analyzers.secrets import secret_and_placeholder_findings
+from envdiff.analyzers.scan import scan_repository
+from envdiff.analyzers.secrets import secret_and_placeholder_findings
 
 
 def test_secret_and_placeholder_findings_detect_expected_values() -> None:

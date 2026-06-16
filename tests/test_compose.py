@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from src.parsers.compose import scan_compose_file
+from envdiff.parsers.compose import scan_compose_file
 
 
 def test_scan_compose_file_detects_required_and_defaulted_values() -> None:

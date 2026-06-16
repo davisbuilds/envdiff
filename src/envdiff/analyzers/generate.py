@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from src.models import EnvVarContract, RepoScanResult
+from envdiff.models import EnvVarContract, RepoScanResult
 
 REQUIREDNESS_ORDER = {
     "required": 0,

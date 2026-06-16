@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from src.parsers.github_actions import scan_github_actions_file
+from envdiff.parsers.github_actions import scan_github_actions_file
 
 
 def test_scan_github_actions_file_extracts_secret_and_var_references() -> None:

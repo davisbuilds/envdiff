@@ -22,7 +22,7 @@ uv run pytest -q                     # tests
 uv run ruff check .                  # lint
 ```
 
-Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `src.cli:main` (Typer).
+Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `envdiff.cli:main` (Typer).
 
 ## Project Boundaries
 

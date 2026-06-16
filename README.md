@@ -93,10 +93,10 @@ machine-readable output or finding semantics.
 ## Code Layout
 
 ```text
-src/analyzers/       repo and contract analyzers
-src/parsers/         dotenv, source, and workflow parsers
-src/render/          human and JSON renderers
-src/utils/           shared utility code
+src/envdiff/analyzers/       repo and contract analyzers
+src/envdiff/parsers/         dotenv, source, and workflow parsers
+src/envdiff/render/          human and JSON renderers
+src/envdiff/utils/           shared utility code
 tests/               pytest suite and fixture repos
 docs/                system, project, research, and plan docs
 envdiff              local launcher

@@ -45,6 +45,6 @@ When adding or changing a finding:
 1. Update the analyzer that emits it.
 2. Update this file and `docs/system/FEATURES.md`.
 3. Add focused analyzer tests and a CLI smoke test when user-visible output changes.
-4. Keep finding ordering deterministic through `src/utils/ordering.py`.
+4. Keep finding ordering deterministic through `src/envdiff/utils/ordering.py`.
 5. Run the full local gate: `uv run ruff check .`, `uv run ruff format --check .`,
    and `uv run pytest -q`.

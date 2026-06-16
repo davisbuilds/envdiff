@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from src.models import BaselineEntry, BaselineSnapshot, Finding
+from envdiff.models import BaselineEntry, BaselineSnapshot, Finding
 
 
 def build_baseline_snapshot(findings: tuple[Finding, ...]) -> BaselineSnapshot:

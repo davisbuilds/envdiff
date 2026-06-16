@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from src.utils.normalize import _is_int, is_placeholder, normalize_value_kind
-from src.utils.paths import find_nearest_named_file, iter_repo_files
+from envdiff.utils.normalize import _is_int, is_placeholder, normalize_value_kind
+from envdiff.utils.paths import find_nearest_named_file, iter_repo_files
 
 
 def test_normalize_value_kind_classifies_signed_numbers_and_placeholders() -> None:

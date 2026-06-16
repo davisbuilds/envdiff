@@ -3,9 +3,9 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from src.models import DotenvParseResult, EnvVarDefinition
-from src.utils.normalize import normalize_value_kind
-from src.utils.ordering import sort_definitions
+from envdiff.models import DotenvParseResult, EnvVarDefinition
+from envdiff.utils.normalize import normalize_value_kind
+from envdiff.utils.ordering import sort_definitions
 
 KEY_VALUE_RE = re.compile(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$")
 

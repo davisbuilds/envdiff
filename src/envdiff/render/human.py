@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-from src.models import Finding, RepoScanResult
+from envdiff.models import Finding, RepoScanResult
 
 
 def render_compare_result(result: dict[str, object]) -> str:

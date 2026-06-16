@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from src.parsers.dotenv import parse_dotenv
+from envdiff.parsers.dotenv import parse_dotenv
 
 
 def test_parse_dotenv_preserves_duplicates_and_types() -> None:

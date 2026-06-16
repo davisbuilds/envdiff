@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import TypeVar
 
-from src.models import EnvVarContract, EnvVarDefinition, EnvVarUsage, Finding
+from envdiff.models import EnvVarContract, EnvVarDefinition, EnvVarUsage, Finding
 
 T = TypeVar("T")
 
