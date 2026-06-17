@@ -17,3 +17,6 @@ htmlcov/
 .DS_Store
 Thumbs.db
 ._*
+
+# Local-only archive (completed plans, research, sessions kept out of the public tree)
+**/archive/
