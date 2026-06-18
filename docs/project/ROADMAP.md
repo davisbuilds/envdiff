@@ -23,6 +23,7 @@ Go port (resolved items from the backlog):
 - **Exit codes** — `generate --check --json` exits `2` on drift (was `0`); `--fail-on` is case-insensitive.
 - **Robustness** — files are read without `bufio.Scanner`'s 64 KB line cap (new `internal/lines` reader); `generate --check` against a directory/non-file target reports drift instead of erroring.
 - **Performance** — repository files are parsed in a bounded worker pool with a deterministic merge; doctor definition-name sets are memoized per file.
+- **Launcher** — `./envdiff` execs a cached compiled binary (rebuilding only when sources change) instead of `go run`, cutting steady-state startup from ~45 ms to ~2 ms (see `docs/benchmarks/`).
 
 ## Open (tracked, not scheduled)
 
