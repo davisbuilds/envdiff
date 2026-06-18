@@ -121,6 +121,7 @@ envdiff                      local Go launcher
 - Detailed product specification: [docs/project/SPEC.md](docs/project/SPEC.md)
 - Roadmap snapshot: [docs/project/ROADMAP.md](docs/project/ROADMAP.md)
 - Backlog and follow-up tradeoffs: [docs/project/BACKLOG.md](docs/project/BACKLOG.md)
+- Git history and branch policy: [docs/project/GIT_HISTORY_POLICY.md](docs/project/GIT_HISTORY_POLICY.md)
 
 ## Current Boundaries
 

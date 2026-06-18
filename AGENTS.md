@@ -13,6 +13,7 @@ compares `.env` files, and flags mismatches. Local-first; no network in core ana
 - `docs/project/SPEC.md` — problem framing and in/out scope.
 - `docs/project/ROADMAP.md` — shipped highlights and open items.
 - `docs/project/BACKLOG.md` — tradeoffs and follow-up simplification backlog.
+- `docs/project/GIT_HISTORY_POLICY.md` — merge settings, branch protection, and history conventions.
 
 ## Command Quickstart
 
