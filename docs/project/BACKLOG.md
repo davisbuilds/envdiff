@@ -68,13 +68,6 @@ do not exercise. Resolved items shipped in the CLI hardening pass — see ROADMA
   directory ancestry for every usage file; memoize the nearest
   `.env`/`.env.example` per directory. (Found while parallelizing the scan;
   concurrency hides but does not eliminate it.)
-- **`doctor` alias-detection O(usages × defs) cliff** — `DoctorRepository`'s
-  alias pass compares each missing usage against every defined name, so
-  `doctor` is super-linear: Go runs 0.51 s → ~12.7 s from 1k → 5k files (see
-  `docs/benchmarks/2026-06-18-go-vs-python.md`). This is the dominant cost at
-  scale and the scan worker pool does not touch it. Bucket alias candidates
-  (e.g. by normalized token / length / first letter) to prune the comparison
-  set. Present in the Python oracle too.
 
 Lower-priority cleanup: the matched-quote-strip idiom is duplicated in
 `internal/parsers/github_actions.go` and `internal/dotenv/parse.go` (extract a
