@@ -10,9 +10,10 @@ produced by `scripts/bench_go_vs_python.sh` (hyperfine 1.20).
   before any analysis happens.
 - **At scale Go is ~4.6× faster on `scan`** and **~9.7× faster on `doctor`**
   (1,000-file repos), staying roughly linear where the work is linear.
-- **The as-shipped `./envdiff` launcher (`go run`) costs ~45 ms/run** — 24× a
-  compiled binary — so most of Go's startup advantage is currently unrealized.
-  Motivates switching the launcher to a built binary (separate follow-up).
+- **The `./envdiff` launcher measured here (`go run`) cost ~45 ms/run** — 24× a
+  compiled binary — so most of Go's startup advantage was unrealized. *Fixed
+  after this benchmark:* `./envdiff` now execs a cached compiled binary and only
+  rebuilds when sources change.
 - **`doctor` has an O(usages × defs) alias-detection cliff in both
   implementations** (Go 0.51 s → 12.7 s from 1k → 5k files). Scan concurrency
   does not help it; logged as a perf follow-up.
@@ -82,7 +83,8 @@ interpreter + AST cost); the Go spot value is from a single sweep.
 1. For the common case (small/medium repos, frequent invocation) the win is
    **startup**, not analysis — a compiled binary feels instant (~2 ms) where the
    Python CLI has a fixed ~72 ms tax.
-2. **Ship a compiled binary.** The `go run` launcher throws away ~43 ms/run.
+2. **Ship a compiled binary.** The `go run` launcher threw away ~43 ms/run —
+   since fixed: `./envdiff` execs a cached binary, rebuilding only on change.
 3. **The next real perf target is `doctor`'s alias pass**, not scanning — see
    the perf follow-up in `docs/project/BACKLOG.md`.
 

@@ -1,4 +1,21 @@
 #!/usr/bin/env bash
-# Shortcut to run the Go envdiff CLI.
+# Launcher for the Go envdiff CLI.
 # Usage: ./envdiff scan . | ./envdiff doctor . | ./envdiff generate . --check
-exec go run ./cmd/envdiff "$@"
+#
+# Execs a cached compiled binary (~2ms startup) and rebuilds it only when Go
+# sources change, instead of `go run` (which relinks on every call, ~45ms).
+set -euo pipefail
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BIN="$DIR/bin/envdiff"
+
+sources=("$DIR/cmd" "$DIR/internal" "$DIR/go.mod")
+[ -f "$DIR/go.sum" ] && sources+=("$DIR/go.sum")
+
+# Rebuild if the binary is missing or any source is newer than it.
+if [ ! -x "$BIN" ] || [ -n "$(find "${sources[@]}" -newer "$BIN" -print -quit 2>/dev/null)" ]; then
+	mkdir -p "$DIR/bin"
+	( cd "$DIR" && go build -o "$BIN" ./cmd/envdiff )
+fi
+
+exec "$BIN" "$@"
