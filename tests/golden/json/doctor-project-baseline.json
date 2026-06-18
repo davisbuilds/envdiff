@@ -1,0 +1,773 @@
+{
+  "data": {
+    "filtering": {
+      "baseline_entries": 13,
+      "baseline_written": null,
+      "suppressed_count": 13
+    },
+    "scan": {
+      "contracts": [
+        {
+          "aliases": [],
+          "definitions": [],
+          "name": "API_KEY",
+          "placeholder_like": false,
+          "requiredness": "required",
+          "resolution_notes": [
+            "env:<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "example:<REPO_ROOT>/tests/fixtures/doctor/project/.env.example"
+          ],
+          "secret_like": false,
+          "status": [
+            "referenced",
+            "undefined"
+          ],
+          "usages": [
+            {
+              "default_value": null,
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+              "line_number": 5,
+              "name": "API_KEY",
+              "requiredness": "required",
+              "source_type": "python",
+              "usage_kind": "os.environ"
+            }
+          ]
+        },
+        {
+          "aliases": [],
+          "definitions": [
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+              "is_duplicate": false,
+              "line_number": 1,
+              "name": "DATABASE_URL",
+              "normalized_value_kind": "url",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": "postgres://localhost/db"
+            },
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+              "is_duplicate": false,
+              "line_number": 1,
+              "name": "DATABASE_URL",
+              "normalized_value_kind": "placeholder",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": ""
+            }
+          ],
+          "name": "DATABASE_URL",
+          "placeholder_like": true,
+          "requiredness": "required",
+          "resolution_notes": [
+            "env:<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "example:<REPO_ROOT>/tests/fixtures/doctor/project/.env.example"
+          ],
+          "secret_like": false,
+          "status": [
+            "defined",
+            "referenced"
+          ],
+          "usages": [
+            {
+              "default_value": null,
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+              "line_number": 3,
+              "name": "DATABASE_URL",
+              "requiredness": "required",
+              "source_type": "python",
+              "usage_kind": "os.environ"
+            }
+          ]
+        },
+        {
+          "aliases": [],
+          "definitions": [
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+              "is_duplicate": false,
+              "line_number": 2,
+              "name": "DEBUG",
+              "normalized_value_kind": "boolean",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": "true"
+            },
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+              "is_duplicate": false,
+              "line_number": 3,
+              "name": "DEBUG",
+              "normalized_value_kind": "boolean",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": "false"
+            }
+          ],
+          "name": "DEBUG",
+          "placeholder_like": false,
+          "requiredness": "unknown",
+          "resolution_notes": [],
+          "secret_like": false,
+          "status": [
+            "defined",
+            "unreferenced"
+          ],
+          "usages": []
+        },
+        {
+          "aliases": [],
+          "definitions": [
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+              "is_duplicate": false,
+              "line_number": 4,
+              "name": "DUP_KEY",
+              "normalized_value_kind": "string",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": "one"
+            },
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+              "is_duplicate": true,
+              "line_number": 5,
+              "name": "DUP_KEY",
+              "normalized_value_kind": "string",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": "two"
+            }
+          ],
+          "name": "DUP_KEY",
+          "placeholder_like": false,
+          "requiredness": "unknown",
+          "resolution_notes": [],
+          "secret_like": false,
+          "status": [
+            "defined",
+            "unreferenced"
+          ],
+          "usages": []
+        },
+        {
+          "aliases": [],
+          "definitions": [
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+              "is_duplicate": false,
+              "line_number": 4,
+              "name": "OPENAI_API_KEY",
+              "normalized_value_kind": "placeholder",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": ""
+            }
+          ],
+          "name": "OPENAI_API_KEY",
+          "placeholder_like": true,
+          "requiredness": "required",
+          "resolution_notes": [
+            "env:<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "example:<REPO_ROOT>/tests/fixtures/doctor/project/.env.example"
+          ],
+          "secret_like": false,
+          "status": [
+            "defined",
+            "referenced"
+          ],
+          "usages": [
+            {
+              "default_value": null,
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+              "line_number": 6,
+              "name": "OPENAI_API_KEY",
+              "requiredness": "required",
+              "source_type": "python",
+              "usage_kind": "os.environ"
+            }
+          ]
+        },
+        {
+          "aliases": [],
+          "definitions": [
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+              "is_duplicate": false,
+              "line_number": 6,
+              "name": "OPENAI_KEY",
+              "normalized_value_kind": "secret_like",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": "sk-proj-1234567890abcdef1234567890"
+            }
+          ],
+          "name": "OPENAI_KEY",
+          "placeholder_like": false,
+          "requiredness": "unknown",
+          "resolution_notes": [],
+          "secret_like": true,
+          "status": [
+            "defined",
+            "unreferenced"
+          ],
+          "usages": []
+        },
+        {
+          "aliases": [],
+          "definitions": [
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+              "is_duplicate": false,
+              "line_number": 7,
+              "name": "PLACEHOLDER_SECRET",
+              "normalized_value_kind": "placeholder",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": "changeme"
+            },
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+              "is_duplicate": false,
+              "line_number": 5,
+              "name": "PLACEHOLDER_SECRET",
+              "normalized_value_kind": "placeholder",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": ""
+            }
+          ],
+          "name": "PLACEHOLDER_SECRET",
+          "placeholder_like": true,
+          "requiredness": "unknown",
+          "resolution_notes": [],
+          "secret_like": false,
+          "status": [
+            "defined",
+            "unreferenced"
+          ],
+          "usages": []
+        },
+        {
+          "aliases": [],
+          "definitions": [
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+              "is_duplicate": false,
+              "line_number": 2,
+              "name": "REDIS_URL",
+              "normalized_value_kind": "placeholder",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": ""
+            }
+          ],
+          "name": "REDIS_URL",
+          "placeholder_like": true,
+          "requiredness": "optional",
+          "resolution_notes": [
+            "env:<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "example:<REPO_ROOT>/tests/fixtures/doctor/project/.env.example"
+          ],
+          "secret_like": false,
+          "status": [
+            "defined",
+            "referenced"
+          ],
+          "usages": [
+            {
+              "default_value": null,
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+              "line_number": 4,
+              "name": "REDIS_URL",
+              "requiredness": "optional",
+              "source_type": "python",
+              "usage_kind": "os.getenv"
+            }
+          ]
+        },
+        {
+          "aliases": [],
+          "definitions": [
+            {
+              "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+              "is_duplicate": false,
+              "line_number": 3,
+              "name": "UNUSED_KEY",
+              "normalized_value_kind": "integer",
+              "parse_warnings": [],
+              "source_type": "dotenv",
+              "value": "1"
+            }
+          ],
+          "name": "UNUSED_KEY",
+          "placeholder_like": false,
+          "requiredness": "unknown",
+          "resolution_notes": [],
+          "secret_like": false,
+          "status": [
+            "defined",
+            "unreferenced"
+          ],
+          "usages": []
+        }
+      ],
+      "definitions": [
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+          "is_duplicate": false,
+          "line_number": 1,
+          "name": "DATABASE_URL",
+          "normalized_value_kind": "url",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": "postgres://localhost/db"
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+          "is_duplicate": false,
+          "line_number": 1,
+          "name": "DATABASE_URL",
+          "normalized_value_kind": "placeholder",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": ""
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+          "is_duplicate": false,
+          "line_number": 2,
+          "name": "DEBUG",
+          "normalized_value_kind": "boolean",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": "true"
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+          "is_duplicate": false,
+          "line_number": 3,
+          "name": "DEBUG",
+          "normalized_value_kind": "boolean",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": "false"
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+          "is_duplicate": false,
+          "line_number": 4,
+          "name": "DUP_KEY",
+          "normalized_value_kind": "string",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": "one"
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+          "is_duplicate": true,
+          "line_number": 5,
+          "name": "DUP_KEY",
+          "normalized_value_kind": "string",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": "two"
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+          "is_duplicate": false,
+          "line_number": 4,
+          "name": "OPENAI_API_KEY",
+          "normalized_value_kind": "placeholder",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": ""
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+          "is_duplicate": false,
+          "line_number": 6,
+          "name": "OPENAI_KEY",
+          "normalized_value_kind": "secret_like",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": "sk-proj-1234567890abcdef1234567890"
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+          "is_duplicate": false,
+          "line_number": 7,
+          "name": "PLACEHOLDER_SECRET",
+          "normalized_value_kind": "placeholder",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": "changeme"
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+          "is_duplicate": false,
+          "line_number": 5,
+          "name": "PLACEHOLDER_SECRET",
+          "normalized_value_kind": "placeholder",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": ""
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+          "is_duplicate": false,
+          "line_number": 2,
+          "name": "REDIS_URL",
+          "normalized_value_kind": "placeholder",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": ""
+        },
+        {
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+          "is_duplicate": false,
+          "line_number": 3,
+          "name": "UNUSED_KEY",
+          "normalized_value_kind": "integer",
+          "parse_warnings": [],
+          "source_type": "dotenv",
+          "value": "1"
+        }
+      ],
+      "resolutions": [
+        {
+          "env_file": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+          "example_file": "<REPO_ROOT>/tests/fixtures/doctor/project/.env.example",
+          "notes": [
+            "env:<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "example:<REPO_ROOT>/tests/fixtures/doctor/project/.env.example"
+          ],
+          "source_file": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py"
+        }
+      ],
+      "root_path": "<REPO_ROOT>/tests/fixtures/doctor/project",
+      "usages": [
+        {
+          "default_value": null,
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+          "line_number": 5,
+          "name": "API_KEY",
+          "requiredness": "required",
+          "source_type": "python",
+          "usage_kind": "os.environ"
+        },
+        {
+          "default_value": null,
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+          "line_number": 3,
+          "name": "DATABASE_URL",
+          "requiredness": "required",
+          "source_type": "python",
+          "usage_kind": "os.environ"
+        },
+        {
+          "default_value": null,
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+          "line_number": 6,
+          "name": "OPENAI_API_KEY",
+          "requiredness": "required",
+          "source_type": "python",
+          "usage_kind": "os.environ"
+        },
+        {
+          "default_value": null,
+          "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+          "line_number": 4,
+          "name": "REDIS_URL",
+          "requiredness": "optional",
+          "source_type": "python",
+          "usage_kind": "os.getenv"
+        }
+      ],
+      "warnings": []
+    },
+    "suppressed_findings": [
+      {
+        "code": "ENV001",
+        "confidence": null,
+        "details": "API_KEY is referenced by <REPO_ROOT>/tests/fixtures/doctor/project/app/main.py but missing from <REPO_ROOT>/tests/fixtures/doctor/project/.env.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+            "line_number": 5
+          }
+        ],
+        "reason": "The associated .env file does not define a referenced variable.",
+        "related_variables": [],
+        "severity": "error",
+        "source_kind": "deterministic",
+        "suggested_fix": null,
+        "suppression_key": "missing:<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py:API_KEY",
+        "title": "Missing variable",
+        "variable_name": "API_KEY"
+      },
+      {
+        "code": "ENV001",
+        "confidence": null,
+        "details": "OPENAI_API_KEY is referenced by <REPO_ROOT>/tests/fixtures/doctor/project/app/main.py but missing from <REPO_ROOT>/tests/fixtures/doctor/project/.env.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+            "line_number": 6
+          }
+        ],
+        "reason": "The associated .env file does not define a referenced variable.",
+        "related_variables": [],
+        "severity": "error",
+        "source_kind": "deterministic",
+        "suggested_fix": null,
+        "suppression_key": "missing:<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py:OPENAI_API_KEY",
+        "title": "Missing variable",
+        "variable_name": "OPENAI_API_KEY"
+      },
+      {
+        "code": "ENV002",
+        "confidence": null,
+        "details": "REDIS_URL is referenced by <REPO_ROOT>/tests/fixtures/doctor/project/app/main.py but missing from <REPO_ROOT>/tests/fixtures/doctor/project/.env.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+            "line_number": 4
+          }
+        ],
+        "reason": "The associated .env file does not define a referenced variable.",
+        "related_variables": [],
+        "severity": "warning",
+        "source_kind": "deterministic",
+        "suggested_fix": null,
+        "suppression_key": "missing:<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py:REDIS_URL",
+        "title": "Missing variable",
+        "variable_name": "REDIS_URL"
+      },
+      {
+        "code": "ENV004",
+        "confidence": null,
+        "details": "API_KEY is referenced by <REPO_ROOT>/tests/fixtures/doctor/project/app/main.py but absent from <REPO_ROOT>/tests/fixtures/doctor/project/.env.example.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+            "line_number": 5
+          }
+        ],
+        "reason": "Referenced variables should appear in the nearest .env.example.",
+        "related_variables": [],
+        "severity": "warning",
+        "source_kind": "deterministic",
+        "suggested_fix": null,
+        "suppression_key": "undocumented:<REPO_ROOT>/tests/fixtures/doctor/project/.env.example:API_KEY",
+        "title": "Undocumented variable",
+        "variable_name": "API_KEY"
+      },
+      {
+        "code": "ENV006",
+        "confidence": null,
+        "details": "DUP_KEY is defined more than once in <REPO_ROOT>/tests/fixtures/doctor/project/.env.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "line_number": 5
+          }
+        ],
+        "reason": "Duplicate keys create ambiguous effective values.",
+        "related_variables": [],
+        "severity": "warning",
+        "source_kind": "deterministic",
+        "suggested_fix": null,
+        "suppression_key": "duplicate:<REPO_ROOT>/tests/fixtures/doctor/project/.env:DUP_KEY",
+        "title": "Duplicate definition",
+        "variable_name": "DUP_KEY"
+      },
+      {
+        "code": "ENV007",
+        "confidence": "low",
+        "details": "OPENAI_API_KEY is missing, but nearby definitions include OPENAI_KEY.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/app/main.py",
+            "line_number": 6
+          }
+        ],
+        "reason": "Token overlap 0.67 and name similarity 0.83 suggest drift.",
+        "related_variables": [
+          "OPENAI_KEY"
+        ],
+        "severity": "warning",
+        "source_kind": "heuristic",
+        "suggested_fix": null,
+        "suppression_key": "alias:OPENAI_API_KEY:OPENAI_KEY",
+        "title": "Possible alias candidate",
+        "variable_name": "OPENAI_API_KEY"
+      },
+      {
+        "code": "ENV008",
+        "confidence": "low",
+        "details": "OPENAI_KEY in <REPO_ROOT>/tests/fixtures/doctor/project/.env looks like a real secret value.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "line_number": 6
+          }
+        ],
+        "reason": "Value shape is long, opaque, and mixed-character.",
+        "related_variables": [],
+        "severity": "warning",
+        "source_kind": "heuristic",
+        "suggested_fix": null,
+        "suppression_key": "secret-like:<REPO_ROOT>/tests/fixtures/doctor/project/.env:6:OPENAI_KEY",
+        "title": "Secret-like committed value",
+        "variable_name": "OPENAI_KEY"
+      },
+      {
+        "code": "ENV009",
+        "confidence": "low",
+        "details": "PLACEHOLDER_SECRET in <REPO_ROOT>/tests/fixtures/doctor/project/.env uses a placeholder value.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "line_number": 7
+          }
+        ],
+        "reason": "Common placeholder values in committed .env files are easy to miss.",
+        "related_variables": [],
+        "severity": "warning",
+        "source_kind": "heuristic",
+        "suggested_fix": null,
+        "suppression_key": "placeholder:<REPO_ROOT>/tests/fixtures/doctor/project/.env:7:PLACEHOLDER_SECRET",
+        "title": "Placeholder-like committed value",
+        "variable_name": "PLACEHOLDER_SECRET"
+      },
+      {
+        "code": "ENV003",
+        "confidence": null,
+        "details": "DEBUG is defined in <REPO_ROOT>/tests/fixtures/doctor/project/.env but not referenced.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "line_number": 2
+          }
+        ],
+        "reason": "Defined variables without matching usage may be stale.",
+        "related_variables": [],
+        "severity": "info",
+        "source_kind": "deterministic",
+        "suggested_fix": null,
+        "suppression_key": "unused:<REPO_ROOT>/tests/fixtures/doctor/project/.env:DEBUG",
+        "title": "Unused variable",
+        "variable_name": "DEBUG"
+      },
+      {
+        "code": "ENV003",
+        "confidence": null,
+        "details": "DUP_KEY is defined in <REPO_ROOT>/tests/fixtures/doctor/project/.env but not referenced.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "line_number": 4
+          }
+        ],
+        "reason": "Defined variables without matching usage may be stale.",
+        "related_variables": [],
+        "severity": "info",
+        "source_kind": "deterministic",
+        "suggested_fix": null,
+        "suppression_key": "unused:<REPO_ROOT>/tests/fixtures/doctor/project/.env:DUP_KEY",
+        "title": "Unused variable",
+        "variable_name": "DUP_KEY"
+      },
+      {
+        "code": "ENV003",
+        "confidence": null,
+        "details": "OPENAI_KEY is defined in <REPO_ROOT>/tests/fixtures/doctor/project/.env but not referenced.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "line_number": 6
+          }
+        ],
+        "reason": "Defined variables without matching usage may be stale.",
+        "related_variables": [],
+        "severity": "info",
+        "source_kind": "deterministic",
+        "suggested_fix": null,
+        "suppression_key": "unused:<REPO_ROOT>/tests/fixtures/doctor/project/.env:OPENAI_KEY",
+        "title": "Unused variable",
+        "variable_name": "OPENAI_KEY"
+      },
+      {
+        "code": "ENV003",
+        "confidence": null,
+        "details": "PLACEHOLDER_SECRET is defined in <REPO_ROOT>/tests/fixtures/doctor/project/.env but not referenced.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "line_number": 7
+          }
+        ],
+        "reason": "Defined variables without matching usage may be stale.",
+        "related_variables": [],
+        "severity": "info",
+        "source_kind": "deterministic",
+        "suggested_fix": null,
+        "suppression_key": "unused:<REPO_ROOT>/tests/fixtures/doctor/project/.env:PLACEHOLDER_SECRET",
+        "title": "Unused variable",
+        "variable_name": "PLACEHOLDER_SECRET"
+      },
+      {
+        "code": "ENV003",
+        "confidence": null,
+        "details": "UNUSED_KEY is defined in <REPO_ROOT>/tests/fixtures/doctor/project/.env but not referenced.",
+        "locations": [
+          {
+            "column_number": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/doctor/project/.env",
+            "line_number": 3
+          }
+        ],
+        "reason": "Defined variables without matching usage may be stale.",
+        "related_variables": [],
+        "severity": "info",
+        "source_kind": "deterministic",
+        "suggested_fix": null,
+        "suppression_key": "unused:<REPO_ROOT>/tests/fixtures/doctor/project/.env:UNUSED_KEY",
+        "title": "Unused variable",
+        "variable_name": "UNUSED_KEY"
+      }
+    ]
+  },
+  "findings": [],
+  "inputs": {
+    "baseline": "<TMPDIR>/doctor-baseline.json",
+    "fail_on": "error",
+    "ignore_file": null,
+    "path": "tests/fixtures/doctor/project",
+    "write_baseline": null
+  },
+  "meta": {
+    "command": "doctor",
+    "schema_version": "1"
+  },
+  "summary": {
+    "error": 0,
+    "info": 0,
+    "warning": 0
+  }
+}

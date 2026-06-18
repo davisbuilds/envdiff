@@ -1,0 +1,31 @@
+{
+  "data": {
+    "annotate": false,
+    "check": null,
+    "generated_text": "DATABASE_URL=\nREDIS_URL=\nDEBUG=\n",
+    "output_path": null,
+    "root_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo",
+    "variable_count": 3,
+    "variables": [
+      "DATABASE_URL",
+      "REDIS_URL",
+      "DEBUG"
+    ]
+  },
+  "findings": [],
+  "inputs": {
+    "annotate": false,
+    "check": false,
+    "output": null,
+    "path": "tests/fixtures/repos/simple_repo"
+  },
+  "meta": {
+    "command": "generate",
+    "schema_version": "1"
+  },
+  "summary": {
+    "error": 0,
+    "info": 0,
+    "warning": 0
+  }
+}

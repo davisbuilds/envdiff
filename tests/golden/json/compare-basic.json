@@ -1,0 +1,40 @@
+{
+  "data": {
+    "differing_values": [
+      {
+        "left_kind": "url",
+        "left_value": "postgres://localhost/db",
+        "name": "DATABASE_URL",
+        "right_kind": "integer",
+        "right_value": "1"
+      }
+    ],
+    "duplicates_in_left": [
+      "DUP_KEY"
+    ],
+    "duplicates_in_right": [],
+    "left_path": "tests/fixtures/compare/left.env",
+    "missing_in_left": [
+      "FEATURE"
+    ],
+    "missing_in_right": [
+      "DUP_KEY"
+    ],
+    "right_path": "tests/fixtures/compare/right.env",
+    "warnings": []
+  },
+  "findings": [],
+  "inputs": {
+    "left": "tests/fixtures/compare/left.env",
+    "right": "tests/fixtures/compare/right.env"
+  },
+  "meta": {
+    "command": "compare",
+    "schema_version": "1"
+  },
+  "summary": {
+    "error": 0,
+    "info": 0,
+    "warning": 0
+  }
+}
