@@ -57,7 +57,7 @@ func printHelp(output io.Writer) {
 		fmt.Fprintf(output, "  %s\n", name)
 	}
 	fmt.Fprintln(output)
-	fmt.Fprintln(output, "Use the Python launcher ./envdiff until Go parity is complete.")
+	fmt.Fprintln(output, "Python fallback: scripts/envdiff-python")
 }
 
 func isKnownCommand(command string) bool {

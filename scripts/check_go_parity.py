@@ -212,7 +212,7 @@ def compare_exit_case(name: str, command_args: Sequence[str], failures: list[str
 
 def run_python(command_args: Sequence[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [str(REPO_ROOT / "envdiff"), *command_args],
+        [str(REPO_ROOT / "scripts" / "envdiff-python"), *command_args],
         cwd=REPO_ROOT,
         text=True,
         capture_output=True,

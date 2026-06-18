@@ -126,7 +126,7 @@ def run_command(
     expected_code: int,
 ) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(
-        [str(REPO_ROOT / "envdiff"), *command_args],
+        [str(REPO_ROOT / "scripts" / "envdiff-python"), *command_args],
         cwd=REPO_ROOT,
         text=True,
         capture_output=True,

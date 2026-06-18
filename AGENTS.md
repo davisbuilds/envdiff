@@ -19,14 +19,15 @@ compares `.env` files, and flags mismatches. Local-first; no network in core ana
 
 ```bash
 uv sync --extra dev                  # install deps + dev tools
-./envdiff --help                     # list all commands (or: uv run envdiff <cmd>)
+./envdiff --help                     # list all commands through the Go launcher
+scripts/envdiff-python --help        # Python fallback/oracle launcher
 uv run pytest -q                     # tests
 uv run ruff check .                  # lint
 go test ./...                        # Go side-by-side implementation tests
 uv run python scripts/check_go_parity.py # Python/Go contract parity
 ```
 
-Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `envdiff.cli:main` (Typer).
+Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Default entry point: `cmd/envdiff` (Go). Python fallback entry point: `envdiff.cli:main` (Typer), via `scripts/envdiff-python`.
 
 ## Project Boundaries
 

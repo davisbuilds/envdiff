@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Fallback launcher for the Python implementation during the Go cutover window.
+exec uv run envdiff "$@"
