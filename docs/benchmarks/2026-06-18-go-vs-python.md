@@ -71,12 +71,18 @@ as repo size grows because fixed startup (where Go wins biggest) is amortized.
 | 1,000 | 511.3 ms | 4,966 ms | 9.71× |
 | 5,000 | ~12.7 s (spot) | aborted (> minutes) | — |
 
-`doctor` is super-linear in both: Go goes 14.6 ms → 511 ms → ~12.7 s across
-100 → 1,000 → 5,000 files (≈25× for each 5–10× of input). This fingerprints the
+`doctor` was super-linear in both: Go went 14.6 ms → 511 ms → ~12.7 s across
+100 → 1,000 → 5,000 files (≈25× for each 5–10× of input). This fingerprinted the
 **O(usages × defs) alias-detection pass** in `DoctorRepository` (pairwise name
 comparison), which the per-file scan concurrency does not touch. The 5,000-file
 Python cell was not run to completion (same O(n²) shape on top of the
 interpreter + AST cost); the Go spot value is from a single sweep.
+
+*Fixed after this benchmark:* the alias pass now builds a per-file `AliasIndex`
+(canonical tokens + an inverted token index) once and only compares names that
+share a token. In-process `BenchmarkDoctorRepository` at 2,000 files dropped
+from **1.82 s → 4.4 ms (~415×)**, turning the cliff back into roughly linear
+scaling. Output is unchanged (goldens + parity hold).
 
 ## Takeaways
 
@@ -85,8 +91,8 @@ interpreter + AST cost); the Go spot value is from a single sweep.
    Python CLI has a fixed ~72 ms tax.
 2. **Ship a compiled binary.** The `go run` launcher threw away ~43 ms/run —
    since fixed: `./envdiff` execs a cached binary, rebuilding only on change.
-3. **The next real perf target is `doctor`'s alias pass**, not scanning — see
-   the perf follow-up in `docs/project/BACKLOG.md`.
+3. **`doctor`'s alias pass was the real bottleneck**, not scanning — now fixed
+   with an inverted token index (~415× at 2k files; see the note above).
 
 ## Reproduce
 

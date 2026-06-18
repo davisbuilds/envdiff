@@ -24,6 +24,7 @@ Go port (resolved items from the backlog):
 - **Robustness** — files are read without `bufio.Scanner`'s 64 KB line cap (new `internal/lines` reader); `generate --check` against a directory/non-file target reports drift instead of erroring.
 - **Performance** — repository files are parsed in a bounded worker pool with a deterministic merge; doctor definition-name sets are memoized per file.
 - **Launcher** — `./envdiff` execs a cached compiled binary (rebuilding only when sources change) instead of `go run`, cutting steady-state startup from ~45 ms to ~2 ms (see `docs/benchmarks/`).
+- **Doctor alias pruning** — the O(usages × defs) alias pass now builds a per-file `AliasIndex` (canonical tokens + inverted token index) and only compares names sharing a token, turning a scaling cliff back to ~linear (`doctor` at 2k files: 1.82 s → 4.4 ms, output unchanged).
 
 ## Open (tracked, not scheduled)
 

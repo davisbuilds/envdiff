@@ -27,51 +27,94 @@ type AliasCandidate struct {
 	Reason        string
 }
 
-func FindAliasCandidates(missingName string, definedNames map[string]struct{}) []AliasCandidate {
-	threshold := 0.8
-	candidates := []AliasCandidate{}
-	missingCanonical := CanonicalName(missingName)
-	missingTokens := canonicalTokens(missingName)
+// AliasIndex precomputes the canonical token decomposition of a set of defined
+// names plus an inverted token index. Built once, it answers Candidates for
+// many missing names without re-deriving every defined name and without
+// comparing against names that share no tokens — those can clear neither the
+// canonical-equality nor the token-overlap thresholds, so skipping them yields
+// identical results while avoiding the O(missing x defined) comparison blowup.
+type aliasEntry struct {
+	name      string
+	canonical string
+	tokenSet  map[string]struct{}
+}
 
+type AliasIndex struct {
+	entries []aliasEntry
+	byToken map[string][]int
+}
+
+func BuildAliasIndex(definedNames map[string]struct{}) *AliasIndex {
 	names := make([]string, 0, len(definedNames))
 	for name := range definedNames {
 		names = append(names, name)
 	}
 	sort.Strings(names)
 
-	for _, definedName := range names {
-		if definedName == missingName {
-			continue
+	index := &AliasIndex{byToken: map[string][]int{}}
+	for _, name := range names {
+		tokens := canonicalTokens(name)
+		set := tokenSet(tokens)
+		position := len(index.entries)
+		index.entries = append(index.entries, aliasEntry{
+			name:      name,
+			canonical: strings.Join(tokens, "_"),
+			tokenSet:  set,
+		})
+		for token := range set {
+			index.byToken[token] = append(index.byToken[token], position)
 		}
+	}
+	return index
+}
 
-		definedCanonical := CanonicalName(definedName)
-		definedTokens := canonicalTokens(definedName)
-		tokenOverlap := jaccard(missingTokens, definedTokens)
-		sequenceRatio := sequenceRatio(missingCanonical, definedCanonical)
+func (index *AliasIndex) Candidates(missingName string) []AliasCandidate {
+	threshold := 0.8
+	missingTokens := canonicalTokens(missingName)
+	missingSet := tokenSet(missingTokens)
+	missingCanonical := strings.Join(missingTokens, "_")
 
-		if missingCanonical == definedCanonical {
-			candidates = append(candidates, AliasCandidate{
-				CandidateName: definedName,
-				Score:         0.99,
-				Reason: fmt.Sprintf(
-					"Canonical token expansion matches: %s == %s.",
-					missingCanonical,
-					definedCanonical,
-				),
-			})
-			continue
-		}
+	// Only defined names sharing at least one token can match; gather them once.
+	considered := map[int]struct{}{}
+	candidates := []AliasCandidate{}
+	for token := range missingSet {
+		for _, position := range index.byToken[token] {
+			if _, ok := considered[position]; ok {
+				continue
+			}
+			considered[position] = struct{}{}
 
-		if tokenOverlap >= 2.0/3.0 && sequenceRatio >= threshold {
-			candidates = append(candidates, AliasCandidate{
-				CandidateName: definedName,
-				Score:         math.Round(sequenceRatio*100) / 100,
-				Reason: fmt.Sprintf(
-					"Token overlap %.2f and name similarity %.2f suggest drift.",
-					tokenOverlap,
-					sequenceRatio,
-				),
-			})
+			entry := index.entries[position]
+			if entry.name == missingName {
+				continue
+			}
+
+			if missingCanonical == entry.canonical {
+				candidates = append(candidates, AliasCandidate{
+					CandidateName: entry.name,
+					Score:         0.99,
+					Reason: fmt.Sprintf(
+						"Canonical token expansion matches: %s == %s.",
+						missingCanonical,
+						entry.canonical,
+					),
+				})
+				continue
+			}
+
+			tokenOverlap := jaccard(missingSet, entry.tokenSet)
+			ratio := sequenceRatio(missingCanonical, entry.canonical)
+			if tokenOverlap >= 2.0/3.0 && ratio >= threshold {
+				candidates = append(candidates, AliasCandidate{
+					CandidateName: entry.name,
+					Score:         math.Round(ratio*100) / 100,
+					Reason: fmt.Sprintf(
+						"Token overlap %.2f and name similarity %.2f suggest drift.",
+						tokenOverlap,
+						ratio,
+					),
+				})
+			}
 		}
 	}
 
@@ -82,6 +125,12 @@ func FindAliasCandidates(missingName string, definedNames map[string]struct{}) [
 		return candidates[left].CandidateName < candidates[right].CandidateName
 	})
 	return candidates
+}
+
+// FindAliasCandidates builds a one-shot index for definedNames and queries it.
+// Prefer reusing a BuildAliasIndex across many missing names.
+func FindAliasCandidates(missingName string, definedNames map[string]struct{}) []AliasCandidate {
+	return BuildAliasIndex(definedNames).Candidates(missingName)
 }
 
 func CanonicalName(name string) string {
@@ -112,28 +161,29 @@ func canonicalTokens(name string) []string {
 	return tokens
 }
 
-func jaccard(left []string, right []string) float64 {
-	leftSet := map[string]struct{}{}
-	rightSet := map[string]struct{}{}
-	union := map[string]struct{}{}
-	for _, value := range left {
-		leftSet[value] = struct{}{}
-		union[value] = struct{}{}
+func tokenSet(tokens []string) map[string]struct{} {
+	set := make(map[string]struct{}, len(tokens))
+	for _, token := range tokens {
+		set[token] = struct{}{}
 	}
-	for _, value := range right {
-		rightSet[value] = struct{}{}
-		union[value] = struct{}{}
-	}
-	if len(union) == 0 {
+	return set
+}
+
+func jaccard(left map[string]struct{}, right map[string]struct{}) float64 {
+	if len(left) == 0 && len(right) == 0 {
 		return 0
 	}
 	intersection := 0
-	for value := range leftSet {
-		if _, ok := rightSet[value]; ok {
+	for value := range left {
+		if _, ok := right[value]; ok {
 			intersection++
 		}
 	}
-	return float64(intersection) / float64(len(union))
+	union := len(left) + len(right) - intersection
+	if union == 0 {
+		return 0
+	}
+	return float64(intersection) / float64(union)
 }
 
 func sequenceRatio(left string, right string) float64 {

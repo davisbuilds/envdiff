@@ -65,6 +65,23 @@ func DoctorRepository(scanResult model.RepoScanResult) []model.Finding {
 		return names
 	}
 
+	// The alias index over a file's defined names is likewise identical for
+	// every usage resolving to it, so build it once per file rather than once
+	// per missing usage (the alias pass is the dominant cost at scale).
+	emptyAliasIndex := BuildAliasIndex(nil)
+	aliasCache := map[string]*AliasIndex{}
+	aliasIndexFor := func(filePath *string) *AliasIndex {
+		if filePath == nil {
+			return emptyAliasIndex
+		}
+		if cached, ok := aliasCache[*filePath]; ok {
+			return cached
+		}
+		index := BuildAliasIndex(namesFor(filePath))
+		aliasCache[*filePath] = index
+		return index
+	}
+
 	for _, usage := range scanResult.Usages {
 		resolution, hasResolution := resolutionsBySource[usage.FilePath]
 		var envNames, exampleNames map[string]struct{}
@@ -109,7 +126,7 @@ func DoctorRepository(scanResult model.RepoScanResult) []model.Finding {
 			}
 			findings = append(
 				findings,
-				aliasFindingsForMissingUsage(usage, envNames, seen)...,
+				aliasFindingsForMissingUsage(usage, aliasIndexFor(resolution.EnvFile), seen)...,
 			)
 		}
 
@@ -254,11 +271,11 @@ func missingDetails(
 
 func aliasFindingsForMissingUsage(
 	usage model.EnvVarUsage,
-	envNames map[string]struct{},
+	aliasIndex *AliasIndex,
 	seen map[string]struct{},
 ) []model.Finding {
 	findings := []model.Finding{}
-	for _, candidate := range FindAliasCandidates(usage.Name, envNames) {
+	for _, candidate := range aliasIndex.Candidates(usage.Name) {
 		key := fmt.Sprintf("ENV007:%s:%s", usage.Name, candidate.CandidateName)
 		if _, alreadySeen := seen[key]; alreadySeen {
 			continue
