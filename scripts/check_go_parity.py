@@ -91,6 +91,14 @@ EXIT_CASES: tuple[tuple[str, list[str]], ...] = (
     ("doctor-threshold", ["doctor", "tests/fixtures/doctor/project", "--fail-on", "warning"]),
     ("doctor-invalid-fail-on", ["doctor", "tests/fixtures/doctor/project", "--fail-on", "debug"]),
     ("generate-drift", ["generate", "tests/fixtures/repos/simple_repo", "--check"]),
+    (
+        "generate-drift-json",
+        ["generate", "tests/fixtures/repos/simple_repo", "--check", "--json"],
+    ),
+    (
+        "doctor-fail-on-uppercase",
+        ["doctor", "tests/fixtures/doctor/project", "--fail-on", "WARNING"],
+    ),
 )
 
 

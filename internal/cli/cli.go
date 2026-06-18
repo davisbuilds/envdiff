@@ -297,13 +297,20 @@ func runGenerate(args []string, stdout io.Writer, stderr io.Writer) int {
 		writtenPath = &written
 	}
 
+	// A failed --check drives the exit code regardless of output format, so a
+	// `generate --check --json` gate is just as enforceable as the human path.
+	driftExit := 0
+	if checkResult != nil && !checkResult["matches"].(bool) {
+		driftExit = 2
+	}
+
 	if jsonOutput {
 		result["output_path"] = nil
 		if writtenPath != nil {
 			result["output_path"] = *writtenPath
 		}
 		result["check"] = checkResult
-		return printJSON(
+		if code := printJSON(
 			model.NewJsonEnvelope(
 				"generate",
 				map[string]any{
@@ -316,7 +323,10 @@ func runGenerate(args []string, stdout io.Writer, stderr io.Writer) int {
 			),
 			stdout,
 			stderr,
-		)
+		); code != 0 {
+			return code
+		}
+		return driftExit
 	}
 
 	if checkResult != nil {
@@ -332,10 +342,7 @@ func runGenerate(args []string, stdout io.Writer, stderr io.Writer) int {
 				&checkMatches,
 			),
 		)
-		if !checkMatches {
-			return 2
-		}
-		return 0
+		return driftExit
 	}
 	if writtenPath != nil {
 		fmt.Fprintln(
