@@ -41,7 +41,7 @@ checks.
 - `compare.go`: dotenv file-to-file comparison
 - `generate.go`: inferred `.env.example` generation and drift checks
 - `matrix.go`: multi-file dotenv comparison
-- `scan.go`: repository traversal, parser dispatch, contract aggregation, and repo-local resolution
+- `scan.go`: repository traversal, parser dispatch, contract aggregation, and repo-local resolution; files are parsed in a bounded worker pool and merged in file order, so output stays deterministic
 - `doctor.go`: contract validation and finding generation
 - `aliases.go`: low-confidence, explainable naming-drift heuristics
 - `secrets.go`: conservative secret-like and placeholder-like checks for committed `.env` values
@@ -68,6 +68,8 @@ currently supported input surface:
 - `JsonEnvelope`
 
 The JSON envelope is versioned and intended to remain a stable machine contract.
+JSON is encoded without HTML-escaping, so `<`, `>`, and `&` appear literally in
+values rather than as `\u00XX`.
 
 ## Utilities
 
@@ -86,6 +88,7 @@ cmd/envdiff/                    # Go CLI entrypoint
 internal/analyzers/             # Comparison, scan, doctor, alias, and secret logic
 internal/dotenv/                # Dotenv parser
 internal/parsers/               # Python, Compose, and GitHub Actions scanners
+internal/lines/                 # Cap-free file-to-lines reader (ScanLines semantics)
 internal/render/                # Human and JSON renderers
 internal/model/                 # JSON schema and domain models
 internal/order/                 # Deterministic ordering helpers

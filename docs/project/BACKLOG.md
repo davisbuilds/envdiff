@@ -41,73 +41,36 @@ improvement ideas that should survive across sessions.
 
 ## Go Port Parity Divergences (code review 2026-06-18)
 
-Behavioral divergences between the Go port and the Python oracle that current
-golden fixtures / the parity gate do **not** exercise, so they pass `go test`
-and `scripts/check_go_parity.py` today while still breaking the "JSON envelope +
-finding codes are a public contract" guarantee on inputs no fixture contains.
-Ranked roughly by severity. Each should ideally get a parity fixture before or
-alongside a fix.
+Open divergences between the Go port and the Python oracle that current fixtures
+do not exercise. Resolved items shipped in the CLI hardening pass — see ROADMAP
+"Recent hardening".
 
-- **JSON encoder breaks the byte-for-byte envelope contract**
-  (`internal/render/json.go`, same root cause in `internal/analyzers/baseline.go`).
-  Go `json.MarshalIndent` HTML-escapes `<`, `>`, `&` (→ `<`…) and emits raw
-  UTF-8; Python `json.dumps(..., sort_keys=True)` defaults to `ensure_ascii=True`
-  (escapes all non-ASCII to `\uXXXX`) and does not HTML-escape. A value like
-  `DATABASE_URL=postgres://h/db?a=1&b=2` or `PASSWORD=café` produces different
-  bytes in each implementation; the baseline writer has the same defect on
-  free-text `reason`/`details`, so Python- and Go-written baselines won't
-  round-trip. Fix: `json.Encoder` with `SetEscapeHTML(false)` plus non-ASCII
-  escaping to mimic `ensure_ascii`. No current fixture contains these chars.
-- **`generate --check --json` returns exit 0 on drift instead of 2**
-  (`internal/cli/cli.go`, `runGenerate`). The `--json` branch returns before the
-  `if !checkMatches { return 2 }` block; Python raises `typer.Exit(code=2)`
-  unconditionally after emitting JSON. A CI gate `envdiff generate . --check
-  --json` always passes under Go. Parity `EXIT_CASES` only covers
-  `generate --check` without `--json`.
-- **`--fail-on` is case-sensitive in Go, case-insensitive in Python**
-  (`internal/analyzers/doctor.go:ShouldFail`). Python `_should_fail` does
-  `threshold.lower()`; Go switches on the exact string. `doctor . --fail-on
-  ERROR` exits 0 on a clean repo under Python but exits 2 (before scanning, with
-  empty stdout) under Go. New divergence not covered by the existing exit-code
-  entry above.
-- **Python usage detection uses line regex, not the oracle's AST**
-  (`internal/parsers/python.go`). Python uses `ast.parse`. Consequences:
-  commented/quoted `os.getenv("FOO")` text yields a phantom usage in Go but
-  nothing in Python; a call split across lines is captured by Python and missed
-  by Go; a syntactically invalid `.py` raises `SyntaxError` in Python but is
-  silently regex-scanned by Go. (See the existing "Scanner boundary" note — this
-  is the concrete parity cost of that intentional simplification.)
-- **Path canonicalization: `filepath.Abs` vs `Path.resolve()`**
-  (`internal/analyzers/scan.go`, `internal/paths/walk.go`). Go `Abs` is lexical;
-  Python `resolve()` resolves symlinks. On macOS `$TMPDIR` (a symlink) or any
-  symlinked component, `root_path` and every emitted `file_path`/resolution note
-  diverge. Fix: `filepath.EvalSymlinks`.
-- **`bufio.Scanner` line reader diverges from `str.splitlines()`**
-  (`internal/dotenv/parse.go`, `internal/parsers/python.go:readLines`).
-  `bufio.Scanner` splits only on `\n` and caps lines at 64 KB; `splitlines()`
-  also splits on `\v`, `\f`, ` `/` `, etc. Unicode line separators
-  shift `line_number`s (→ different `suppression_key`s / finding order); a line
-  over 64 KB makes Go abort the whole scan with `bufio.ErrTooLong` where Python
-  parses fine.
-- **`LooksLikeSecret` length gate counts bytes, not characters**
-  (`internal/normalize/value.go`). `len(value) < 20` is a byte count; Python
-  `len(value)` is a code-point count, so a multibyte value can flip ENV008.
-  `unicode.IsDigit` vs Python `str.isdigit()` also differ on superscripts/other
-  digit categories.
-- **Usage errors exit 1 instead of Typer's 2** (`internal/cli/cli.go`, multiple
-  `return 1` paths). `compare <onefile>`, missing-path, and unknown-command exit
-  1; Typer exits 2. `matrix` hardcodes 2 and is the only case the parity gate
-  checks. Related to the existing exit-code entry above.
-- **`CheckGeneratedExample` aborts on a directory / unreadable target**
-  (`internal/analyzers/generate.go`). Go `os.ReadFile` returns the error for any
-  non-`IsNotExist` failure (CLI prints `generate check failed`, exits 1); Python
-  `target_path.is_file()` yields `exists=False, matches=False` and reports drift
-  gracefully.
+- **JSON non-ASCII handling** — Go emits raw UTF-8 where the Python oracle
+  escapes to `\uXXXX` (`ensure_ascii`). Deliberately deferred to the
+  Go-as-source-of-truth branch (regenerate goldens from Go, relax the parity
+  gate); no fixture exercises non-ASCII today.
+- **Path canonicalization** (`internal/analyzers/scan.go`,
+  `internal/paths/walk.go`) — Go `filepath.Abs` is lexical; Python
+  `Path.resolve()` resolves symlinks, so on a symlinked component (e.g. macOS
+  `$TMPDIR`) `root_path` and every emitted path diverge. Fix:
+  `filepath.EvalSymlinks`.
+- **`LooksLikeSecret` length gate** (`internal/normalize/value.go`) —
+  `len(value)` counts bytes; Python counts code points, so a multibyte value can
+  flip ENV008. `unicode.IsDigit` vs `str.isdigit()` also differ on
+  superscripts/other digit categories.
+- **Usage-error exit codes** — wrong-arity / missing-path / unknown-command exit
+  `1` in Go but `2` in Python/Typer. A contract *decision* (see "Exit-code
+  parity" above), not yet resolved.
+- **Python regex vs AST scanner** (`internal/parsers/python.go`) — the line
+  regex matches inside comments/strings and misses multi-line calls; intentional
+  (see "Scanner boundary"). Revisit only with fixtures first.
+- **Resolution-walk memoization** — `resolveUsageFile` re-walks the same
+  directory ancestry for every usage file; memoize the nearest
+  `.env`/`.env.example` per directory. (Found while parallelizing the scan;
+  concurrency hides but does not eliminate it.)
 
-Lower-priority cleanup (all faithfully mirror the Python module layout, so not
-bugs): the matched-quote-strip idiom is duplicated in
+Lower-priority cleanup: the matched-quote-strip idiom is duplicated in
 `internal/parsers/github_actions.go` and `internal/dotenv/parse.go` (extract a
-shared helper); `definitionNames` is recomputed per-usage in
-`internal/analyzers/doctor.go` rather than memoized by file path; resolution and
-baseline sorting is done inline in analyzers instead of through `internal/order`
-where the other output orderings live.
+shared helper); resolution and baseline sorting are done inline in analyzers
+rather than through `internal/order`. (The per-usage `definitionNames` rebuild
+and per-parser `readLines` duplication were resolved in the hardening pass.)
