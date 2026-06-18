@@ -122,6 +122,7 @@ envdiff                      local Go launcher
 - Roadmap snapshot: [docs/project/ROADMAP.md](docs/project/ROADMAP.md)
 - Backlog and follow-up tradeoffs: [docs/project/BACKLOG.md](docs/project/BACKLOG.md)
 - Git history and branch policy: [docs/project/GIT_HISTORY_POLICY.md](docs/project/GIT_HISTORY_POLICY.md)
+- Go vs Python benchmark: [docs/benchmarks/2026-06-18-go-vs-python.md](docs/benchmarks/2026-06-18-go-vs-python.md)
 
 ## Current Boundaries
 
