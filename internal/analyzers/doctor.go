@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/davisbuilds/envdiff/internal/model"
 	"github.com/davisbuilds/envdiff/internal/order"
@@ -183,7 +184,7 @@ func SummarizeFindings(findings []model.Finding) model.SummaryCounts {
 }
 
 func ShouldFail(summary model.SummaryCounts, threshold string) (bool, error) {
-	switch threshold {
+	switch strings.ToLower(threshold) {
 	case "error":
 		return summary.Error > 0, nil
 	case "warning":
