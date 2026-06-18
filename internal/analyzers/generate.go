@@ -75,10 +75,16 @@ func CheckGeneratedExample(
 		targetPath = *output
 	}
 
-	existing, err := os.ReadFile(targetPath)
-	exists := err == nil
-	if err != nil && !os.IsNotExist(err) {
-		return nil, err
+	info, statErr := os.Stat(targetPath)
+	exists := statErr == nil && info.Mode().IsRegular()
+
+	var existing []byte
+	if exists {
+		read, err := os.ReadFile(targetPath)
+		if err != nil {
+			return nil, err
+		}
+		existing = read
 	}
 	matches := exists && string(existing) == generatedText
 

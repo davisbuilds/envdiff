@@ -70,6 +70,23 @@ func TestCheckGeneratedExampleDetectsDriftAgainstDefaultExample(t *testing.T) {
 	}
 }
 
+func TestCheckGeneratedExampleTreatsDirectoryTargetAsMissing(t *testing.T) {
+	result := scanSimpleRepoForGenerate(t)
+	generated := GenerateExampleFile(result, false)
+
+	dir := t.TempDir()
+	check, err := CheckGeneratedExample(result.RootPath, generated["generated_text"].(string), &dir)
+	if err != nil {
+		t.Fatalf("check generated example: %v", err)
+	}
+	if check["exists"] != false {
+		t.Fatalf("exists = %v, want false for a directory target", check["exists"])
+	}
+	if check["matches"] != false {
+		t.Fatalf("matches = %v, want false for a directory target", check["matches"])
+	}
+}
+
 func TestWriteGeneratedExampleWritesRequestedFile(t *testing.T) {
 	outputPath := filepath.Join(t.TempDir(), ".env.example")
 
