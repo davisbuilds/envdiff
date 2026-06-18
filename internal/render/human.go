@@ -86,6 +86,30 @@ func MatrixResult(result map[string]any) string {
 	return strings.Join(lines, "\n")
 }
 
+func GenerateResult(
+	variableCount int,
+	outputPath *string,
+	annotate bool,
+	checkPath *string,
+	checkMatches *bool,
+) string {
+	if checkPath != nil && checkMatches != nil {
+		if *checkMatches {
+			return fmt.Sprintf("Generated output matches %s", *checkPath)
+		}
+		return fmt.Sprintf("Generated output drifted from %s", *checkPath)
+	}
+
+	suffix := ""
+	if annotate {
+		suffix = " with annotations"
+	}
+	if outputPath == nil {
+		return fmt.Sprintf("Generated %d variables%s", variableCount, suffix)
+	}
+	return fmt.Sprintf("Generated %d variables%s to %s", variableCount, suffix, *outputPath)
+}
+
 func joinStrings(values []string) string {
 	if len(values) == 0 {
 		return "-"

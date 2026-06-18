@@ -33,6 +33,9 @@ func Run(args []string, stdout io.Writer, stderr io.Writer) int {
 	if command == "scan" {
 		return runScan(args[1:], stdout, stderr)
 	}
+	if command == "generate" {
+		return runGenerate(args[1:], stdout, stderr)
+	}
 
 	fmt.Fprintf(stderr, "%s is not implemented in the Go port yet\n", command)
 	return 1
@@ -220,4 +223,138 @@ func printCompareHelp(output io.Writer) {
 func printMatrixHelp(output io.Writer) {
 	fmt.Fprintln(output, "Usage:")
 	fmt.Fprintln(output, "  envdiff matrix <paths...> [--show-all] [--json]")
+}
+
+func runGenerate(args []string, stdout io.Writer, stderr io.Writer) int {
+	path := ""
+	annotate := false
+	check := false
+	jsonOutput := false
+	var outputPath *string
+
+	for index := 0; index < len(args); index++ {
+		arg := args[index]
+		switch arg {
+		case "--help", "-h":
+			printGenerateHelp(stdout)
+			return 0
+		case "--annotate":
+			annotate = true
+		case "--check":
+			check = true
+		case "--json":
+			jsonOutput = true
+		case "--output":
+			if index+1 >= len(args) {
+				fmt.Fprintf(stderr, "--output requires a path\n")
+				return 1
+			}
+			value := args[index+1]
+			outputPath = &value
+			index++
+		default:
+			if path != "" {
+				fmt.Fprintf(stderr, "generate accepts exactly one path\n")
+				return 1
+			}
+			path = arg
+		}
+	}
+	if path == "" {
+		fmt.Fprintf(stderr, "generate requires a repository path\n")
+		return 1
+	}
+
+	scanResult, err := analyzers.ScanRepository(path)
+	if err != nil {
+		fmt.Fprintf(stderr, "generate scan failed: %v\n", err)
+		return 1
+	}
+	result := analyzers.GenerateExampleFile(scanResult, annotate)
+
+	var checkResult map[string]any
+	if check {
+		checkResult, err = analyzers.CheckGeneratedExample(
+			scanResult.RootPath,
+			result["generated_text"].(string),
+			outputPath,
+		)
+		if err != nil {
+			fmt.Fprintf(stderr, "generate check failed: %v\n", err)
+			return 1
+		}
+	}
+
+	var writtenPath *string
+	if outputPath != nil && !check {
+		written, err := analyzers.WriteGeneratedExample(*outputPath, result["generated_text"].(string))
+		if err != nil {
+			fmt.Fprintf(stderr, "generate write failed: %v\n", err)
+			return 1
+		}
+		writtenPath = &written
+	}
+
+	if jsonOutput {
+		result["output_path"] = nil
+		if writtenPath != nil {
+			result["output_path"] = *writtenPath
+		}
+		result["check"] = checkResult
+		return printJSON(
+			model.NewJsonEnvelope(
+				"generate",
+				map[string]any{
+					"annotate": annotate,
+					"check":    check,
+					"output":   outputPathValue(outputPath),
+					"path":     path,
+				},
+				result,
+			),
+			stdout,
+			stderr,
+		)
+	}
+
+	if checkResult != nil {
+		checkPath := checkResult["target_path"].(string)
+		checkMatches := checkResult["matches"].(bool)
+		fmt.Fprintln(
+			stdout,
+			render.GenerateResult(
+				result["variable_count"].(int),
+				nil,
+				annotate,
+				&checkPath,
+				&checkMatches,
+			),
+		)
+		if !checkMatches {
+			return 2
+		}
+		return 0
+	}
+	if writtenPath != nil {
+		fmt.Fprintln(
+			stdout,
+			render.GenerateResult(result["variable_count"].(int), writtenPath, annotate, nil, nil),
+		)
+		return 0
+	}
+
+	fmt.Fprint(stdout, result["generated_text"].(string))
+	return 0
+}
+
+func outputPathValue(outputPath *string) any {
+	if outputPath == nil {
+		return nil
+	}
+	return *outputPath
+}
+
+func printGenerateHelp(output io.Writer) {
+	fmt.Fprintln(output, "Usage:")
+	fmt.Fprintln(output, "  envdiff generate <path> [--annotate] [--check] [--output <path>] [--json]")
 }
