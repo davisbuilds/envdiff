@@ -2,8 +2,10 @@ package analyzers
 
 import (
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/davisbuilds/envdiff/internal/dotenv"
 	"github.com/davisbuilds/envdiff/internal/model"
@@ -25,6 +27,15 @@ type contractPayload struct {
 	notes       []string
 }
 
+// fileScan holds one file's parsed contribution to the repository result.
+type fileScan struct {
+	definitions []model.EnvVarDefinition
+	usages      []model.EnvVarUsage
+	warnings    []string
+	resolution  *model.ResolutionDecision
+	err         error
+}
+
 func ScanRepository(path string) (model.RepoScanResult, error) {
 	root, err := filepath.Abs(path)
 	if err != nil {
@@ -36,45 +47,25 @@ func ScanRepository(path string) (model.RepoScanResult, error) {
 		return model.RepoScanResult{}, err
 	}
 
+	// Files are parsed concurrently (each parse reads and regex-scans its own
+	// file). Results are written to a per-file slot and merged in file order,
+	// so the output is independent of goroutine scheduling.
+	results := scanFilesConcurrently(files, root)
+
 	definitions := []model.EnvVarDefinition{}
 	usages := []model.EnvVarUsage{}
 	warnings := []string{}
 	resolutionMap := map[string]model.ResolutionDecision{}
 
-	for _, filePath := range files {
-		name := filepath.Base(filePath)
-		switch {
-		case name == ".env" || name == ".env.example":
-			result, err := dotenv.Parse(filePath)
-			if err != nil {
-				return model.RepoScanResult{}, err
-			}
-			definitions = append(definitions, result.Definitions...)
-			warnings = append(warnings, result.Warnings...)
-		case filepath.Ext(filePath) == ".py":
-			result, err := parsers.ScanPythonFile(filePath)
-			if err != nil {
-				return model.RepoScanResult{}, err
-			}
-			usages = append(usages, result.Usages...)
-			warnings = append(warnings, result.Warnings...)
-			resolutionMap[filePath] = resolveUsageFile(filePath, root)
-		case isComposeFile(name):
-			result, err := parsers.ScanComposeFile(filePath)
-			if err != nil {
-				return model.RepoScanResult{}, err
-			}
-			usages = append(usages, result.Usages...)
-			warnings = append(warnings, result.Warnings...)
-			resolutionMap[filePath] = resolveUsageFile(filePath, root)
-		case isGitHubActionsWorkflow(filePath):
-			result, err := parsers.ScanGitHubActionsFile(filePath)
-			if err != nil {
-				return model.RepoScanResult{}, err
-			}
-			usages = append(usages, result.Usages...)
-			warnings = append(warnings, result.Warnings...)
-			resolutionMap[filePath] = resolveUsageFile(filePath, root)
+	for index, result := range results {
+		if result.err != nil {
+			return model.RepoScanResult{}, result.err
+		}
+		definitions = append(definitions, result.definitions...)
+		usages = append(usages, result.usages...)
+		warnings = append(warnings, result.warnings...)
+		if result.resolution != nil {
+			resolutionMap[files[index]] = *result.resolution
 		}
 	}
 
@@ -94,6 +85,84 @@ func ScanRepository(path string) (model.RepoScanResult, error) {
 		Usages:      order.Usages(usages),
 		Warnings:    order.Strings(warnings),
 	}, nil
+}
+
+// scanFilesConcurrently parses each file in a bounded worker pool and returns
+// one result per file, in the same order as files.
+func scanFilesConcurrently(files []string, root string) []fileScan {
+	results := make([]fileScan, len(files))
+	if len(files) == 0 {
+		return results
+	}
+
+	workers := runtime.GOMAXPROCS(0)
+	if workers > len(files) {
+		workers = len(files)
+	}
+
+	jobs := make(chan int)
+	var wg sync.WaitGroup
+	for worker := 0; worker < workers; worker++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			// Each index is owned by a single goroutine, so writing distinct
+			// slice elements concurrently needs no further synchronization.
+			for index := range jobs {
+				results[index] = scanFile(files[index], root)
+			}
+		}()
+	}
+	for index := range files {
+		jobs <- index
+	}
+	close(jobs)
+	wg.Wait()
+
+	return results
+}
+
+// scanFile parses a single file according to its kind and returns its
+// contribution to the repository result.
+func scanFile(filePath string, root string) fileScan {
+	name := filepath.Base(filePath)
+	switch {
+	case name == ".env" || name == ".env.example":
+		result, err := dotenv.Parse(filePath)
+		if err != nil {
+			return fileScan{err: err}
+		}
+		return fileScan{definitions: result.Definitions, warnings: result.Warnings}
+	case filepath.Ext(filePath) == ".py":
+		result, err := parsers.ScanPythonFile(filePath)
+		return usageFileScan(result, err, filePath, root)
+	case isComposeFile(name):
+		result, err := parsers.ScanComposeFile(filePath)
+		return usageFileScan(result, err, filePath, root)
+	case isGitHubActionsWorkflow(filePath):
+		result, err := parsers.ScanGitHubActionsFile(filePath)
+		return usageFileScan(result, err, filePath, root)
+	}
+	return fileScan{}
+}
+
+// usageFileScan adapts a parser result into a fileScan, attaching the dotenv
+// resolution decision for the source file.
+func usageFileScan(
+	result model.UsageScanResult,
+	err error,
+	filePath string,
+	root string,
+) fileScan {
+	if err != nil {
+		return fileScan{err: err}
+	}
+	resolution := resolveUsageFile(filePath, root)
+	return fileScan{
+		usages:     result.Usages,
+		warnings:   result.Warnings,
+		resolution: &resolution,
+	}
 }
 
 func resolveUsageFile(filePath string, root string) model.ResolutionDecision {
