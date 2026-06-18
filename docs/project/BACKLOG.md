@@ -29,3 +29,8 @@ improvement ideas that should survive across sessions.
   before adding a third-party CLI dependency.
 - **Human rendering:** Human output is smoke-tested for key user-facing strings,
   not byte-for-byte parity. Polish should stay behind JSON parity until cutover.
+- **Exit-code parity:** The spec says command usage failures exit `1`, but the
+  current Python/Typer oracle exits `2` for some validation failures such as
+  single-file `matrix` and invalid `doctor --fail-on`. The Go port currently
+  matches Python for parity; decide later whether to document this as the public
+  contract or intentionally change both implementations.

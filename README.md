@@ -74,6 +74,7 @@ not need `uv run envdiff ...`.
 uv run pytest -q
 uv run ruff check .
 uv run ruff format --check .
+uv run python scripts/check_go_parity.py
 ```
 
 Fixture repos under `tests/fixtures/` are intentionally runnable examples for
@@ -112,6 +113,7 @@ envdiff                      local launcher
 - Local setup, verification, and fixture usage: [docs/system/OPERATIONS.md](docs/system/OPERATIONS.md)
 - Detailed product specification: [docs/project/SPEC.md](docs/project/SPEC.md)
 - Roadmap snapshot: [docs/project/ROADMAP.md](docs/project/ROADMAP.md)
+- Backlog and follow-up tradeoffs: [docs/project/BACKLOG.md](docs/project/BACKLOG.md)
 - Draft Go port spec: [docs/specs/2026-06-18-go-port-spec.md](docs/specs/2026-06-18-go-port-spec.md)
 - Archived market and competitive analysis: [docs/archive/research/MARKET_RESEARCH.md](docs/archive/research/MARKET_RESEARCH.md)
 - Archived Milestone A implementation plan: [docs/archive/plans/2026-03-17-milestone-a-usable-core-implementation.md](docs/archive/plans/2026-03-17-milestone-a-usable-core-implementation.md)

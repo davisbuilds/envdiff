@@ -182,7 +182,7 @@ func runMatrix(args []string, stdout io.Writer, stderr io.Writer) int {
 	}
 	if len(paths) < 2 {
 		fmt.Fprintf(stderr, "matrix requires at least two dotenv files\n")
-		return 1
+		return 2
 	}
 
 	result, err := analyzers.MatrixDotenvFiles(paths, showAll)
@@ -420,7 +420,7 @@ func runDoctor(args []string, stdout io.Writer, stderr io.Writer) int {
 
 	if _, err := analyzers.ShouldFail(model.SummaryCounts{}, failOn); err != nil {
 		fmt.Fprintf(stderr, "%s\n", err)
-		return 1
+		return 2
 	}
 
 	scanResult, err := analyzers.ScanRepository(path)

@@ -15,6 +15,11 @@ uv sync --extra dev
 - Run CLI help: `./envdiff --help`
 - Run tests: `uv run pytest -q`
 - Lint: `uv run ruff check .`
+- Run Go parity gate: `uv run python scripts/check_go_parity.py`
+
+During the side-by-side Go port, the Python CLI remains the default `./envdiff`
+launcher and oracle. The Go implementation can be run directly with
+`go run ./cmd/envdiff ...`.
 
 ## Runnable Fixture Projects
 
@@ -63,8 +68,12 @@ What is implemented:
 - alias, secret-like, and placeholder-like heuristics
 - baseline snapshots and ignore-based suppression
 - grouped doctor summaries in human output
+- side-by-side Go implementation under `cmd/envdiff/` and `internal/`
+- Python/Go parity script for contract-critical fixture cases
 
 What is still open:
 
+- CI integration for the Go test and parity gates
+- launcher cutover from Python to Go after parity remains stable in CI
 - finding-noise reduction beyond the initial heuristic pass
 - broader parser coverage
