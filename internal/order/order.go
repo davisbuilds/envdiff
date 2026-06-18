@@ -7,7 +7,7 @@ import (
 )
 
 func Strings(values []string) []string {
-	ordered := append([]string(nil), values...)
+	ordered := append([]string{}, values...)
 	sort.Strings(ordered)
 	return ordered
 }

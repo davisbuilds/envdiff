@@ -32,13 +32,99 @@ func TestRunRejectsUnimplementedCommand(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 
-	code := Run([]string{"compare", "left.env", "right.env"}, &stdout, &stderr)
+	code := Run([]string{"generate", "."}, &stdout, &stderr)
 
 	if code == 0 {
 		t.Fatal("exit code = 0, want non-zero")
 	}
-	if !strings.Contains(stderr.String(), "compare is not implemented") {
+	if !strings.Contains(stderr.String(), "generate is not implemented") {
 		t.Fatalf("stderr = %q, want unimplemented message", stderr.String())
+	}
+}
+
+func TestRunCompareJSONMatchesGolden(t *testing.T) {
+	t.Chdir(testutil.RepoRoot(t))
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := Run(
+		[]string{
+			"compare",
+			"tests/fixtures/compare/left.env",
+			"tests/fixtures/compare/right.env",
+			"--json",
+		},
+		&stdout,
+		&stderr,
+	)
+
+	if code != 0 {
+		t.Fatalf("exit code = %d, stderr = %q", code, stderr.String())
+	}
+	got := testutil.DecodeJSON(t, stdout.Bytes())
+	want := testutil.LoadGoldenJSON(t, "compare-basic.json")
+	testutil.AssertJSONEqual(t, got, want)
+}
+
+func TestRunCompareHumanIncludesMissingHeading(t *testing.T) {
+	t.Chdir(testutil.RepoRoot(t))
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := Run(
+		[]string{
+			"compare",
+			"tests/fixtures/compare/left.env",
+			"tests/fixtures/compare/right.env",
+		},
+		&stdout,
+		&stderr,
+	)
+
+	if code != 0 {
+		t.Fatalf("exit code = %d, stderr = %q", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "Missing in left") {
+		t.Fatalf("stdout = %q, want Missing in left", stdout.String())
+	}
+}
+
+func TestRunMatrixJSONMatchesGolden(t *testing.T) {
+	t.Chdir(testutil.RepoRoot(t))
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := Run(
+		[]string{
+			"matrix",
+			"tests/fixtures/matrix/a.env",
+			"tests/fixtures/matrix/b.env",
+			"tests/fixtures/matrix/c.env",
+			"--json",
+		},
+		&stdout,
+		&stderr,
+	)
+
+	if code != 0 {
+		t.Fatalf("exit code = %d, stderr = %q", code, stderr.String())
+	}
+	got := testutil.DecodeJSON(t, stdout.Bytes())
+	want := testutil.LoadGoldenJSON(t, "matrix-basic.json")
+	testutil.AssertJSONEqual(t, got, want)
+}
+
+func TestRunMatrixRejectsSinglePath(t *testing.T) {
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := Run([]string{"matrix", "tests/fixtures/matrix/a.env"}, &stdout, &stderr)
+
+	if code == 0 {
+		t.Fatal("exit code = 0, want non-zero")
+	}
+	if !strings.Contains(stderr.String(), "matrix requires at least two dotenv files") {
+		t.Fatalf("stderr = %q, want matrix validation message", stderr.String())
 	}
 }
 

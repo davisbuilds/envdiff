@@ -24,6 +24,12 @@ func Run(args []string, stdout io.Writer, stderr io.Writer) int {
 		printHelp(stderr)
 		return 1
 	}
+	if command == "compare" {
+		return runCompare(args[1:], stdout, stderr)
+	}
+	if command == "matrix" {
+		return runMatrix(args[1:], stdout, stderr)
+	}
 	if command == "scan" {
 		return runScan(args[1:], stdout, stderr)
 	}
@@ -109,4 +115,109 @@ func runScan(args []string, stdout io.Writer, stderr io.Writer) int {
 func printScanHelp(output io.Writer) {
 	fmt.Fprintln(output, "Usage:")
 	fmt.Fprintln(output, "  envdiff scan <path> [--json]")
+}
+
+func runCompare(args []string, stdout io.Writer, stderr io.Writer) int {
+	paths := []string{}
+	jsonOutput := false
+	for _, arg := range args {
+		switch arg {
+		case "--help", "-h":
+			printCompareHelp(stdout)
+			return 0
+		case "--json":
+			jsonOutput = true
+		default:
+			paths = append(paths, arg)
+		}
+	}
+	if len(paths) != 2 {
+		fmt.Fprintf(stderr, "compare requires left and right dotenv files\n")
+		return 1
+	}
+
+	result, err := analyzers.CompareDotenvFiles(paths[0], paths[1])
+	if err != nil {
+		fmt.Fprintf(stderr, "compare failed: %v\n", err)
+		return 1
+	}
+
+	if jsonOutput {
+		return printJSON(
+			model.NewJsonEnvelope(
+				"compare",
+				map[string]any{"left": paths[0], "right": paths[1]},
+				result,
+			),
+			stdout,
+			stderr,
+		)
+	}
+
+	fmt.Fprintln(stdout, render.CompareResult(result))
+	return 0
+}
+
+func runMatrix(args []string, stdout io.Writer, stderr io.Writer) int {
+	paths := []string{}
+	showAll := false
+	jsonOutput := false
+	for _, arg := range args {
+		switch arg {
+		case "--help", "-h":
+			printMatrixHelp(stdout)
+			return 0
+		case "--show-all":
+			showAll = true
+		case "--json":
+			jsonOutput = true
+		default:
+			paths = append(paths, arg)
+		}
+	}
+	if len(paths) < 2 {
+		fmt.Fprintf(stderr, "matrix requires at least two dotenv files\n")
+		return 1
+	}
+
+	result, err := analyzers.MatrixDotenvFiles(paths, showAll)
+	if err != nil {
+		fmt.Fprintf(stderr, "matrix failed: %v\n", err)
+		return 1
+	}
+
+	if jsonOutput {
+		return printJSON(
+			model.NewJsonEnvelope(
+				"matrix",
+				map[string]any{"paths": paths, "show_all": showAll},
+				result,
+			),
+			stdout,
+			stderr,
+		)
+	}
+
+	fmt.Fprintln(stdout, render.MatrixResult(result))
+	return 0
+}
+
+func printJSON(envelope model.JsonEnvelope, stdout io.Writer, stderr io.Writer) int {
+	rendered, err := render.JSON(envelope)
+	if err != nil {
+		fmt.Fprintf(stderr, "render JSON: %v\n", err)
+		return 1
+	}
+	fmt.Fprintln(stdout, rendered)
+	return 0
+}
+
+func printCompareHelp(output io.Writer) {
+	fmt.Fprintln(output, "Usage:")
+	fmt.Fprintln(output, "  envdiff compare <left> <right> [--json]")
+}
+
+func printMatrixHelp(output io.Writer) {
+	fmt.Fprintln(output, "Usage:")
+	fmt.Fprintln(output, "  envdiff matrix <paths...> [--show-all] [--json]")
 }
