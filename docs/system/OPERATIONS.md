@@ -10,10 +10,14 @@ Install dependencies and dev tools:
 uv sync --extra dev
 ```
 
+Go `1.26.4` is also required for the side-by-side Go implementation, Go tests,
+and Python/Go parity gate.
+
 ## Key Commands
 
 - Run CLI help: `./envdiff --help`
 - Run tests: `uv run pytest -q`
+- Run Go tests: `go test ./...`
 - Lint: `uv run ruff check .`
 - Run Go parity gate: `uv run python scripts/check_go_parity.py`
 

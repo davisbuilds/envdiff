@@ -50,6 +50,7 @@ Requirements:
 
 - Python `3.11+`
 - `uv`
+- Go `1.26.4` for side-by-side Go validation
 
 ```bash
 uv sync --extra dev
@@ -74,6 +75,7 @@ not need `uv run envdiff ...`.
 uv run pytest -q
 uv run ruff check .
 uv run ruff format --check .
+go test ./...
 uv run python scripts/check_go_parity.py
 ```
 
