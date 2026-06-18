@@ -112,7 +112,7 @@ type SummaryCounts struct {
 }
 
 type JsonEnvelope struct {
-	Data     map[string]any `json:"data"`
+	Data     any            `json:"data"`
 	Findings []Finding      `json:"findings"`
 	Inputs   map[string]any `json:"inputs"`
 	Meta     CommandMeta    `json:"meta"`
@@ -125,7 +125,7 @@ func NewCommandMeta(command string) CommandMeta {
 	return CommandMeta{Command: command, SchemaVersion: SchemaVersion}
 }
 
-func NewJsonEnvelope(command string, inputs map[string]any, data map[string]any) JsonEnvelope {
+func NewJsonEnvelope(command string, inputs map[string]any, data any) JsonEnvelope {
 	return JsonEnvelope{
 		Data:     data,
 		Findings: []Finding{},
