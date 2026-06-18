@@ -27,11 +27,6 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Setup Go
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
-        with:
-          go-version-file: go.mod
-
       - name: Setup uv
         uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8
         with:
@@ -73,8 +68,37 @@ jobs:
       - name: Run tests
         run: uv run python -m pytest -q
 
-      - name: Run Go tests
+  go:
+    name: Go tests & parity
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version-file: go.mod
+
+      - name: Setup Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: "3.12"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8
+        with:
+          version: "0.11.3"
+
+      - name: Install dependencies (with dev extras)
+        run: uv sync --frozen --extra dev
+
+      - name: Go vet
+        run: go vet ./...
+
+      - name: Go tests
         run: go test ./...
 
-      - name: Run Python/Go parity gate
+      - name: Python/Go parity gate
         run: uv run python scripts/check_go_parity.py
