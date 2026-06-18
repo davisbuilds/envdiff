@@ -88,6 +88,31 @@ func MatrixResult(result map[string]any) string {
 	return strings.Join(lines, "\n")
 }
 
+func ScanResult(scanResult model.RepoScanResult) string {
+	lines := []string{
+		fmt.Sprintf("Scan root: %s", scanResult.RootPath),
+		fmt.Sprintf("Definitions: %d", len(scanResult.Definitions)),
+		fmt.Sprintf("Usages: %d", len(scanResult.Usages)),
+		fmt.Sprintf("Contracts: %d", len(scanResult.Contracts)),
+	}
+
+	if len(scanResult.Contracts) > 0 {
+		lines = append(lines, "Contracts:")
+		for _, contract := range scanResult.Contracts {
+			statuses := strings.Join(contract.Status, ",")
+			if statuses == "" {
+				statuses = "none"
+			}
+			lines = append(
+				lines,
+				fmt.Sprintf("  %s [%s] (%s)", contract.Name, contract.Requiredness, statuses),
+			)
+		}
+	}
+
+	return strings.Join(lines, "\n")
+}
+
 func GenerateResult(
 	variableCount int,
 	outputPath *string,

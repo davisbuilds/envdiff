@@ -113,10 +113,7 @@ func runScan(args []string, stdout io.Writer, stderr io.Writer) int {
 		return 0
 	}
 
-	fmt.Fprintf(stdout, "Scan root: %s\n", result.RootPath)
-	fmt.Fprintf(stdout, "Definitions: %d\n", len(result.Definitions))
-	fmt.Fprintf(stdout, "Usages: %d\n", len(result.Usages))
-	fmt.Fprintf(stdout, "Contracts: %d\n", len(result.Contracts))
+	fmt.Fprintln(stdout, render.ScanResult(result))
 	return 0
 }
 
