@@ -1,11 +1,33 @@
 package render
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/davisbuilds/envdiff/internal/model"
 	"github.com/davisbuilds/envdiff/internal/testutil"
 )
+
+func TestJSONLeavesHTMLMetacharactersLiteral(t *testing.T) {
+	envelope := model.NewJsonEnvelope(
+		"compare",
+		map[string]any{"left": "a.env", "right": "b.env"},
+		map[string]any{"value": "postgres://h/db?a=1&b=2 <tag>"},
+	)
+
+	rendered, err := JSON(envelope)
+	if err != nil {
+		t.Fatalf("render JSON: %v", err)
+	}
+	if !strings.Contains(rendered, "?a=1&b=2 <tag>") {
+		t.Fatalf("expected literal &, <, > in output; got:\n%s", rendered)
+	}
+	for _, escaped := range []string{"\\u0026", "\\u003c", "\\u003e"} {
+		if strings.Contains(rendered, escaped) {
+			t.Fatalf("output should not contain escaped %s; got:\n%s", escaped, rendered)
+		}
+	}
+}
 
 func TestJSONRendersCompareEnvelopeLikePythonGolden(t *testing.T) {
 	envelope := model.NewJsonEnvelope(

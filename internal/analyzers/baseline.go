@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/davisbuilds/envdiff/internal/model"
+	"github.com/davisbuilds/envdiff/internal/render"
 )
 
 func BuildBaselineSnapshot(findings []model.Finding) model.BaselineSnapshot {
@@ -32,7 +33,7 @@ func BuildBaselineSnapshot(findings []model.Finding) model.BaselineSnapshot {
 
 func WriteBaselineSnapshot(path string, findings []model.Finding) (model.BaselineSnapshot, error) {
 	snapshot := BuildBaselineSnapshot(findings)
-	payload, err := json.MarshalIndent(snapshot, "", "  ")
+	payload, err := render.MarshalIndent(snapshot)
 	if err != nil {
 		return model.BaselineSnapshot{}, err
 	}

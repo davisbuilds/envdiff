@@ -27,6 +27,15 @@ JSON_CASES: tuple[tuple[str, list[str]], ...] = (
         ],
     ),
     (
+        "compare-special-chars",
+        [
+            "compare",
+            "tests/fixtures/compare/special_left.env",
+            "tests/fixtures/compare/special_right.env",
+            "--json",
+        ],
+    ),
+    (
         "matrix",
         [
             "matrix",
