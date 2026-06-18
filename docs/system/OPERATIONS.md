@@ -54,7 +54,9 @@ Examples:
 
 - `0`: command completed without findings at or above threshold
 - `1`: execution or parsing failure
-- `2`: findings met or exceeded `--fail-on`
+- `2`: findings met or exceeded `--fail-on` (case-insensitive), `generate --check`
+  drift (including with `--json`), or a usage/validation error such as
+  single-file `matrix`
 
 ## Current Constraints
 

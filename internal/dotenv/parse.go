@@ -1,12 +1,11 @@
 package dotenv
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 
+	"github.com/davisbuilds/envdiff/internal/lines"
 	"github.com/davisbuilds/envdiff/internal/model"
 	"github.com/davisbuilds/envdiff/internal/normalize"
 	"github.com/davisbuilds/envdiff/internal/order"
@@ -15,21 +14,17 @@ import (
 var keyValuePattern = regexp.MustCompile(`^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$`)
 
 func Parse(path string) (model.DotenvParseResult, error) {
-	file, err := os.Open(path)
+	fileLines, err := lines.Read(path)
 	if err != nil {
 		return model.DotenvParseResult{}, err
 	}
-	defer file.Close()
 
 	seen := map[string]int{}
 	definitions := []model.EnvVarDefinition{}
 	warnings := []string{}
 
-	scanner := bufio.NewScanner(file)
-	lineNumber := 0
-	for scanner.Scan() {
-		lineNumber++
-		rawLine := scanner.Text()
+	for index, rawLine := range fileLines {
+		lineNumber := index + 1
 		stripped := strings.TrimSpace(rawLine)
 		if stripped == "" || strings.HasPrefix(stripped, "#") {
 			continue
@@ -59,9 +54,6 @@ func Parse(path string) (model.DotenvParseResult, error) {
 			SourceType:          "dotenv",
 			Value:               value,
 		})
-	}
-	if err := scanner.Err(); err != nil {
-		return model.DotenvParseResult{}, err
 	}
 
 	return model.DotenvParseResult{

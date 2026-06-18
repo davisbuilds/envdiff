@@ -1,10 +1,25 @@
 package model
 
 import (
+	"bytes"
 	"encoding/json"
 
 	"github.com/davisbuilds/envdiff/internal/version"
 )
+
+// marshalNoHTMLEscape behaves like json.Marshal (compact, no trailing newline)
+// but leaves <, >, and & literal instead of escaping them to \u00XX. The model
+// types are data, not HTML, and these helpers are nested inside the indented
+// envelope encoder which also disables HTML escaping.
+func marshalNoHTMLEscape(v any) ([]byte, error) {
+	var buf bytes.Buffer
+	encoder := json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(v); err != nil {
+		return nil, err
+	}
+	return bytes.TrimRight(buf.Bytes(), "\n"), nil
+}
 
 type CommandMeta struct {
 	Command       string `json:"command"`
@@ -148,13 +163,13 @@ func (meta CommandMeta) MarshalJSON() ([]byte, error) {
 	if meta.SchemaVersion == "" {
 		meta.SchemaVersion = SchemaVersion
 	}
-	return json.Marshal(commandMeta(meta))
+	return marshalNoHTMLEscape(commandMeta(meta))
 }
 
 func (definition EnvVarDefinition) MarshalJSON() ([]byte, error) {
 	type envVarDefinition EnvVarDefinition
 	definition.ParseWarnings = emptyStrings(definition.ParseWarnings)
-	return json.Marshal(envVarDefinition(definition))
+	return marshalNoHTMLEscape(envVarDefinition(definition))
 }
 
 func (contract EnvVarContract) MarshalJSON() ([]byte, error) {
@@ -167,27 +182,27 @@ func (contract EnvVarContract) MarshalJSON() ([]byte, error) {
 	if contract.Requiredness == "" {
 		contract.Requiredness = "unknown"
 	}
-	return json.Marshal(envVarContract(contract))
+	return marshalNoHTMLEscape(envVarContract(contract))
 }
 
 func (result DotenvParseResult) MarshalJSON() ([]byte, error) {
 	type dotenvParseResult DotenvParseResult
 	result.Definitions = emptyDefinitions(result.Definitions)
 	result.Warnings = emptyStrings(result.Warnings)
-	return json.Marshal(dotenvParseResult(result))
+	return marshalNoHTMLEscape(dotenvParseResult(result))
 }
 
 func (result UsageScanResult) MarshalJSON() ([]byte, error) {
 	type usageScanResult UsageScanResult
 	result.Usages = emptyUsages(result.Usages)
 	result.Warnings = emptyStrings(result.Warnings)
-	return json.Marshal(usageScanResult(result))
+	return marshalNoHTMLEscape(usageScanResult(result))
 }
 
 func (decision ResolutionDecision) MarshalJSON() ([]byte, error) {
 	type resolutionDecision ResolutionDecision
 	decision.Notes = emptyStrings(decision.Notes)
-	return json.Marshal(resolutionDecision(decision))
+	return marshalNoHTMLEscape(resolutionDecision(decision))
 }
 
 func (result RepoScanResult) MarshalJSON() ([]byte, error) {
@@ -197,7 +212,7 @@ func (result RepoScanResult) MarshalJSON() ([]byte, error) {
 	result.Resolutions = emptyResolutions(result.Resolutions)
 	result.Usages = emptyUsages(result.Usages)
 	result.Warnings = emptyStrings(result.Warnings)
-	return json.Marshal(repoScanResult(result))
+	return marshalNoHTMLEscape(repoScanResult(result))
 }
 
 func (snapshot BaselineSnapshot) MarshalJSON() ([]byte, error) {
@@ -206,7 +221,7 @@ func (snapshot BaselineSnapshot) MarshalJSON() ([]byte, error) {
 	if snapshot.SchemaVersion == "" {
 		snapshot.SchemaVersion = SchemaVersion
 	}
-	return json.Marshal(baselineSnapshot(snapshot))
+	return marshalNoHTMLEscape(baselineSnapshot(snapshot))
 }
 
 func (finding Finding) MarshalJSON() ([]byte, error) {
@@ -216,7 +231,7 @@ func (finding Finding) MarshalJSON() ([]byte, error) {
 	if finding.SourceKind == "" {
 		finding.SourceKind = "deterministic"
 	}
-	return json.Marshal(findingJSON(finding))
+	return marshalNoHTMLEscape(findingJSON(finding))
 }
 
 func (envelope JsonEnvelope) MarshalJSON() ([]byte, error) {
@@ -231,7 +246,7 @@ func (envelope JsonEnvelope) MarshalJSON() ([]byte, error) {
 	if envelope.Meta.SchemaVersion == "" {
 		envelope.Meta.SchemaVersion = SchemaVersion
 	}
-	return json.Marshal(jsonEnvelope(envelope))
+	return marshalNoHTMLEscape(jsonEnvelope(envelope))
 }
 
 func emptyStrings(values []string) []string {

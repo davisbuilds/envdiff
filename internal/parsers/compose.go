@@ -3,6 +3,7 @@ package parsers
 import (
 	"regexp"
 
+	"github.com/davisbuilds/envdiff/internal/lines"
 	"github.com/davisbuilds/envdiff/internal/model"
 	"github.com/davisbuilds/envdiff/internal/order"
 )
@@ -10,13 +11,13 @@ import (
 var composeInterpolationPattern = regexp.MustCompile(`\$\{([A-Z0-9_]+)(:-(.*?))?\}`)
 
 func ScanComposeFile(path string) (model.UsageScanResult, error) {
-	lines, err := readLines(path)
+	fileLines, err := lines.Read(path)
 	if err != nil {
 		return model.UsageScanResult{}, err
 	}
 
 	usages := []model.EnvVarUsage{}
-	for index, line := range lines {
+	for index, line := range fileLines {
 		lineNumber := index + 1
 		for _, match := range composeInterpolationPattern.FindAllStringSubmatchIndex(line, -1) {
 			name := line[match[2]:match[3]]

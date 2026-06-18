@@ -283,6 +283,25 @@ func TestRunGenerateCheckDetectsDrift(t *testing.T) {
 	}
 }
 
+func TestRunGenerateCheckJSONExitsTwoOnDrift(t *testing.T) {
+	t.Chdir(testutil.RepoRoot(t))
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := Run(
+		[]string{"generate", "tests/fixtures/repos/simple_repo", "--check", "--json"},
+		&stdout,
+		&stderr,
+	)
+
+	if code != 2 {
+		t.Fatalf("exit code = %d, want 2; stderr = %q", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "\"matches\": false") {
+		t.Fatalf("stdout = %q, want JSON check payload", stdout.String())
+	}
+}
+
 func TestRunGenerateCheckCanTargetExplicitFile(t *testing.T) {
 	project := filepath.Join(t.TempDir(), "project")
 	appDir := filepath.Join(project, "app")

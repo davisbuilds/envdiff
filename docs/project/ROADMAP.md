@@ -1,346 +1,50 @@
-# envdiff Roadmap
+# Roadmap
 
-## Overview
+envdiff ships in usable increments that cumulatively form a deterministic,
+repo-local environment-contract analyzer. Shipped detail lives in git history
+and `docs/system/`; open and unscheduled work lives in
+`docs/project/BACKLOG.md`. Finished backlog items land in **Shipped** below.
 
-This roadmap is designed for terminal-based implementation by AI agents. Each phase contains a clear objective, bounded deliverables, acceptance criteria, and explicit non-goals to limit scope drift.
+## Shipped
 
-The recommended development sequence is:
+| # | Milestone | What landed |
+| :- | :-------- | :---------- |
+| A | Usable core | `compare`, `scan`, `doctor` over dotenv + Python/Compose usage; repo-local resolution with nearest `.env`/`.env.example`; ignore paths; deterministic traversal; core finding codes (ENV001–ENV007) with `--fail-on` exit behavior. |
+| B | Practical team tool | Alias naming-drift and secret/placeholder heuristics (ENV008–ENV009); human + JSON renderers; versioned JSON envelope; per-severity summary counts; baseline/suppression workflow for gradual CI adoption. |
+| C | Broader contract platform | `matrix` multi-file consistency; `generate` with `--annotate`/`--check`/`--output`; GitHub Actions workflow scanner. |
+| — | Go port | Full side-by-side Go reimplementation; Go is the default `./envdiff` launcher with Python retained as `scripts/envdiff-python`, a parity oracle for one release window; CI gates Go tests and Python/Go parity. |
 
-1. deterministic parsing
-2. contract inference
-3. comparison + linting
-4. UX + CI usability
-5. broader parser coverage
-6. generation and multi-environment intelligence
+## Recent hardening (2026-06)
 
-All phases must preserve:
-- deterministic output
-- offline-first behavior
-- stable JSON for agent consumption
-- repo-local scope boundaries
-- explainable heuristics when confidence-based findings are used
-- low abstraction overhead until justified
+CLI correctness, robustness, and performance pass driven by a code review of the
+Go port (resolved items from the backlog):
 
-## Current Snapshot
+- **Output contract** — JSON no longer HTML-escapes `<`, `>`, `&`; they appear literally in values.
+- **Exit codes** — `generate --check --json` exits `2` on drift (was `0`); `--fail-on` is case-insensitive.
+- **Robustness** — files are read without `bufio.Scanner`'s 64 KB line cap (new `internal/lines` reader); `generate --check` against a directory/non-file target reports drift instead of erroring.
+- **Performance** — repository files are parsed in a bounded worker pool with a deterministic merge; doctor definition-name sets are memoized per file.
 
-- The Go implementation is the default local launcher at `./envdiff`.
-- The Python implementation remains available as `scripts/envdiff-python` as a
-  legacy oracle for one release window.
-- CI validates Python tests, Go tests, and Python/Go parity for contract-critical
-  fixture cases.
+## Open (tracked, not scheduled)
 
----
+Detail in `docs/project/BACKLOG.md`:
 
-## Phase 0 — Bootstrap and Project Skeleton
+- **Go as source of truth** — raw-UTF-8 JSON (drop `ensure_ascii`-style escaping), regenerate goldens from Go, downgrade the Python parity gate, retire the Python oracle.
+- **Remaining oracle divergences** — symlink path canonicalization (`Abs` vs `resolve`), secret-length code-point counting, the usage-error exit-code contract (1 vs 2), and the intentional regex-vs-AST Python scanner.
+- **Perf follow-up** — memoize the per-directory nearest-dotenv resolution walk.
+- **Parser expansion (candidate)** — shell scripts, `.envrc`/direnv (repo-local subset), Pydantic `BaseSettings`, `.devcontainer`, monorepo service grouping.
+- **Stretch** — pre-commit hook, editor diagnostics, alias autofix, contract export/import.
 
-### Objective
-Create the repo skeleton and core CLI entrypoint.
+## Invariants
 
-### Deliverables
-- Python project initialized with `uv`
-- `Typer` CLI entrypoint
-- package structure for parsers, analyzers, renderers, and models
-- base finding model and JSON envelope shape
-- base test harness
-- sample fixture files for `.env`, Python, and Docker Compose
+Determinism (same repo + flags → identical output), offline-first (no network in
+core analysis), stable and documented JSON, repo-local scope (no env
+loading/injection, secret distribution, or machine-global shell config),
+explainable heuristics, and fail-soft handling of malformed input.
 
-### Acceptance Criteria
-- `envdiff --help` works
-- package imports cleanly
-- finding / JSON envelope models import cleanly
-- tests execute successfully
-- lint/format tooling configured
+## Key decisions
 
-### Non-goals
-- no parser logic yet
-- no analysis logic yet
-- no plugin system yet
-
----
-
-## Phase 1 — Dotenv Parsing Foundation
-
-### Objective
-Implement reliable dotenv parsing.
-
-### Deliverables
-- dotenv parser
-- support for comments, blank values, duplicates, quoted values
-- parse warnings model
-- normalized definition objects
-- tests for malformed and edge-case inputs
-
-### Acceptance Criteria
-- parser handles common dotenv syntax without crashing
-- duplicate keys are preserved and flagged
-- line numbers are recorded
-- deterministic output ordering
-
-### Non-goals
-- no code scanning yet
-- no alias detection yet
-
----
-
-## Phase 2 — Source Usage Scanners
-
-### Objective
-Infer expected env vars from source/config files.
-
-### Deliverables
-- Python AST scanner
-  - `os.environ["X"]`
-  - `os.getenv("X")`
-  - `os.getenv("X", default)`
-- Docker Compose scanner
-  - `${VAR}`
-  - `${VAR:-default}`
-- unified usage model
-- fixture-based tests
-
-### Acceptance Criteria
-- required vs optional inference works for supported patterns
-- file path and line number captured
-- unsupported constructs fail soft rather than crashing
-
-### Non-goals
-- no shell parsing
-- no Pydantic inference yet
-- no GitHub Actions support yet
-
----
-
-## Phase 3 — Contract Model and Repo Scan
-
-### Objective
-Build the internal contract model for combining usages and definitions.
-
-### Deliverables
-- `EnvVarContract` aggregation layer
-- repo scanner for collecting definitions and usages
-- repo-local resolution model for associating usages with `.env` / `.env.example`
-- nearest-definition behavior for monorepos and multi-service repos
-- ignore-path support
-- deterministic traversal order
-- basic summary output for scan mode
-
-### Acceptance Criteria
-- variables can be classified as referenced/defined/required/optional
-- locations are preserved
-- repo-local resolution behavior is deterministic and documented
-- repo scan is deterministic
-- scan results usable by analyzers
-
-### Non-goals
-- no compare command yet
-- no doctor command yet
-
----
-
-## Phase 4 — Compare Command
-
-### Objective
-Implement file-to-file comparison.
-
-### Deliverables
-- `envdiff compare <left> <right>`
-- detection for missing / extra / duplicate / differing value-class
-- human renderer
-- JSON renderer
-- tests for compare scenarios
-
-### Acceptance Criteria
-- compare works for two dotenv files
-- JSON output stable and machine-readable
-- value normalization categories are applied consistently
-
-### Non-goals
-- no multi-file matrix yet
-- no alias detection yet
-
----
-
-## Phase 5 — Doctor Command
-
-### Objective
-Implement repo-level contract validation.
-
-### Deliverables
-- `envdiff doctor <path>`
-- finding codes and severities
-- confidence and reason fields for heuristic-ready findings
-- missing required/optional detection
-- defined-but-unused detection
-- environment skew checks against `.env.example` where present
-- `--fail-on` exit behavior
-
-### Acceptance Criteria
-- doctor produces actionable findings
-- exit code behavior matches severity threshold
-- findings contain locations and suggested fixes where possible
-
-### Non-goals
-- no secret heuristics yet
-- no alias detection yet
-
----
-
-## Phase 6 — Alias and Secret Heuristics
-
-### Objective
-Add the two highest-value heuristic layers: naming drift and secret hygiene.
-
-### Deliverables
-- alias similarity engine
-- fixed-threshold candidate scoring
-- secret-like value detector
-- placeholder detector
-- explainable reasons for alias/secret findings
-- conservative thresholds tuned to minimize noisy output
-- doctor integration for both
-
-### Acceptance Criteria
-- common alias cases are detected with explainable heuristics
-- placeholders are not misclassified as secrets
-- ordering and scores remain deterministic
-
-### Non-goals
-- no network calls
-- no external secret APIs
-
----
-
-## Phase 7 — Output Quality and CI Usability
-
-### Objective
-Make the tool practical for repeated terminal and CI use.
-
-### Deliverables
-- improved Rich rendering
-- stable JSON contract documentation
-- schema versioning for machine-readable output
-- `--quiet`, `--verbose`, and `--json` polish
-- clearer exit codes
-- summary counts per severity
-- performance pass for medium-sized repos
-
-### Acceptance Criteria
-- human output readable in standard terminals
-- JSON output documented and stable
-- CI workflows can fail on warning/error predictably
-
-### Non-goals
-- no new parser categories
-
----
-
-## Phase 8 — Generation and Matrix Modes
-
-### Objective
-Add broader contract workflows.
-
-### Deliverables
-- `envdiff matrix`
-- `envdiff generate`
-- annotated `.env.example` generation from inferred contract
-- multi-env consistency summaries
-- baseline / snapshot workflow for incremental adoption if prior phases remain bounded
-
-### Acceptance Criteria
-- matrix compares multiple env files deterministically
-- generate emits valid dotenv output
-- generated file can include comments/annotations when enabled
-- baseline mode, if included, is deterministic and supports gradual adoption in CI
-
-### Non-goals
-- no automatic repo rewriting
-- no cloud/env injection support
-
----
-
-## Phase 9 — Expanded Parser Coverage
-
-### Objective
-Broaden ecosystem support after core value is proven.
-
-### Candidate Deliverables
-- GitHub Actions parser
-- shell script parser
-- repo-local `.envrc` / direnv-style parser using a conservative supported subset
-- explicit non-goal: user shell startup files such as `~/.zshrc` and `~/.zprofile`
-- Pydantic/BaseSettings inference
-- `.devcontainer/devcontainer.json` support
-- service grouping for monorepos
-
-### Acceptance Criteria
-- each new parser has fixture coverage
-- unsupported syntax degrades gracefully
-- no regressions in base commands
-
----
-
-## Global Engineering Rules for Agents
-
-### Determinism
-Same repo and same flags must produce identical outputs.
-
-### Offline-first
-Do not depend on network access for core functionality.
-
-### Stable JSON
-All machine-readable outputs must have explicit, documented fields.
-
-### Product Boundary
-Do not drift into env loading, encryption/distribution, or machine-global shell configuration.
-
-### Fail Soft
-Malformed inputs should produce warnings where possible, not hard crashes.
-
-### Bounded Scope
-Do not implement speculative integrations before the prior phase is complete.
-
-### Test Before Extension
-Add fixtures and tests before broadening parser support.
-
-### Defer Plugin Systems
-Do not introduce a general plugin architecture before the core analyzers and JSON contract are proven.
-
----
-
-## Suggested Agent Execution Order
-
-1. bootstrap CLI and tests
-2. dotenv parser
-3. Python and Compose scanners
-4. contract aggregation and repo-local resolution
-5. compare command
-6. doctor command and structured findings
-7. alias and secret heuristics
-8. output/CI polish
-9. matrix, generate, and optional baseline workflow
-10. ecosystem parser expansion
-
----
-
-## Recommended Milestones
-
-### Milestone A — Usable Core
-Phases 0–5 complete  
-Outcome: compare, scan, and doctor are real, useful, and monorepo-aware.
-
-### Milestone B — Practical Team Tool
-Phase 6–7 complete  
-Outcome: alias detection, secret hygiene, CI friendliness, and stable machine contracts.
-
-### Milestone C — Broader Contract Platform
-Phase 8–9 complete  
-Outcome: matrix, generation, and additional parser support.
-
----
-
-## Stretch Ideas
-
-- pre-commit integration
-- editor diagnostics
-- autofix suggestions for alias standardization
-- config contract export/import
+- **Go is the product; Python is a transitional oracle.** Parity is a migration
+  safety net, not the goal — Go-only improvements take precedence (e.g. JSON
+  output), and the Python oracle is scheduled for retirement.
+- **The JSON envelope, field names, and finding codes are a public contract**
+  with deterministic ordering owned by `internal/order`.

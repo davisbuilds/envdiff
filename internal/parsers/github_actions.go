@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/davisbuilds/envdiff/internal/lines"
 	"github.com/davisbuilds/envdiff/internal/model"
 	"github.com/davisbuilds/envdiff/internal/order"
 )
@@ -14,13 +15,13 @@ var (
 )
 
 func ScanGitHubActionsFile(path string) (model.UsageScanResult, error) {
-	lines, err := readLines(path)
+	fileLines, err := lines.Read(path)
 	if err != nil {
 		return model.UsageScanResult{}, err
 	}
 
 	usages := []model.EnvVarUsage{}
-	for index, line := range lines {
+	for index, line := range fileLines {
 		lineNumber := index + 1
 		for _, expressionMatch := range actionsExpressionPattern.FindAllStringSubmatch(line, -1) {
 			expression := expressionMatch[1]

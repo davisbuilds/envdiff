@@ -8,6 +8,23 @@ import (
 	"github.com/davisbuilds/envdiff/internal/testutil"
 )
 
+func TestShouldFailIsCaseInsensitive(t *testing.T) {
+	summary := model.SummaryCounts{Error: 1}
+	for _, threshold := range []string{"error", "ERROR", "Error"} {
+		fail, err := ShouldFail(summary, threshold)
+		if err != nil {
+			t.Fatalf("ShouldFail(%q): unexpected error %v", threshold, err)
+		}
+		if !fail {
+			t.Fatalf("ShouldFail(%q): expected true for one error", threshold)
+		}
+	}
+
+	if _, err := ShouldFail(summary, "bogus"); err == nil {
+		t.Fatalf("ShouldFail(\"bogus\"): expected an error")
+	}
+}
+
 func TestDoctorRepositoryEmitsCoreFindings(t *testing.T) {
 	scanResult, err := ScanRepository(testutil.FixturePath(t, "doctor", "project"))
 	if err != nil {
