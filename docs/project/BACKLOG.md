@@ -5,6 +5,10 @@ improvement ideas that should survive across sessions.
 
 ## Go Port Follow-Ups
 
+- **Python legacy ownership:** Python is retained as a legacy parity oracle for
+  one release window after the Go launcher cutover. Decide later whether to move
+  it to a legacy path or remove it after confidence in the Go implementation is
+  sufficient.
 - **Toolchain provenance:** Go was installed via Homebrew during the side-by-side
   port work. Current local version is `go1.26.4 darwin/arm64`, and `go.mod`
   reflects `go 1.26.4`.

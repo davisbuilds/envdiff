@@ -2,7 +2,7 @@
 date: 2026-06-18
 topic: go-port
 stage: spec
-status: in-progress
+status: complete
 source: conversation
 ---
 

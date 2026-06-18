@@ -59,9 +59,9 @@ uv sync --extra dev
 ./envdiff scan tests/fixtures/repos/simple_repo --json
 ```
 
-The repo includes `./envdiff` as the local Go launcher. During the cutover
-window, the Python implementation remains available as `scripts/envdiff-python`
-for oracle and fallback checks.
+The repo includes `./envdiff` as the local Go launcher. The Python
+implementation remains available as `scripts/envdiff-python` as a legacy oracle
+for one release window.
 
 ## Common Commands
 
@@ -121,7 +121,7 @@ envdiff                      local Go launcher
 - Detailed product specification: [docs/project/SPEC.md](docs/project/SPEC.md)
 - Roadmap snapshot: [docs/project/ROADMAP.md](docs/project/ROADMAP.md)
 - Backlog and follow-up tradeoffs: [docs/project/BACKLOG.md](docs/project/BACKLOG.md)
-- Draft Go port spec: [docs/specs/2026-06-18-go-port-spec.md](docs/specs/2026-06-18-go-port-spec.md)
+- Completed Go port spec: [docs/specs/2026-06-18-go-port-spec.md](docs/specs/2026-06-18-go-port-spec.md)
 - Archived market and competitive analysis: [docs/archive/research/MARKET_RESEARCH.md](docs/archive/research/MARKET_RESEARCH.md)
 - Archived Milestone A implementation plan: [docs/archive/plans/2026-03-17-milestone-a-usable-core-implementation.md](docs/archive/plans/2026-03-17-milestone-a-usable-core-implementation.md)
 

@@ -13,7 +13,7 @@ compares `.env` files, and flags mismatches. Local-first; no network in core ana
 - `docs/project/SPEC.md` — problem framing and in/out scope.
 - `docs/project/ROADMAP.md` — shipped highlights and open items.
 - `docs/project/BACKLOG.md` — tradeoffs and follow-up simplification backlog.
-- `docs/specs/2026-06-18-go-port-spec.md` — in-progress side-by-side Go port plan.
+- `docs/specs/2026-06-18-go-port-spec.md` — completed side-by-side Go port plan.
 
 ## Command Quickstart
 
@@ -27,7 +27,7 @@ go test ./...                        # Go side-by-side implementation tests
 uv run python scripts/check_go_parity.py # Python/Go contract parity
 ```
 
-Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Default entry point: `cmd/envdiff` (Go). Python fallback entry point: `envdiff.cli:main` (Typer), via `scripts/envdiff-python`.
+Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Default entry point: `cmd/envdiff` (Go). Python legacy/oracle entry point: `envdiff.cli:main` (Typer), via `scripts/envdiff-python`.
 
 ## Project Boundaries
 

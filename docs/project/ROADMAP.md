@@ -24,8 +24,8 @@ All phases must preserve:
 ## Current Snapshot
 
 - The Go implementation is the default local launcher at `./envdiff`.
-- The Python implementation remains available as `scripts/envdiff-python` during
-  the legacy/oracle decision window.
+- The Python implementation remains available as `scripts/envdiff-python` as a
+  legacy oracle for one release window.
 - CI validates Python tests, Go tests, and Python/Go parity for contract-critical
   fixture cases.
 

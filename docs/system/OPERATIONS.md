@@ -22,8 +22,9 @@ and Python/Go parity gate.
 - Lint: `uv run ruff check .`
 - Run Go parity gate: `uv run python scripts/check_go_parity.py`
 
-During the Go cutover, `./envdiff` is the Go launcher. The Python CLI remains
-available as `scripts/envdiff-python` and is still used as the parity oracle.
+`./envdiff` is the Go launcher. The Python CLI remains available as
+`scripts/envdiff-python` and is retained as a legacy parity oracle for one
+release window.
 
 ## Runnable Fixture Projects
 
@@ -79,6 +80,6 @@ What is implemented:
 
 What is still open:
 
-- final Python legacy retention/removal decision
+- final removal or relocation of the retained Python legacy oracle
 - finding-noise reduction beyond the initial heuristic pass
 - broader parser coverage
