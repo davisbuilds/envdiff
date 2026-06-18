@@ -97,9 +97,9 @@ src/envdiff/analyzers/       repo and contract analyzers
 src/envdiff/parsers/         dotenv, source, and workflow parsers
 src/envdiff/render/          human and JSON renderers
 src/envdiff/utils/           shared utility code
-tests/               pytest suite and fixture repos
-docs/                system, project, research, and plan docs
-envdiff              local launcher
+tests/                       pytest suite and fixture repos
+docs/                        system, project, spec, archive, and reference docs
+envdiff                      local launcher
 ```
 
 ## Documentation
@@ -112,8 +112,9 @@ envdiff              local launcher
 - Local setup, verification, and fixture usage: [docs/system/OPERATIONS.md](docs/system/OPERATIONS.md)
 - Detailed product specification: [docs/project/SPEC.md](docs/project/SPEC.md)
 - Roadmap snapshot: [docs/project/ROADMAP.md](docs/project/ROADMAP.md)
-- Market and competitive analysis: [docs/research/MARKET_RESEARCH.md](docs/research/MARKET_RESEARCH.md)
-- Active implementation plan: [docs/plans/2026-03-17-milestone-a-usable-core-implementation.md](docs/plans/2026-03-17-milestone-a-usable-core-implementation.md)
+- Draft Go port spec: [docs/specs/2026-06-18-go-port-spec.md](docs/specs/2026-06-18-go-port-spec.md)
+- Archived market and competitive analysis: [docs/archive/research/MARKET_RESEARCH.md](docs/archive/research/MARKET_RESEARCH.md)
+- Archived Milestone A implementation plan: [docs/archive/plans/2026-03-17-milestone-a-usable-core-implementation.md](docs/archive/plans/2026-03-17-milestone-a-usable-core-implementation.md)
 
 ## Current Boundaries
 
