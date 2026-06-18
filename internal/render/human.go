@@ -3,6 +3,8 @@ package render
 import (
 	"fmt"
 	"strings"
+
+	"github.com/davisbuilds/envdiff/internal/model"
 )
 
 func CompareResult(result map[string]any) string {
@@ -108,6 +110,55 @@ func GenerateResult(
 		return fmt.Sprintf("Generated %d variables%s", variableCount, suffix)
 	}
 	return fmt.Sprintf("Generated %d variables%s to %s", variableCount, suffix, *outputPath)
+}
+
+func DoctorResult(
+	rootPath string,
+	findings []model.Finding,
+	suppressedCount int,
+	baselineWritten *string,
+) string {
+	counts := map[string]int{}
+	for _, finding := range findings {
+		counts[finding.Severity]++
+	}
+	lines := []string{
+		fmt.Sprintf("Doctor root: %s", rootPath),
+		fmt.Sprintf("Findings: %d", len(findings)),
+		fmt.Sprintf(
+			"Summary: %d error, %d warning, %d info",
+			counts["error"],
+			counts["warning"],
+			counts["info"],
+		),
+	}
+	if suppressedCount > 0 {
+		lines = append(lines, fmt.Sprintf("Suppressed: %d", suppressedCount))
+	}
+	if baselineWritten != nil {
+		lines = append(lines, fmt.Sprintf("Baseline written: %s", *baselineWritten))
+	}
+	if len(findings) == 0 {
+		lines = append(lines, "No active findings.")
+		return strings.Join(lines, "\n")
+	}
+
+	for _, severity := range []string{"error", "warning", "info"} {
+		scoped := []model.Finding{}
+		for _, finding := range findings {
+			if finding.Severity == severity {
+				scoped = append(scoped, finding)
+			}
+		}
+		if len(scoped) == 0 {
+			continue
+		}
+		lines = append(lines, strings.ToUpper(severity[:1])+severity[1:]+"s:")
+		for _, finding := range scoped {
+			lines = append(lines, fmt.Sprintf("  %s %s", finding.Code, finding.Details))
+		}
+	}
+	return strings.Join(lines, "\n")
 }
 
 func joinStrings(values []string) string {

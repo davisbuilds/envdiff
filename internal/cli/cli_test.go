@@ -30,17 +30,17 @@ func TestRunPrintsHelpForNoArguments(t *testing.T) {
 	}
 }
 
-func TestRunRejectsUnimplementedCommand(t *testing.T) {
+func TestRunRejectsUnknownCommand(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 
-	code := Run([]string{"doctor", "."}, &stdout, &stderr)
+	code := Run([]string{"bogus"}, &stdout, &stderr)
 
 	if code == 0 {
 		t.Fatal("exit code = 0, want non-zero")
 	}
-	if !strings.Contains(stderr.String(), "doctor is not implemented") {
-		t.Fatalf("stderr = %q, want unimplemented message", stderr.String())
+	if !strings.Contains(stderr.String(), "unknown command") {
+		t.Fatalf("stderr = %q, want unknown command message", stderr.String())
 	}
 }
 
@@ -229,5 +229,87 @@ func TestRunGenerateCheckCanTargetExplicitFile(t *testing.T) {
 	}
 	if !strings.Contains(stdout.String(), "matches") {
 		t.Fatalf("stdout = %q, want matches", stdout.String())
+	}
+}
+
+func TestRunDoctorJSONMatchesGolden(t *testing.T) {
+	t.Chdir(testutil.RepoRoot(t))
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := Run([]string{"doctor", "tests/fixtures/doctor/project", "--json"}, &stdout, &stderr)
+
+	if code != 2 {
+		t.Fatalf("exit code = %d, want 2; stderr = %q", code, stderr.String())
+	}
+	got := testutil.DecodeJSON(t, stdout.Bytes())
+	got = testutil.NormalizeJSONValue(got, testutil.DefaultPathReplacements(t))
+	want := testutil.LoadGoldenJSON(t, "doctor-project.json")
+	testutil.AssertJSONEqual(t, got, want)
+}
+
+func TestRunDoctorThresholdAndInvalidFailOn(t *testing.T) {
+	t.Chdir(testutil.RepoRoot(t))
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := Run(
+		[]string{"doctor", "tests/fixtures/doctor/project", "--fail-on", "warning"},
+		&stdout,
+		&stderr,
+	)
+
+	if code != 2 {
+		t.Fatalf("exit code = %d, want 2; stderr = %q", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "ENV001") {
+		t.Fatalf("stdout = %q, want ENV001", stdout.String())
+	}
+
+	stdout.Reset()
+	stderr.Reset()
+	code = Run([]string{"doctor", "tests/fixtures/doctor/project", "--fail-on", "debug"}, &stdout, &stderr)
+	if code == 0 {
+		t.Fatal("exit code = 0, want non-zero")
+	}
+	if !strings.Contains(stderr.String(), "fail-on must be one of") {
+		t.Fatalf("stderr = %q, want allowed severities", stderr.String())
+	}
+}
+
+func TestRunDoctorBaselineSuppressesFindings(t *testing.T) {
+	t.Chdir(testutil.RepoRoot(t))
+	baselinePath := filepath.Join(t.TempDir(), "doctor-baseline.json")
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := Run(
+		[]string{"doctor", "tests/fixtures/doctor/project", "--write-baseline", baselinePath},
+		&stdout,
+		&stderr,
+	)
+	if code != 0 {
+		t.Fatalf("write baseline exit code = %d, stderr = %q", code, stderr.String())
+	}
+
+	stdout.Reset()
+	stderr.Reset()
+	code = Run(
+		[]string{
+			"doctor",
+			"tests/fixtures/doctor/project",
+			"--baseline",
+			baselinePath,
+			"--fail-on",
+			"warning",
+		},
+		&stdout,
+		&stderr,
+	)
+	if code != 0 {
+		t.Fatalf("baseline exit code = %d, stderr = %q", code, stderr.String())
+	}
+	if !strings.Contains(stdout.String(), "Findings: 0") {
+		t.Fatalf("stdout = %q, want suppressed findings", stdout.String())
 	}
 }

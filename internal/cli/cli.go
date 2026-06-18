@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 
 	"github.com/davisbuilds/envdiff/internal/analyzers"
 	"github.com/davisbuilds/envdiff/internal/model"
@@ -35,6 +37,9 @@ func Run(args []string, stdout io.Writer, stderr io.Writer) int {
 	}
 	if command == "generate" {
 		return runGenerate(args[1:], stdout, stderr)
+	}
+	if command == "doctor" {
+		return runDoctor(args[1:], stdout, stderr)
 	}
 
 	fmt.Fprintf(stderr, "%s is not implemented in the Go port yet\n", command)
@@ -357,4 +362,184 @@ func outputPathValue(outputPath *string) any {
 func printGenerateHelp(output io.Writer) {
 	fmt.Fprintln(output, "Usage:")
 	fmt.Fprintln(output, "  envdiff generate <path> [--annotate] [--check] [--output <path>] [--json]")
+}
+
+func runDoctor(args []string, stdout io.Writer, stderr io.Writer) int {
+	path := ""
+	failOn := "error"
+	var baselinePath *string
+	var writeBaselinePath *string
+	var ignoreFilePath *string
+	jsonOutput := false
+
+	for index := 0; index < len(args); index++ {
+		arg := args[index]
+		switch arg {
+		case "--help", "-h":
+			printDoctorHelp(stdout)
+			return 0
+		case "--json":
+			jsonOutput = true
+		case "--fail-on":
+			value, ok := nextOptionValue(args, &index)
+			if !ok {
+				fmt.Fprintf(stderr, "--fail-on requires a severity\n")
+				return 1
+			}
+			failOn = value
+		case "--baseline":
+			value, ok := nextOptionValue(args, &index)
+			if !ok {
+				fmt.Fprintf(stderr, "--baseline requires a path\n")
+				return 1
+			}
+			baselinePath = &value
+		case "--write-baseline":
+			value, ok := nextOptionValue(args, &index)
+			if !ok {
+				fmt.Fprintf(stderr, "--write-baseline requires a path\n")
+				return 1
+			}
+			writeBaselinePath = &value
+		case "--ignore-file":
+			value, ok := nextOptionValue(args, &index)
+			if !ok {
+				fmt.Fprintf(stderr, "--ignore-file requires a path\n")
+				return 1
+			}
+			ignoreFilePath = &value
+		default:
+			if path != "" {
+				fmt.Fprintf(stderr, "doctor accepts exactly one path\n")
+				return 1
+			}
+			path = arg
+		}
+	}
+	if path == "" {
+		fmt.Fprintf(stderr, "doctor requires a repository path\n")
+		return 1
+	}
+
+	if _, err := analyzers.ShouldFail(model.SummaryCounts{}, failOn); err != nil {
+		fmt.Fprintf(stderr, "%s\n", err)
+		return 1
+	}
+
+	scanResult, err := analyzers.ScanRepository(path)
+	if err != nil {
+		fmt.Fprintf(stderr, "doctor scan failed: %v\n", err)
+		return 1
+	}
+	findings := analyzers.DoctorRepository(scanResult)
+
+	suppressionKeys := map[string]struct{}{}
+	baselineEntryCount := 0
+	if baselinePath != nil {
+		snapshot, err := analyzers.LoadBaselineSnapshot(*baselinePath)
+		if err != nil {
+			fmt.Fprintf(stderr, "load baseline failed: %v\n", err)
+			return 1
+		}
+		baselineEntryCount = len(snapshot.Entries)
+		for _, entry := range snapshot.Entries {
+			suppressionKeys[entry.SuppressionKey] = struct{}{}
+		}
+	}
+
+	defaultIgnorePath := filepath.Join(path, ".envdiffignore")
+	if ignoreFilePath != nil {
+		keys, err := analyzers.LoadIgnoreKeys(*ignoreFilePath)
+		if err != nil {
+			fmt.Fprintf(stderr, "load ignore file failed: %v\n", err)
+			return 1
+		}
+		for key := range keys {
+			suppressionKeys[key] = struct{}{}
+		}
+	} else if info, err := os.Stat(defaultIgnorePath); err == nil && !info.IsDir() {
+		ignoreFilePath = &defaultIgnorePath
+		keys, err := analyzers.LoadIgnoreKeys(defaultIgnorePath)
+		if err != nil {
+			fmt.Fprintf(stderr, "load ignore file failed: %v\n", err)
+			return 1
+		}
+		for key := range keys {
+			suppressionKeys[key] = struct{}{}
+		}
+	}
+
+	activeFindings, suppressedFindings := analyzers.ApplySuppressions(findings, suppressionKeys)
+	summary := analyzers.SummarizeFindings(activeFindings)
+	var baselineWritten *string
+	if writeBaselinePath != nil {
+		if _, err := analyzers.WriteBaselineSnapshot(*writeBaselinePath, findings); err != nil {
+			fmt.Fprintf(stderr, "write baseline failed: %v\n", err)
+			return 1
+		}
+		baselineWritten = writeBaselinePath
+	}
+
+	if jsonOutput {
+		envelope := model.NewJsonEnvelope(
+			"doctor",
+			map[string]any{
+				"baseline":       outputPathValue(baselinePath),
+				"fail_on":        failOn,
+				"ignore_file":    outputPathValue(ignoreFilePath),
+				"path":           path,
+				"write_baseline": outputPathValue(writeBaselinePath),
+			},
+			map[string]any{
+				"filtering": map[string]any{
+					"baseline_entries": baselineEntryCount,
+					"baseline_written": outputPathValue(baselineWritten),
+					"suppressed_count": len(suppressedFindings),
+				},
+				"scan":                scanResult,
+				"suppressed_findings": suppressedFindings,
+			},
+		)
+		envelope.Findings = activeFindings
+		envelope.Summary = summary
+		if code := printJSON(envelope, stdout, stderr); code != 0 {
+			return code
+		}
+	} else {
+		fmt.Fprintln(
+			stdout,
+			render.DoctorResult(
+				scanResult.RootPath,
+				activeFindings,
+				len(suppressedFindings),
+				baselineWritten,
+			),
+		)
+	}
+
+	if writeBaselinePath != nil {
+		return 0
+	}
+	shouldFail, err := analyzers.ShouldFail(summary, failOn)
+	if err != nil {
+		fmt.Fprintf(stderr, "%s\n", err)
+		return 1
+	}
+	if shouldFail {
+		return 2
+	}
+	return 0
+}
+
+func nextOptionValue(args []string, index *int) (string, bool) {
+	if *index+1 >= len(args) {
+		return "", false
+	}
+	*index = *index + 1
+	return args[*index], true
+}
+
+func printDoctorHelp(output io.Writer) {
+	fmt.Fprintln(output, "Usage:")
+	fmt.Fprintln(output, "  envdiff doctor <path> [--fail-on <severity>] [--baseline <path>] [--write-baseline <path>] [--ignore-file <path>] [--json]")
 }
