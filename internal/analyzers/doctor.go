@@ -49,13 +49,28 @@ func DoctorRepository(scanResult model.RepoScanResult) []model.Finding {
 		}
 	}
 
+	// The set of names defined in a given file is identical for every usage
+	// that resolves to it, so memoize per file path instead of rebuilding it on
+	// each usage iteration.
+	nameCache := map[string]map[string]struct{}{}
+	namesFor := func(filePath *string) map[string]struct{} {
+		if filePath == nil {
+			return nil
+		}
+		if cached, ok := nameCache[*filePath]; ok {
+			return cached
+		}
+		names := definitionNames(definitionsByFile, filePath)
+		nameCache[*filePath] = names
+		return names
+	}
+
 	for _, usage := range scanResult.Usages {
 		resolution, hasResolution := resolutionsBySource[usage.FilePath]
-		envNames := definitionNames(definitionsByFile, nil)
-		exampleNames := definitionNames(definitionsByFile, nil)
+		var envNames, exampleNames map[string]struct{}
 		if hasResolution {
-			envNames = definitionNames(definitionsByFile, resolution.EnvFile)
-			exampleNames = definitionNames(definitionsByFile, resolution.ExampleFile)
+			envNames = namesFor(resolution.EnvFile)
+			exampleNames = namesFor(resolution.ExampleFile)
 			if resolution.EnvFile != nil {
 				addAssociatedName(associatedUsageNames, *resolution.EnvFile, usage.Name)
 			}
