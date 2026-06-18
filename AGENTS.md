@@ -13,7 +13,6 @@ compares `.env` files, and flags mismatches. Local-first; no network in core ana
 - `docs/project/SPEC.md` — problem framing and in/out scope.
 - `docs/project/ROADMAP.md` — shipped highlights and open items.
 - `docs/project/BACKLOG.md` — tradeoffs and follow-up simplification backlog.
-- `docs/specs/2026-06-18-go-port-spec.md` — completed side-by-side Go port plan.
 
 ## Command Quickstart
 

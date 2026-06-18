@@ -106,7 +106,7 @@ cmd/envdiff/                 Go CLI entrypoint
 internal/                    Go implementation packages
 scripts/envdiff-python       Python fallback launcher
 tests/                       pytest suite and fixture repos
-docs/                        system, project, spec, archive, and reference docs
+docs/                        system, project, and reference docs
 envdiff                      local Go launcher
 ```
 
@@ -121,9 +121,6 @@ envdiff                      local Go launcher
 - Detailed product specification: [docs/project/SPEC.md](docs/project/SPEC.md)
 - Roadmap snapshot: [docs/project/ROADMAP.md](docs/project/ROADMAP.md)
 - Backlog and follow-up tradeoffs: [docs/project/BACKLOG.md](docs/project/BACKLOG.md)
-- Completed Go port spec: [docs/specs/2026-06-18-go-port-spec.md](docs/specs/2026-06-18-go-port-spec.md)
-- Archived market and competitive analysis: [docs/archive/research/MARKET_RESEARCH.md](docs/archive/research/MARKET_RESEARCH.md)
-- Archived Milestone A implementation plan: [docs/archive/plans/2026-03-17-milestone-a-usable-core-implementation.md](docs/archive/plans/2026-03-17-milestone-a-usable-core-implementation.md)
 
 ## Current Boundaries
 
