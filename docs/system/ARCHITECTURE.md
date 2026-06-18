@@ -2,7 +2,7 @@
 
 ## High-Level Flow
 
-`envdiff` currently has five top-level workflows:
+`envdiff` has five top-level workflows:
 
 1. `compare`: parse two dotenv files and compute missing keys, duplicates, and value-kind differences.
 2. `generate`: infer a repo-local `.env.example` candidate and optionally check drift.
@@ -12,40 +12,53 @@
 
 The current implementation is intentionally local-first and deterministic. There are no network dependencies in core analysis.
 
+## Implementation Ownership
+
+The Go implementation under `cmd/envdiff/` and `internal/` is the default local
+launcher path through `./envdiff`.
+
+The Python implementation under `src/envdiff/` is retained as a legacy parity
+oracle for one release window and is available through `scripts/envdiff-python`.
+Parity is checked by `scripts/check_go_parity.py`.
+
 ## CLI Layer
 
-`src/envdiff/cli.py` exposes the current command surface:
+`cmd/envdiff/main.go` delegates to `internal/cli`, which exposes the current
+command surface:
 
 ```text
 compare, generate, matrix, scan, doctor
 ```
 
 Each command supports a human-oriented terminal rendering path and a stable JSON path.
+The legacy Python CLI at `src/envdiff/cli.py` mirrors this surface for parity
+checks.
 
 ## Analyzer Layer
 
-`src/envdiff/analyzers/` contains the main product logic:
+`internal/analyzers/` contains the active Go product logic:
 
-- `compare.py`: dotenv file-to-file comparison
-- `generate.py`: inferred `.env.example` generation and drift checks
-- `matrix.py`: multi-file dotenv comparison
-- `scan.py`: repository traversal, parser dispatch, contract aggregation, and repo-local resolution
-- `doctor.py`: contract validation and finding generation
-- `aliases.py`: low-confidence, explainable naming-drift heuristics
-- `secrets.py`: conservative secret-like and placeholder-like checks for committed `.env` values
+- `compare.go`: dotenv file-to-file comparison
+- `generate.go`: inferred `.env.example` generation and drift checks
+- `matrix.go`: multi-file dotenv comparison
+- `scan.go`: repository traversal, parser dispatch, contract aggregation, and repo-local resolution
+- `doctor.go`: contract validation and finding generation
+- `aliases.go`: low-confidence, explainable naming-drift heuristics
+- `secrets.go`: conservative secret-like and placeholder-like checks for committed `.env` values
 
 ## Parser Layer
 
-`src/envdiff/parsers/` contains the currently supported input surface:
+`internal/dotenv/`, `internal/parsers/`, and `internal/paths/` contain the
+currently supported input surface:
 
-- `dotenv.py`: `.env` and `.env.example` parsing with duplicate preservation and warnings
-- `python_ast.py`: `os.environ[...]` and `os.getenv(...)`
-- `compose.py`: Docker Compose `${VAR}` interpolation
-- `github_actions.py`: workflow expression scanning for `secrets.*` and `vars.*`
+- `internal/dotenv/parse.go`: `.env` and `.env.example` parsing with duplicate preservation and warnings
+- `internal/parsers/python.go`: `os.environ[...]` and `os.getenv(...)`
+- `internal/parsers/compose.go`: Docker Compose `${VAR}` interpolation
+- `internal/parsers/github_actions.go`: workflow expression scanning for `secrets.*` and `vars.*`
 
 ## Model Layer
 
-`src/envdiff/models.py` defines the shared data contract:
+`internal/model/` defines the active shared data contract:
 
 - `EnvVarDefinition`
 - `EnvVarUsage`
@@ -58,7 +71,7 @@ The JSON envelope is versioned and intended to remain a stable machine contract.
 
 ## Utilities
 
-`src/envdiff/utils/` provides deterministic helpers for:
+`internal/order/` and `internal/normalize/` provide deterministic helpers for:
 
 - value normalization
 - stable ordering
@@ -68,15 +81,21 @@ The JSON envelope is versioned and intended to remain a stable machine contract.
 ## Directory Map
 
 ```text
-envdiff                    # Local launcher wrapper
-src/envdiff/analyzers/             # Comparison, scan, doctor, alias, and secret logic
-src/envdiff/parsers/               # Dotenv, Python AST, Compose, and GitHub Actions scanners
-src/envdiff/render/                # Human and JSON renderers
-src/envdiff/utils/                 # Ordering, normalization, and path helpers
-tests/fixtures/            # Runnable example repos and file fixtures
-docs/system/               # Architecture, features, operations
-                           # JSON contract and finding-code references
-docs/project/              # Spec and roadmap
-docs/research/             # Market and comparative analysis
-docs/plans/                # Implementation planning artifacts
+envdiff                         # Local Go launcher wrapper
+cmd/envdiff/                    # Go CLI entrypoint
+internal/analyzers/             # Comparison, scan, doctor, alias, and secret logic
+internal/dotenv/                # Dotenv parser
+internal/parsers/               # Python, Compose, and GitHub Actions scanners
+internal/render/                # Human and JSON renderers
+internal/model/                 # JSON schema and domain models
+internal/order/                 # Deterministic ordering helpers
+internal/normalize/             # Value normalization helpers
+internal/paths/                 # Repo traversal and nearest-file helpers
+scripts/envdiff-python          # Legacy Python launcher/oracle
+src/envdiff/                    # Retained Python implementation for parity
+tests/fixtures/                 # Runnable example repos and file fixtures
+docs/system/                    # Architecture, features, operations
+                                # JSON contract and finding-code references
+docs/project/                   # Spec, roadmap, and backlog
+docs/archive/                   # Archived plans and research
 ```

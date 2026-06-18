@@ -27,6 +27,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version-file: go.mod
+
       - name: Setup uv
         uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8
         with:
@@ -67,3 +72,9 @@ jobs:
 
       - name: Run tests
         run: uv run python -m pytest -q
+
+      - name: Run Go tests
+        run: go test ./...
+
+      - name: Run Python/Go parity gate
+        run: uv run python scripts/check_go_parity.py

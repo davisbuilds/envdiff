@@ -1,0 +1,136 @@
+{
+  "data": {
+    "file_count": 3,
+    "inconsistent_variable_count": 3,
+    "paths": [
+      "tests/fixtures/matrix/a.env",
+      "tests/fixtures/matrix/b.env",
+      "tests/fixtures/matrix/c.env"
+    ],
+    "show_all": false,
+    "variable_count": 4,
+    "variables": [
+      {
+        "duplicates_in": [],
+        "files": [
+          {
+            "path": "tests/fixtures/matrix/a.env",
+            "presence": "missing"
+          },
+          {
+            "is_duplicate": false,
+            "path": "tests/fixtures/matrix/b.env",
+            "presence": "present",
+            "value_kind": "secret_like"
+          },
+          {
+            "path": "tests/fixtures/matrix/c.env",
+            "presence": "missing"
+          }
+        ],
+        "missing_in": [
+          "tests/fixtures/matrix/a.env",
+          "tests/fixtures/matrix/c.env"
+        ],
+        "name": "API_KEY",
+        "present_in": [
+          "tests/fixtures/matrix/b.env"
+        ],
+        "status": "inconsistent",
+        "value_kinds": [
+          "secret_like"
+        ]
+      },
+      {
+        "duplicates_in": [],
+        "files": [
+          {
+            "is_duplicate": false,
+            "path": "tests/fixtures/matrix/a.env",
+            "presence": "present",
+            "value_kind": "url"
+          },
+          {
+            "is_duplicate": false,
+            "path": "tests/fixtures/matrix/b.env",
+            "presence": "present",
+            "value_kind": "placeholder"
+          },
+          {
+            "is_duplicate": false,
+            "path": "tests/fixtures/matrix/c.env",
+            "presence": "present",
+            "value_kind": "url"
+          }
+        ],
+        "missing_in": [],
+        "name": "DATABASE_URL",
+        "present_in": [
+          "tests/fixtures/matrix/a.env",
+          "tests/fixtures/matrix/b.env",
+          "tests/fixtures/matrix/c.env"
+        ],
+        "status": "inconsistent",
+        "value_kinds": [
+          "placeholder",
+          "url"
+        ]
+      },
+      {
+        "duplicates_in": [
+          "tests/fixtures/matrix/c.env"
+        ],
+        "files": [
+          {
+            "is_duplicate": false,
+            "path": "tests/fixtures/matrix/a.env",
+            "presence": "present",
+            "value_kind": "boolean"
+          },
+          {
+            "is_duplicate": false,
+            "path": "tests/fixtures/matrix/b.env",
+            "presence": "present",
+            "value_kind": "boolean"
+          },
+          {
+            "is_duplicate": true,
+            "path": "tests/fixtures/matrix/c.env",
+            "presence": "present",
+            "value_kind": "boolean"
+          }
+        ],
+        "missing_in": [],
+        "name": "DEBUG",
+        "present_in": [
+          "tests/fixtures/matrix/a.env",
+          "tests/fixtures/matrix/b.env",
+          "tests/fixtures/matrix/c.env"
+        ],
+        "status": "inconsistent",
+        "value_kinds": [
+          "boolean"
+        ]
+      }
+    ],
+    "warnings": []
+  },
+  "findings": [],
+  "inputs": {
+    "paths": [
+      "tests/fixtures/matrix/a.env",
+      "tests/fixtures/matrix/b.env",
+      "tests/fixtures/matrix/c.env"
+    ],
+    "show_all": false
+  },
+  "meta": {
+    "command": "matrix",
+    "schema_version": "1"
+  },
+  "summary": {
+    "error": 0,
+    "info": 0,
+    "warning": 0
+  }
+}

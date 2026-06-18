@@ -1,0 +1,247 @@
+{
+  "data": {
+    "contracts": [
+      {
+        "aliases": [],
+        "definitions": [
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env",
+            "is_duplicate": false,
+            "line_number": 1,
+            "name": "DATABASE_URL",
+            "normalized_value_kind": "url",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": "postgres://localhost/simple"
+          },
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example",
+            "is_duplicate": false,
+            "line_number": 1,
+            "name": "DATABASE_URL",
+            "normalized_value_kind": "placeholder",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": ""
+          }
+        ],
+        "name": "DATABASE_URL",
+        "placeholder_like": true,
+        "requiredness": "required",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env",
+          "example:<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example"
+        ],
+        "secret_like": false,
+        "status": [
+          "defined",
+          "referenced"
+        ],
+        "usages": [
+          {
+            "default_value": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/app/main.py",
+            "line_number": 3,
+            "name": "DATABASE_URL",
+            "requiredness": "required",
+            "source_type": "python",
+            "usage_kind": "os.environ"
+          }
+        ]
+      },
+      {
+        "aliases": [],
+        "definitions": [
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env",
+            "is_duplicate": false,
+            "line_number": 2,
+            "name": "DEBUG",
+            "normalized_value_kind": "boolean",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": "true"
+          },
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example",
+            "is_duplicate": false,
+            "line_number": 3,
+            "name": "DEBUG",
+            "normalized_value_kind": "boolean",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": "false"
+          }
+        ],
+        "name": "DEBUG",
+        "placeholder_like": false,
+        "requiredness": "optional_with_default",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env",
+          "example:<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example"
+        ],
+        "secret_like": false,
+        "status": [
+          "defined",
+          "referenced"
+        ],
+        "usages": [
+          {
+            "default_value": "false",
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/app/main.py",
+            "line_number": 5,
+            "name": "DEBUG",
+            "requiredness": "optional_with_default",
+            "source_type": "python",
+            "usage_kind": "os.getenv"
+          }
+        ]
+      },
+      {
+        "aliases": [],
+        "definitions": [
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example",
+            "is_duplicate": false,
+            "line_number": 2,
+            "name": "REDIS_URL",
+            "normalized_value_kind": "placeholder",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": ""
+          }
+        ],
+        "name": "REDIS_URL",
+        "placeholder_like": true,
+        "requiredness": "optional",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env",
+          "example:<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example"
+        ],
+        "secret_like": false,
+        "status": [
+          "defined",
+          "referenced"
+        ],
+        "usages": [
+          {
+            "default_value": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/app/main.py",
+            "line_number": 4,
+            "name": "REDIS_URL",
+            "requiredness": "optional",
+            "source_type": "python",
+            "usage_kind": "os.getenv"
+          }
+        ]
+      }
+    ],
+    "definitions": [
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env",
+        "is_duplicate": false,
+        "line_number": 1,
+        "name": "DATABASE_URL",
+        "normalized_value_kind": "url",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": "postgres://localhost/simple"
+      },
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example",
+        "is_duplicate": false,
+        "line_number": 1,
+        "name": "DATABASE_URL",
+        "normalized_value_kind": "placeholder",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": ""
+      },
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env",
+        "is_duplicate": false,
+        "line_number": 2,
+        "name": "DEBUG",
+        "normalized_value_kind": "boolean",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": "true"
+      },
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example",
+        "is_duplicate": false,
+        "line_number": 3,
+        "name": "DEBUG",
+        "normalized_value_kind": "boolean",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": "false"
+      },
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example",
+        "is_duplicate": false,
+        "line_number": 2,
+        "name": "REDIS_URL",
+        "normalized_value_kind": "placeholder",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": ""
+      }
+    ],
+    "resolutions": [
+      {
+        "env_file": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env",
+        "example_file": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example",
+        "notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env",
+          "example:<REPO_ROOT>/tests/fixtures/repos/simple_repo/.env.example"
+        ],
+        "source_file": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/app/main.py"
+      }
+    ],
+    "root_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo",
+    "usages": [
+      {
+        "default_value": null,
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/app/main.py",
+        "line_number": 3,
+        "name": "DATABASE_URL",
+        "requiredness": "required",
+        "source_type": "python",
+        "usage_kind": "os.environ"
+      },
+      {
+        "default_value": "false",
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/app/main.py",
+        "line_number": 5,
+        "name": "DEBUG",
+        "requiredness": "optional_with_default",
+        "source_type": "python",
+        "usage_kind": "os.getenv"
+      },
+      {
+        "default_value": null,
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/simple_repo/app/main.py",
+        "line_number": 4,
+        "name": "REDIS_URL",
+        "requiredness": "optional",
+        "source_type": "python",
+        "usage_kind": "os.getenv"
+      }
+    ],
+    "warnings": []
+  },
+  "findings": [],
+  "inputs": {
+    "path": "tests/fixtures/repos/simple_repo"
+  },
+  "meta": {
+    "command": "scan",
+    "schema_version": "1"
+  },
+  "summary": {
+    "error": 0,
+    "info": 0,
+    "warning": 0
+  }
+}

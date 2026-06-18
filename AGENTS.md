@@ -12,17 +12,21 @@ compares `.env` files, and flags mismatches. Local-first; no network in core ana
 - `docs/system/FINDING_CODES.md` — finding-code reference.
 - `docs/project/SPEC.md` — problem framing and in/out scope.
 - `docs/project/ROADMAP.md` — shipped highlights and open items.
+- `docs/project/BACKLOG.md` — tradeoffs and follow-up simplification backlog.
 
 ## Command Quickstart
 
 ```bash
 uv sync --extra dev                  # install deps + dev tools
-./envdiff --help                     # list all commands (or: uv run envdiff <cmd>)
+./envdiff --help                     # list all commands through the Go launcher
+scripts/envdiff-python --help        # Python fallback/oracle launcher
 uv run pytest -q                     # tests
 uv run ruff check .                  # lint
+go test ./...                        # Go side-by-side implementation tests
+uv run python scripts/check_go_parity.py # Python/Go contract parity
 ```
 
-Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `envdiff.cli:main` (Typer).
+Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Default entry point: `cmd/envdiff` (Go). Python legacy/oracle entry point: `envdiff.cli:main` (Typer), via `scripts/envdiff-python`.
 
 ## Project Boundaries
 
@@ -35,7 +39,7 @@ Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human
 
 ## Testing
 
-- **Pre-push** (matches CI `.github/workflows/ci.yml`): `uv run ruff check .`, `uv run ruff format --check .`, and `uv run pytest -q`.
+- **Pre-push** (matches CI `.github/workflows/ci.yml`): `uv run ruff check .`, `uv run ruff format --check .`, `uv run pytest -q`, `go test ./...`, and `uv run python scripts/check_go_parity.py`.
 - **TDD**: red/green for new features and major changes.
 - Favor behavior-oriented tests over implementation detail; use real fixture repos under `tests/fixtures/` instead of mocks.
 - For parser work add focused parser tests plus a repo-scan integration test; for CLI changes update `tests/test_cli_smoke.py`.

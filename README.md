@@ -11,21 +11,22 @@ New here? Paste the prompt below into your coding agent (Claude Code, Codex, etc
 ```text
 Set up the `envdiff` repo for me. It's a local-first CLI that analyzes a
 repository's environment-variable contract (compares .env files, scans code for env
-usage, flags mismatches). Python 3.11+, uv, Typer, Pydantic. It's fully local — no
+usage, flags mismatches). Go 1.26.4, Python 3.11+, uv. It's fully local — no
 network, no secrets, no env config.
 
 Do this, in order:
-1. Install deps. Ensure `uv` is installed (https://astral.sh/uv); run
-   `uv sync --extra dev` from the repo root. Clone
+1. Install deps. Ensure `uv` is installed (https://astral.sh/uv) and Go 1.26.4
+   is on PATH; run `uv sync --extra dev` from the repo root. Clone
    git@github.com:davisbuilds/envdiff.git (or the https URL) and cd in first if
    needed.
 2. Verify it runs against the bundled fixtures: `./envdiff --help`,
-   `uv run pytest -q`, `uv run ruff check .`, and a real scan
+   `uv run pytest -q`, `uv run ruff check .`, `go test ./...`,
+   `uv run python scripts/check_go_parity.py`, and a real scan
    `./envdiff scan tests/fixtures/repos/simple_repo --json`. All should succeed
    offline. If any fail, show me the error and stop.
-3. Report back: confirm help + tests + lint + sample scan worked, and give me the
-   command to run it on my own repo (e.g. `./envdiff scan <path-to-repo>` or
-   `./envdiff doctor <path>`).
+3. Report back: confirm help + tests + lint + parity + sample scan worked, and
+   give me the command to run it on my own repo (e.g.
+   `./envdiff scan <path-to-repo>` or `./envdiff doctor <path>`).
 
 Don't commit anything.
 ```
@@ -50,6 +51,7 @@ Requirements:
 
 - Python `3.11+`
 - `uv`
+- Go `1.26.4` for side-by-side Go validation
 
 ```bash
 uv sync --extra dev
@@ -57,8 +59,9 @@ uv sync --extra dev
 ./envdiff scan tests/fixtures/repos/simple_repo --json
 ```
 
-The repo includes `./envdiff` as a local launcher, so development commands do
-not need `uv run envdiff ...`.
+The repo includes `./envdiff` as the local Go launcher. The Python
+implementation remains available as `scripts/envdiff-python` as a legacy oracle
+for one release window.
 
 ## Common Commands
 
@@ -74,6 +77,8 @@ not need `uv run envdiff ...`.
 uv run pytest -q
 uv run ruff check .
 uv run ruff format --check .
+go test ./...
+uv run python scripts/check_go_parity.py
 ```
 
 Fixture repos under `tests/fixtures/` are intentionally runnable examples for
@@ -97,9 +102,12 @@ src/envdiff/analyzers/       repo and contract analyzers
 src/envdiff/parsers/         dotenv, source, and workflow parsers
 src/envdiff/render/          human and JSON renderers
 src/envdiff/utils/           shared utility code
-tests/               pytest suite and fixture repos
-docs/                system, project, research, and plan docs
-envdiff              local launcher
+cmd/envdiff/                 Go CLI entrypoint
+internal/                    Go implementation packages
+scripts/envdiff-python       Python fallback launcher
+tests/                       pytest suite and fixture repos
+docs/                        system, project, and reference docs
+envdiff                      local Go launcher
 ```
 
 ## Documentation
@@ -112,8 +120,7 @@ envdiff              local launcher
 - Local setup, verification, and fixture usage: [docs/system/OPERATIONS.md](docs/system/OPERATIONS.md)
 - Detailed product specification: [docs/project/SPEC.md](docs/project/SPEC.md)
 - Roadmap snapshot: [docs/project/ROADMAP.md](docs/project/ROADMAP.md)
-- Market and competitive analysis: [docs/research/MARKET_RESEARCH.md](docs/research/MARKET_RESEARCH.md)
-- Active implementation plan: [docs/plans/2026-03-17-milestone-a-usable-core-implementation.md](docs/plans/2026-03-17-milestone-a-usable-core-implementation.md)
+- Backlog and follow-up tradeoffs: [docs/project/BACKLOG.md](docs/project/BACKLOG.md)
 
 ## Current Boundaries
 

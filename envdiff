@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-# Shortcut to run the envdiff CLI without typing "uv run envdiff".
+# Shortcut to run the Go envdiff CLI.
 # Usage: ./envdiff scan . | ./envdiff doctor . | ./envdiff generate . --check
-exec uv run envdiff "$@"
+exec go run ./cmd/envdiff "$@"

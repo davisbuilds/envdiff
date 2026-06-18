@@ -13,8 +13,7 @@ from envdiff.cli import app
 
 runner = CliRunner()
 
-# Typer's Rich help splits styled spans with ANSI SGR codes (e.g. "Usage: " and
-# the program name land in different styles), so assert against stripped output.
+# Typer's Rich help splits styled spans with ANSI SGR codes in Python CLI tests.
 _ANSI_SGR_RE = re.compile(r"\x1b\[[0-9;]*m")
 
 
@@ -27,7 +26,10 @@ def test_bin_launcher_help_smoke() -> None:
     )
 
     assert result.returncode == 0
-    assert "Usage: envdiff" in _ANSI_SGR_RE.sub("", result.stdout)
+    output = _ANSI_SGR_RE.sub("", result.stdout)
+    assert "Usage:" in output
+    assert "compare" in output
+    assert "doctor" in output
 
 
 def test_cli_help_smoke() -> None:

@@ -1,0 +1,206 @@
+{
+  "data": {
+    "contracts": [
+      {
+        "aliases": [],
+        "definitions": [],
+        "name": "API_KEY",
+        "placeholder_like": false,
+        "requiredness": "required",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env",
+          "example:<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env.example"
+        ],
+        "secret_like": false,
+        "status": [
+          "referenced",
+          "undefined"
+        ],
+        "usages": [
+          {
+            "default_value": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.github/workflows/deploy.yml",
+            "line_number": 13,
+            "name": "API_KEY",
+            "requiredness": "required",
+            "source_type": "github_actions",
+            "usage_kind": "github_actions_secrets"
+          }
+        ]
+      },
+      {
+        "aliases": [],
+        "definitions": [
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env",
+            "is_duplicate": false,
+            "line_number": 1,
+            "name": "DATABASE_URL",
+            "normalized_value_kind": "url",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": "postgres://localhost/workflow"
+          },
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env.example",
+            "is_duplicate": false,
+            "line_number": 1,
+            "name": "DATABASE_URL",
+            "normalized_value_kind": "placeholder",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": ""
+          }
+        ],
+        "name": "DATABASE_URL",
+        "placeholder_like": true,
+        "requiredness": "required",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env",
+          "example:<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env.example"
+        ],
+        "secret_like": false,
+        "status": [
+          "defined",
+          "referenced"
+        ],
+        "usages": [
+          {
+            "default_value": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.github/workflows/deploy.yml",
+            "line_number": 11,
+            "name": "DATABASE_URL",
+            "requiredness": "required",
+            "source_type": "github_actions",
+            "usage_kind": "github_actions_secrets"
+          }
+        ]
+      },
+      {
+        "aliases": [],
+        "definitions": [
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env.example",
+            "is_duplicate": false,
+            "line_number": 2,
+            "name": "DEPLOY_ENV",
+            "normalized_value_kind": "placeholder",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": ""
+          }
+        ],
+        "name": "DEPLOY_ENV",
+        "placeholder_like": true,
+        "requiredness": "optional_with_default",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env",
+          "example:<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env.example"
+        ],
+        "secret_like": false,
+        "status": [
+          "defined",
+          "referenced"
+        ],
+        "usages": [
+          {
+            "default_value": "staging",
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.github/workflows/deploy.yml",
+            "line_number": 12,
+            "name": "DEPLOY_ENV",
+            "requiredness": "optional_with_default",
+            "source_type": "github_actions",
+            "usage_kind": "github_actions_vars"
+          }
+        ]
+      }
+    ],
+    "definitions": [
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env",
+        "is_duplicate": false,
+        "line_number": 1,
+        "name": "DATABASE_URL",
+        "normalized_value_kind": "url",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": "postgres://localhost/workflow"
+      },
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env.example",
+        "is_duplicate": false,
+        "line_number": 1,
+        "name": "DATABASE_URL",
+        "normalized_value_kind": "placeholder",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": ""
+      },
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env.example",
+        "is_duplicate": false,
+        "line_number": 2,
+        "name": "DEPLOY_ENV",
+        "normalized_value_kind": "placeholder",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": ""
+      }
+    ],
+    "resolutions": [
+      {
+        "env_file": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env",
+        "example_file": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env.example",
+        "notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env",
+          "example:<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.env.example"
+        ],
+        "source_file": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.github/workflows/deploy.yml"
+      }
+    ],
+    "root_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo",
+    "usages": [
+      {
+        "default_value": null,
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.github/workflows/deploy.yml",
+        "line_number": 13,
+        "name": "API_KEY",
+        "requiredness": "required",
+        "source_type": "github_actions",
+        "usage_kind": "github_actions_secrets"
+      },
+      {
+        "default_value": null,
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.github/workflows/deploy.yml",
+        "line_number": 11,
+        "name": "DATABASE_URL",
+        "requiredness": "required",
+        "source_type": "github_actions",
+        "usage_kind": "github_actions_secrets"
+      },
+      {
+        "default_value": "staging",
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/workflow_repo/.github/workflows/deploy.yml",
+        "line_number": 12,
+        "name": "DEPLOY_ENV",
+        "requiredness": "optional_with_default",
+        "source_type": "github_actions",
+        "usage_kind": "github_actions_vars"
+      }
+    ],
+    "warnings": []
+  },
+  "findings": [],
+  "inputs": {
+    "path": "tests/fixtures/repos/workflow_repo"
+  },
+  "meta": {
+    "command": "scan",
+    "schema_version": "1"
+  },
+  "summary": {
+    "error": 0,
+    "info": 0,
+    "warning": 0
+  }
+}
