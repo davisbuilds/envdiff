@@ -12,7 +12,8 @@ and `docs/system/`; open and unscheduled work lives in
 | A | Usable core | `compare`, `scan`, `doctor` over dotenv + Python/Compose usage; repo-local resolution with nearest `.env`/`.env.example`; ignore paths; deterministic traversal; core finding codes (ENV001–ENV007) with `--fail-on` exit behavior. |
 | B | Practical team tool | Alias naming-drift and secret/placeholder heuristics (ENV008–ENV009); human + JSON renderers; versioned JSON envelope; per-severity summary counts; baseline/suppression workflow for gradual CI adoption. |
 | C | Broader contract platform | `matrix` multi-file consistency; `generate` with `--annotate`/`--check`/`--output`; GitHub Actions workflow scanner. |
-| — | Go port | Full side-by-side Go reimplementation; Go is the default `./envdiff` launcher with Python retained as `scripts/envdiff-python`, a parity oracle for one release window; CI gates Go tests and Python/Go parity. |
+| — | Go port | Full side-by-side Go reimplementation, validated against the Python oracle via a parity gate during the transition. |
+| — | Go as source of truth | Go is now the sole implementation. Goldens generate from the Go binary (raw UTF-8, byte-level pinned); the Python oracle and all binding apparatus are deleted; lint moved to `golangci-lint`/`gofumpt`; CI is Go-only. Contract decisions settled: symlink-resolved paths (`EvalSymlinks`) and usage errors exit `1`. See `docs/plans/2026-06-18-go-source-of-truth-migration.md`. |
 
 ## Recent hardening (2026-06)
 
@@ -30,8 +31,7 @@ Go port (resolved items from the backlog):
 
 Detail in `docs/project/BACKLOG.md`:
 
-- **Go as source of truth** (in progress) — phase 1 landed: goldens are generated from the Go binary, JSON emits raw UTF-8 (locked by `unicode_repo` + a byte-level test), and `docs/system/JSON_SCHEMA.md` names Go the contract source. Remaining: coverage audit before deleting Python, then retire the oracle and adopt a Go lint stack. The parity gate stays blocking until the first deliberate Go-only divergence. See `docs/plans/2026-06-18-go-source-of-truth-migration.md`.
-- **Remaining oracle divergences** — symlink path canonicalization (`Abs` vs `resolve`), secret-length code-point counting, the usage-error exit-code contract (1 vs 2), and the intentional regex-vs-AST Python scanner.
+- **Secret-length counting** — `LooksLikeSecret` counts bytes; consider counting code points so multibyte values classify consistently.
 - **Perf follow-up** — memoize the per-directory nearest-dotenv resolution walk.
 - **Parser expansion (candidate)** — shell scripts, `.envrc`/direnv (repo-local subset), Pydantic `BaseSettings`, `.devcontainer`, monorepo service grouping.
 - **Stretch** — pre-commit hook, editor diagnostics, alias autofix, contract export/import.
@@ -45,8 +45,10 @@ explainable heuristics, and fail-soft handling of malformed input.
 
 ## Key decisions
 
-- **Go is the product; Python is a transitional oracle.** Parity is a migration
-  safety net, not the goal — Go-only improvements take precedence (e.g. JSON
-  output), and the Python oracle is scheduled for retirement.
+- **Go is the product.** The Python implementation was a transitional parity
+  oracle for the port and has been retired; Go is the sole source of truth.
 - **The JSON envelope, field names, and finding codes are a public contract**
-  with deterministic ordering owned by `internal/order`.
+  with deterministic ordering owned by `internal/order`. JSON is raw UTF-8;
+  goldens are generated from Go.
+- **Path canonicalization resolves symlinks; usage errors exit `1`** (finding-based
+  exits — threshold breach, generate `--check` drift — exit `2`).

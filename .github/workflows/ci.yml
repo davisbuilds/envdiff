@@ -14,62 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint & dead code
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-
-      - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
-        with:
-          python-version: "3.12"
-
-      - name: Setup uv
-        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8
-        with:
-          version: "0.11.3"
-
-      - name: Install dependencies (with dev extras)
-        run: uv sync --frozen --extra dev
-
-      - name: Ruff lint
-        run: uv run ruff check .
-
-      - name: Ruff format check
-        run: uv run ruff format --check .
-
-      - name: Dead-code gate
-        run: uv run python -m pytest -q tests/test_dead_code.py
-
-  test:
-    name: Test (pytest)
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-
-      - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
-        with:
-          python-version: "3.12"
-
-      - name: Setup uv
-        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8
-        with:
-          version: "0.11.3"
-
-      - name: Install dependencies (with dev extras)
-        run: uv sync --frozen --extra dev
-
-      - name: Run tests
-        run: uv run python -m pytest -q
-
-  go:
-    name: Go tests & parity
+  build-test:
+    name: Build & test
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -81,24 +27,31 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Setup Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
-        with:
-          python-version: "3.12"
-
-      - name: Setup uv
-        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8
-        with:
-          version: "0.11.3"
-
-      - name: Install dependencies (with dev extras)
-        run: uv sync --frozen --extra dev
-
       - name: Go vet
         run: go vet ./...
 
       - name: Go tests
         run: go test ./...
 
-      - name: Python/Go parity gate
-        run: uv run python scripts/check_go_parity.py
+      - name: Goldens are up to date
+        run: |
+          ENVDIFF_UPDATE_GOLDENS=1 go test ./... >/dev/null
+          git diff --exit-code tests/golden
+
+  lint:
+    name: Lint & format
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version-file: go.mod
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@82606bf257cbaff209d206a39f5134f0cfbfd2ee # v9.2.1
+        with:
+          version: v2.12.2

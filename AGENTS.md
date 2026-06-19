@@ -18,16 +18,14 @@ compares `.env` files, and flags mismatches. Local-first; no network in core ana
 ## Command Quickstart
 
 ```bash
-uv sync --extra dev                  # install deps + dev tools
-./envdiff --help                     # list all commands through the Go launcher
-scripts/envdiff-python --help        # Python fallback/oracle launcher
-uv run pytest -q                     # tests
-uv run ruff check .                  # lint
-go test ./...                        # Go side-by-side implementation tests
-uv run python scripts/check_go_parity.py # Python/Go contract parity
+./envdiff --help                     # list all commands (Go launcher; builds/caches bin/envdiff)
+go build -o bin/envdiff ./cmd/envdiff   # build the binary directly
+go test ./...                        # tests (also validates committed goldens)
+golangci-lint run ./...              # lint
+ENVDIFF_UPDATE_GOLDENS=1 go test ./...  # regenerate JSON goldens from Go
 ```
 
-Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Default entry point: `cmd/envdiff` (Go). Python legacy/oracle entry point: `envdiff.cli:main` (Typer), via `scripts/envdiff-python`.
+Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `cmd/envdiff` (Go); the source lives under `internal/`. envdiff is Go-only — the original Python implementation was a transitional oracle and has been retired (see `docs/plans/2026-06-18-go-source-of-truth-migration.md`).
 
 ## Project Boundaries
 
@@ -40,15 +38,15 @@ Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human
 
 ## Testing
 
-- **Pre-push** (matches CI `.github/workflows/ci.yml`): `uv run ruff check .`, `uv run ruff format --check .`, `uv run pytest -q`, `go test ./...`, and `uv run python scripts/check_go_parity.py`.
+- **Pre-push** (matches CI `.github/workflows/ci.yml`): `go vet ./...`, `go test ./...`, `golangci-lint run ./...`, and confirm goldens are current (`ENVDIFF_UPDATE_GOLDENS=1 go test ./... && git diff --exit-code tests/golden`).
 - **TDD**: red/green for new features and major changes.
 - Favor behavior-oriented tests over implementation detail; use real fixture repos under `tests/fixtures/` instead of mocks.
-- For parser work add focused parser tests plus a repo-scan integration test; for CLI changes update `tests/test_cli_smoke.py`.
-- **Dead-code gate** (`tests/test_dead_code.py`): static checks for unused public symbols, orphaned modules, and unreachable code. It owns cross-file dead code; ruff `F`/`ERA` own within-file unused imports/locals and commented-out code. When a symbol/module is intentionally unreferenced (external API, framework-invoked), add it to `SYMBOL_EXCEPTIONS`/`MODULE_EXCEPTIONS` with a reason rather than silencing the test.
+- For parser work add focused parser tests (`internal/parsers`, `internal/dotenv`) plus a repo-scan integration test (`internal/analyzers/scan_test.go`); for CLI changes update `internal/cli/cli_test.go`.
+- **JSON goldens** (`tests/golden/json/`) are the rendered-output contract, generated from Go. Each golden has exactly one writer (an analyzer-level test via `testutil.AssertGoldenJSON`); CLI/render tests are pure consumers. `TestScanRepositoryEmitsRawUTF8` pins raw-UTF-8 encoding at the byte level.
 
 ## Conventions Enforced Elsewhere
 
-Ruff handles modern-Python style (import sorting, `from __future__ import annotations`, upgrade rules) — fix violations the linter flags rather than restating them here.
+`golangci-lint` (config in `.golangci.yml`) is the lint stack: `gofumpt` formatting, plus `unused`/`staticcheck` (which own cross-file dead code), `errcheck`, `govet`, `ineffassign`, and a few style linters. Fix what the linter flags rather than restating rules here.
 
 ## Working Agreement
 

@@ -4,27 +4,18 @@ Operational notes for local development and verification.
 
 ## Setup
 
-Install dependencies and dev tools:
-
-```bash
-uv sync --extra dev
-```
-
-Go `1.26.4` is also required for the side-by-side Go implementation, Go tests,
-and Python/Go parity gate.
+envdiff is a Go program; Go `1.26.4` is the only requirement. The lint stack
+uses `golangci-lint` (v2) and `gofumpt`.
 
 ## Key Commands
 
 - Run CLI help: `./envdiff --help`
-- Run Python fallback help: `scripts/envdiff-python --help`
-- Run tests: `uv run pytest -q`
-- Run Go tests: `go test ./...`
-- Lint: `uv run ruff check .`
-- Run Go parity gate: `uv run python scripts/check_go_parity.py`
+- Run tests: `go test ./...`
+- Lint: `golangci-lint run ./...`
+- Regenerate JSON goldens from Go: `ENVDIFF_UPDATE_GOLDENS=1 go test ./...`
 
-`./envdiff` is the Go launcher. The Python CLI remains available as
-`scripts/envdiff-python` and is retained as a legacy parity oracle for one
-release window.
+`./envdiff` is the launcher: it builds and caches `bin/envdiff`, rebuilding only
+when sources change. `go build -o bin/envdiff ./cmd/envdiff` builds it directly.
 
 ## Runnable Fixture Projects
 
@@ -75,13 +66,11 @@ What is implemented:
 - alias, secret-like, and placeholder-like heuristics
 - baseline snapshots and ignore-based suppression
 - grouped doctor summaries in human output
-- side-by-side Go implementation under `cmd/envdiff/` and `internal/`
-- Go default launcher at `./envdiff`
-- Python fallback launcher at `scripts/envdiff-python`
-- Python/Go parity script for contract-critical fixture cases
+- Go implementation under `cmd/envdiff/` and `internal/`
+- `./envdiff` launcher that builds and caches `bin/envdiff`
+- JSON goldens generated from Go (`ENVDIFF_UPDATE_GOLDENS=1 go test ./...`)
 
 What is still open:
 
-- final removal or relocation of the retained Python legacy oracle
 - finding-noise reduction beyond the initial heuristic pass
 - broader parser coverage

@@ -155,12 +155,11 @@ Schema version can stay the same when:
   fields.
 - Adding new warning strings while preserving existing structured fields.
 
-The **Go implementation is the contract source**; the Python package is a
-transitional parity oracle. Goldens under `tests/golden/json/` are generated
-from the Go binary (`uv run python scripts/update_go_golden.py`).
+The **Go implementation is the contract source**. Goldens under
+`tests/golden/json/` are generated from the Go binary by running the test suite
+with `ENVDIFF_UPDATE_GOLDENS=1 go test ./...`.
 
-Bump `SchemaVersion` in `internal/version` (and the mirrored `SCHEMA_VERSION` in
-`src/envdiff/models.py` while the oracle exists) when:
+Bump `SchemaVersion` in `internal/version` when:
 
 - Renaming or removing an existing field.
 - Changing a field's type or nullability.
@@ -174,13 +173,9 @@ For any schema-affecting change:
 1. Update the Go models in `internal/model` (and `internal/version` for a version
    bump).
 2. Update JSON rendering in `internal/render` if needed.
-3. Regenerate goldens from Go: `uv run python scripts/update_go_golden.py`.
+3. Regenerate goldens from Go: `ENVDIFF_UPDATE_GOLDENS=1 go test ./...`.
 4. Update this file and affected command docs.
-5. While the Python oracle exists, mirror the change in `src/envdiff/models.py`
-   and `src/envdiff/render/json.py` so the parity gate stays green.
-6. Run the full gate: `go test ./...`, `uv run pytest -q`,
-   `uv run python scripts/check_go_parity.py`, `uv run ruff check .`, and
-   `uv run ruff format --check .`.
+5. Run the full gate: `go test ./...` and `golangci-lint run ./...`.
 
 Do not silently change field names to make human output cleaner. Human rendering and
 JSON rendering have different compatibility requirements.

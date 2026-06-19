@@ -2,7 +2,7 @@
 date: 2026-06-18
 topic: go-source-of-truth-migration
 stage: implementation-plan
-status: in-progress
+status: complete
 source: conversation
 ---
 
@@ -115,7 +115,9 @@ and `module_entrypoint_invokes_main` (Typer wiring), and `test_dead_code.py`
 Exit criteria met: every behavior asserted by a Python test has a corresponding
 Go assertion or a documented reason it no longer applies.
 
-## Phase 3 — Retirement
+## Phase 3 — Retirement — DONE
+
+All of the following landed:
 
 - Delete `src/`, Python tests, `pyproject.toml`, `uv.lock`, `conftest.py`,
   `scripts/check_go_parity.py`, `scripts/envdiff-python`,

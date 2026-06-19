@@ -9,24 +9,22 @@ configuration to show what is required, defined, stale, suspicious, or missing.
 New here? Paste the prompt below into your coding agent (Claude Code, Codex, etc.) and it will install, verify against the bundled fixtures, and tell you how to run it on a real repo.
 
 ```text
-Set up the `envdiff` repo for me. It's a local-first CLI that analyzes a
+Set up the `envdiff` repo for me. It's a local-first Go CLI that analyzes a
 repository's environment-variable contract (compares .env files, scans code for env
-usage, flags mismatches). Go 1.26.4, Python 3.11+, uv. It's fully local — no
-network, no secrets, no env config.
+usage, flags mismatches). Go 1.26.4. It's fully local — no network, no secrets,
+no env config.
 
 Do this, in order:
-1. Install deps. Ensure `uv` is installed (https://astral.sh/uv) and Go 1.26.4
-   is on PATH; run `uv sync --extra dev` from the repo root. Clone
+1. Install deps. Ensure Go 1.26.4 is on PATH. Clone
    git@github.com:davisbuilds/envdiff.git (or the https URL) and cd in first if
    needed.
 2. Verify it runs against the bundled fixtures: `./envdiff --help`,
-   `uv run pytest -q`, `uv run ruff check .`, `go test ./...`,
-   `uv run python scripts/check_go_parity.py`, and a real scan
+   `go test ./...`, and a real scan
    `./envdiff scan tests/fixtures/repos/simple_repo --json`. All should succeed
    offline. If any fail, show me the error and stop.
-3. Report back: confirm help + tests + lint + parity + sample scan worked, and
-   give me the command to run it on my own repo (e.g.
-   `./envdiff scan <path-to-repo>` or `./envdiff doctor <path>`).
+3. Report back: confirm help + tests + sample scan worked, and give me the
+   command to run it on my own repo (e.g. `./envdiff scan <path-to-repo>` or
+   `./envdiff doctor <path>`).
 
 Don't commit anything.
 ```
@@ -49,19 +47,16 @@ Prefer to do it yourself? The manual steps are below.
 
 Requirements:
 
-- Python `3.11+`
-- `uv`
-- Go `1.26.4` for side-by-side Go validation
+- Go `1.26.4`
 
 ```bash
-uv sync --extra dev
 ./envdiff --help
 ./envdiff scan tests/fixtures/repos/simple_repo --json
 ```
 
-The repo includes `./envdiff` as the local Go launcher. The Python
-implementation remains available as `scripts/envdiff-python` as a legacy oracle
-for one release window.
+`./envdiff` is the local launcher: it builds and caches `bin/envdiff`, rebuilding
+only when sources change. You can also `go build -o bin/envdiff ./cmd/envdiff`
+and run the binary directly.
 
 ## Common Commands
 
@@ -74,11 +69,9 @@ for one release window.
 ./envdiff scan tests/fixtures/repos/simple_repo --json
 ./envdiff doctor tests/fixtures/doctor/project --fail-on warning
 
-uv run pytest -q
-uv run ruff check .
-uv run ruff format --check .
 go test ./...
-uv run python scripts/check_go_parity.py
+golangci-lint run ./...
+ENVDIFF_UPDATE_GOLDENS=1 go test ./...   # regenerate JSON goldens from Go
 ```
 
 Fixture repos under `tests/fixtures/` are intentionally runnable examples for
@@ -98,16 +91,18 @@ machine-readable output or finding semantics.
 ## Code Layout
 
 ```text
-src/envdiff/analyzers/       repo and contract analyzers
-src/envdiff/parsers/         dotenv, source, and workflow parsers
-src/envdiff/render/          human and JSON renderers
-src/envdiff/utils/           shared utility code
-cmd/envdiff/                 Go CLI entrypoint
-internal/                    Go implementation packages
-scripts/envdiff-python       Python fallback launcher
-tests/                       pytest suite and fixture repos
+cmd/envdiff/                 CLI entrypoint
+internal/analyzers/          repo and contract analyzers
+internal/parsers/            dotenv, source, and workflow parsers
+internal/dotenv/             dotenv parsing
+internal/render/             human and JSON renderers
+internal/model/              data model + JSON envelope
+internal/order/              deterministic ordering
+internal/paths/, lines/, normalize/, version/   shared packages
+tests/fixtures/              runnable fixture repos
+tests/golden/json/           rendered-output goldens (generated from Go)
 docs/                        system, project, and reference docs
-envdiff                      local Go launcher
+envdiff                      local launcher (builds/caches bin/envdiff)
 ```
 
 ## Documentation
@@ -122,7 +117,7 @@ envdiff                      local Go launcher
 - Roadmap snapshot: [docs/project/ROADMAP.md](docs/project/ROADMAP.md)
 - Backlog and follow-up tradeoffs: [docs/project/BACKLOG.md](docs/project/BACKLOG.md)
 - Git history and branch policy: [docs/project/GIT_HISTORY_POLICY.md](docs/project/GIT_HISTORY_POLICY.md)
-- Go vs Python benchmark: [docs/benchmarks/2026-06-18-go-vs-python.md](docs/benchmarks/2026-06-18-go-vs-python.md)
+- Go vs Python benchmark (historical, from the port): [docs/benchmarks/2026-06-18-go-vs-python.md](docs/benchmarks/2026-06-18-go-vs-python.md)
 
 ## Current Boundaries
 

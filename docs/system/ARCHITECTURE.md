@@ -14,12 +14,11 @@ The current implementation is intentionally local-first and deterministic. There
 
 ## Implementation Ownership
 
-The Go implementation under `cmd/envdiff/` and `internal/` is the default local
-launcher path through `./envdiff`.
-
-The Python implementation under `src/envdiff/` is retained as a legacy parity
-oracle for one release window and is available through `scripts/envdiff-python`.
-Parity is checked by `scripts/check_go_parity.py`.
+envdiff is a Go program: `cmd/envdiff/` plus the packages under `internal/`,
+run locally through the `./envdiff` launcher. It began as a port of a Python
+implementation that served as a transitional parity oracle; that oracle has been
+retired and Go is the sole source of truth (see
+`docs/plans/2026-06-18-go-source-of-truth-migration.md`).
 
 ## CLI Layer
 
@@ -31,8 +30,6 @@ compare, generate, matrix, scan, doctor
 ```
 
 Each command supports a human-oriented terminal rendering path and a stable JSON path.
-The legacy Python CLI at `src/envdiff/cli.py` mirrors this surface for parity
-checks.
 
 ## Analyzer Layer
 
@@ -94,9 +91,9 @@ internal/model/                 # JSON schema and domain models
 internal/order/                 # Deterministic ordering helpers
 internal/normalize/             # Value normalization helpers
 internal/paths/                 # Repo traversal and nearest-file helpers
-scripts/envdiff-python          # Legacy Python launcher/oracle
-src/envdiff/                    # Retained Python implementation for parity
+internal/version/               # Schema and build version constants
 tests/fixtures/                 # Runnable example repos and file fixtures
+tests/golden/json/              # Rendered-output goldens (generated from Go)
 docs/system/                    # Architecture, features, operations
                                 # JSON contract and finding-code references
 docs/project/                   # Spec, roadmap, and backlog
