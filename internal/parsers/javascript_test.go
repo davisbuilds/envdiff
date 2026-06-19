@@ -46,6 +46,53 @@ func TestScanJavaScriptFileDetectsProcessEnvAccess(t *testing.T) {
 	assertDefault(t, usages["DEBUG"], "false")
 }
 
+func TestScanJavaScriptFileDetectsViteImportMetaEnv(t *testing.T) {
+	result, err := ScanJavaScriptFile(testutil.FixturePath(t, "javascript", "vite_app.ts"))
+	if err != nil {
+		t.Fatalf("scan JS file: %v", err)
+	}
+
+	usages := map[string]model.EnvVarUsage{}
+	for _, usage := range result.Usages {
+		usages[usage.Name] = usage
+		if usage.UsageKind != "import.meta.env" {
+			t.Fatalf("%s usage_kind = %s, want import.meta.env", usage.Name, usage.UsageKind)
+		}
+	}
+
+	want := []string{"MODE", "VITE_API_URL", "VITE_FEATURE_FLAG"}
+	if len(usages) != len(want) {
+		t.Fatalf("usages = %v, want %v", keysOf(usages), want)
+	}
+	if usages["VITE_API_URL"].Requiredness != "optional" {
+		t.Fatalf("VITE_API_URL requiredness = %s, want optional", usages["VITE_API_URL"].Requiredness)
+	}
+	assertDefault(t, usages["MODE"], "development")
+}
+
+func TestScanJavaScriptFileDetectsDestructuring(t *testing.T) {
+	result, err := ScanJavaScriptFile(testutil.FixturePath(t, "javascript", "destructure.js"))
+	if err != nil {
+		t.Fatalf("scan JS file: %v", err)
+	}
+
+	usages := map[string]model.EnvVarUsage{}
+	for _, usage := range result.Usages {
+		usages[usage.Name] = usage
+		if usage.UsageKind != "process.env" {
+			t.Fatalf("%s usage_kind = %s, want process.env", usage.Name, usage.UsageKind)
+		}
+		if usage.Requiredness != "optional" {
+			t.Fatalf("%s requiredness = %s, want optional", usage.Name, usage.Requiredness)
+		}
+	}
+
+	want := []string{"API_URL", "AUTH_TOKEN", "NODE_ENV"}
+	if len(usages) != len(want) {
+		t.Fatalf("usages = %v, want %v (renamed key takes the source name)", keysOf(usages), want)
+	}
+}
+
 func TestScanJavaScriptFileIgnoresDynamicAndWholeObjectAccess(t *testing.T) {
 	result, err := ScanJavaScriptFile(testutil.FixturePath(t, "javascript", "unsupported.js"))
 	if err != nil {

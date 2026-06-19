@@ -14,6 +14,10 @@ Current product-surface reference for `envdiff`.
   - `process.env.X` and `process.env["X"]` (optional — JS returns `undefined`)
   - `process.env.X || "default"` / `process.env.X ?? "default"`
     (optional with default)
+  - `import.meta.env.X` (Vite), same rules as `process.env`
+  - single-line destructuring: `const { A, B } = process.env`
+    (renames take the source key)
+- direnv `.envrc` (and `.envrc.*`): scanned with shell semantics
 - Shell (`.sh`, `.bash`):
   - `$VAR` / `${VAR}` (required), `${VAR:-default}` / `${VAR:=default}`
     (optional with default), `${VAR:?msg}` (required)

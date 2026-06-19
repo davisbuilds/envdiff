@@ -112,11 +112,38 @@ is not a false "missing".
 - **`source_type`:** `shell`, `dockerfile`. **`usage_kind`:** `shell_var`,
   `dockerfile_var`.
 
-### Phase B3 — Framework & remaining sources (later)
+### Phase B3a — Cheap recall wins (DONE)
 
-direnv `.envrc`, Pydantic `BaseSettings` / framework settings, Compose
-`env_file`, Vite `import.meta.env`, JS destructuring, monorepo service grouping.
-Each gets fixtures and a parser; spec'd when picked up.
+Three additions that fit the established line-regex parser pattern with little
+new modeling — bundled into one PR:
+
+- **Vite `import.meta.env.NAME`** — another access form in `javascript.go`,
+  identical model to `process.env` (optional; `|| / ??` → optional_with_default).
+  `usage_kind` `import.meta.env`.
+- **direnv `.envrc`** — direnv files are shell syntax, so route `.envrc` (and
+  `.envrc.local`) to the existing shell scanner via a dispatch addition. Local
+  `export`/assignment suppression already applies. No new parser.
+- **JS/TS destructuring** — `const { A, B } = process.env` (single line only;
+  multi-line strains the line scanner and stays out of scope). Each destructured
+  name is an `optional` `process.env` usage. Renames (`{ A: b }`) capture the
+  source key `A`.
+
+### Phase B3b — Bigger, à-la-carte (deferred; spec each when picked up)
+
+These do **not** fit the line-regex usage-parser mold and each carries its own
+design decision, so they are not bundled and are best done individually (likely
+after Track A — distribution):
+
+- **Compose `env_file:`** — a *resolution* feature, not a usage parser: it
+  declares which env file(s) a service loads. Touches resolution logic and the
+  question of whether a compose-referenced env file is a definition source.
+- **Pydantic `BaseSettings` / framework settings** — *declaration* modeling:
+  class fields (with `env_prefix`, `Field(alias=…)`, defaults) declare env vars
+  across multiple lines. Different from both `.env` definitions and simple
+  usages; needs design and multi-line handling.
+- **Monorepo service grouping** — a scan/doctor *output/reporting* feature
+  (group contracts per service subtree), not a parser. Resolution already finds
+  the nearest `.env` per file; grouping is presentation.
 
 ## Per-phase implementation checklist (applies to every parser)
 

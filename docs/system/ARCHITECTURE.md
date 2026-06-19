@@ -50,8 +50,8 @@ currently supported input surface:
 
 - `internal/dotenv/parse.go`: `.env` and `.env.example` parsing with duplicate preservation and warnings
 - `internal/parsers/python.go`: `os.environ[...]` and `os.getenv(...)`
-- `internal/parsers/javascript.go`: `process.env.X` / `process.env["X"]` reads (JS/TS)
-- `internal/parsers/shell.go`: `$VAR`/`${VAR}` usage with same-file `export`/assignment suppression
+- `internal/parsers/javascript.go`: `process.env` / `import.meta.env` reads and single-line destructuring (JS/TS)
+- `internal/parsers/shell.go`: `$VAR`/`${VAR}` usage with same-file `export`/assignment suppression (also scans direnv `.envrc`)
 - `internal/parsers/dockerfile.go`: `$VAR`/`${VAR}` usage with same-file `ARG`/`ENV` suppression
 - `internal/parsers/expansion.go`: shared POSIX `${VAR…}` expansion (shell + Dockerfile)
 - `internal/parsers/compose.go`: Docker Compose `${VAR}` interpolation

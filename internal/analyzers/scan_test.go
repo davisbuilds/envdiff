@@ -1,6 +1,7 @@
 package analyzers
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -93,6 +94,30 @@ func TestScanRepositoryDetectsJavaScriptProcessEnvUsage(t *testing.T) {
 	// PORT is referenced from JS but absent from .env.
 	if status := names["PORT"].Status; len(status) == 0 || status[0] != "referenced" {
 		t.Fatalf("PORT status = %v, want referenced (undefined)", names["PORT"].Status)
+	}
+}
+
+func TestScanRepositoryScansDirenvEnvrcAsShell(t *testing.T) {
+	root := t.TempDir()
+	writeDoctorFile(t, filepath.Join(root, ".env"), "DATABASE_URL=postgres://db\n")
+	writeDoctorFile(t, filepath.Join(root, ".envrc"), "export NODE_ENV=development\necho \"$STRIPE_KEY\"\n")
+
+	result, err := ScanRepository(root)
+	if err != nil {
+		t.Fatalf("scan repository: %v", err)
+	}
+
+	names := map[string]model.EnvVarContract{}
+	for _, contract := range result.Contracts {
+		names[contract.Name] = contract
+	}
+	// STRIPE_KEY is referenced in .envrc (scanned as shell).
+	if _, ok := names["STRIPE_KEY"]; !ok {
+		t.Fatalf("contracts = %v, want STRIPE_KEY from .envrc", keysOfContracts(names))
+	}
+	// NODE_ENV is locally exported in the same .envrc, so it is suppressed.
+	if _, ok := names["NODE_ENV"]; ok {
+		t.Fatalf("NODE_ENV should be suppressed (locally exported in .envrc)")
 	}
 }
 
