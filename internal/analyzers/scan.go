@@ -21,6 +21,15 @@ var composeFilenames = map[string]struct{}{
 	"compose.yaml":        {},
 }
 
+var javaScriptExtensions = map[string]struct{}{
+	".js":  {},
+	".jsx": {},
+	".ts":  {},
+	".tsx": {},
+	".mjs": {},
+	".cjs": {},
+}
+
 type contractPayload struct {
 	definitions []model.EnvVarDefinition
 	usages      []model.EnvVarUsage
@@ -135,6 +144,9 @@ func scanFile(filePath string, root string) fileScan {
 		return fileScan{definitions: result.Definitions, warnings: result.Warnings}
 	case filepath.Ext(filePath) == ".py":
 		result, err := parsers.ScanPythonFile(filePath)
+		return usageFileScan(result, err, filePath, root)
+	case isJavaScriptFile(filePath):
+		result, err := parsers.ScanJavaScriptFile(filePath)
 		return usageFileScan(result, err, filePath, root)
 	case isComposeFile(name):
 		result, err := parsers.ScanComposeFile(filePath)
@@ -289,6 +301,11 @@ func uniqueSorted(values []string) []string {
 
 func isComposeFile(name string) bool {
 	_, ok := composeFilenames[name]
+	return ok
+}
+
+func isJavaScriptFile(filePath string) bool {
+	_, ok := javaScriptExtensions[filepath.Ext(filePath)]
 	return ok
 }
 

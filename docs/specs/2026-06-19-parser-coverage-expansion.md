@@ -62,7 +62,7 @@ contract's shape.
 
 Phases are sequenced by value-to-risk. Each is independently shippable.
 
-### Phase B1 — JavaScript/TypeScript `process.env` (this effort)
+### Phase B1 — JavaScript/TypeScript `process.env` (DONE)
 
 The cleanest, highest-value first parser: it maps onto the existing usage model
 exactly like the Python parser, with **no define/use entanglement** (assigning

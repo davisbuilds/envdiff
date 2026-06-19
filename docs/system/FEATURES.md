@@ -10,6 +10,10 @@ Current product-surface reference for `envdiff`.
   - `os.environ["X"]`
   - `os.getenv("X")`
   - `os.getenv("X", "default")`
+- JavaScript/TypeScript (`.js`, `.jsx`, `.ts`, `.tsx`, `.mjs`, `.cjs`):
+  - `process.env.X` and `process.env["X"]` (optional — JS returns `undefined`)
+  - `process.env.X || "default"` / `process.env.X ?? "default"`
+    (optional with default)
 - Docker Compose:
   - `${VAR}`
   - `${VAR:-default}`

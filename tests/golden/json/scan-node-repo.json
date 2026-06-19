@@ -1,0 +1,161 @@
+{
+  "data": {
+    "contracts": [
+      {
+        "aliases": [],
+        "definitions": [
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/node_repo/.env",
+            "is_duplicate": false,
+            "line_number": 1,
+            "name": "DATABASE_URL",
+            "normalized_value_kind": "url",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": "postgres://localhost/app"
+          }
+        ],
+        "name": "DATABASE_URL",
+        "placeholder_like": false,
+        "requiredness": "optional",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/node_repo/.env"
+        ],
+        "secret_like": false,
+        "status": [
+          "defined",
+          "referenced"
+        ],
+        "usages": [
+          {
+            "default_value": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/node_repo/app.js",
+            "line_number": 1,
+            "name": "DATABASE_URL",
+            "requiredness": "optional",
+            "source_type": "javascript",
+            "usage_kind": "process.env"
+          }
+        ]
+      },
+      {
+        "aliases": [],
+        "definitions": [],
+        "name": "LOG_LEVEL",
+        "placeholder_like": false,
+        "requiredness": "optional_with_default",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/node_repo/.env"
+        ],
+        "secret_like": false,
+        "status": [
+          "referenced",
+          "undefined"
+        ],
+        "usages": [
+          {
+            "default_value": "info",
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/node_repo/app.js",
+            "line_number": 3,
+            "name": "LOG_LEVEL",
+            "requiredness": "optional_with_default",
+            "source_type": "javascript",
+            "usage_kind": "process.env"
+          }
+        ]
+      },
+      {
+        "aliases": [],
+        "definitions": [],
+        "name": "PORT",
+        "placeholder_like": false,
+        "requiredness": "optional_with_default",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/node_repo/.env"
+        ],
+        "secret_like": false,
+        "status": [
+          "referenced",
+          "undefined"
+        ],
+        "usages": [
+          {
+            "default_value": "3000",
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/node_repo/app.js",
+            "line_number": 2,
+            "name": "PORT",
+            "requiredness": "optional_with_default",
+            "source_type": "javascript",
+            "usage_kind": "process.env"
+          }
+        ]
+      }
+    ],
+    "definitions": [
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/node_repo/.env",
+        "is_duplicate": false,
+        "line_number": 1,
+        "name": "DATABASE_URL",
+        "normalized_value_kind": "url",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": "postgres://localhost/app"
+      }
+    ],
+    "resolutions": [
+      {
+        "env_file": "<REPO_ROOT>/tests/fixtures/repos/node_repo/.env",
+        "example_file": null,
+        "notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/node_repo/.env"
+        ],
+        "source_file": "<REPO_ROOT>/tests/fixtures/repos/node_repo/app.js"
+      }
+    ],
+    "root_path": "<REPO_ROOT>/tests/fixtures/repos/node_repo",
+    "usages": [
+      {
+        "default_value": null,
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/node_repo/app.js",
+        "line_number": 1,
+        "name": "DATABASE_URL",
+        "requiredness": "optional",
+        "source_type": "javascript",
+        "usage_kind": "process.env"
+      },
+      {
+        "default_value": "info",
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/node_repo/app.js",
+        "line_number": 3,
+        "name": "LOG_LEVEL",
+        "requiredness": "optional_with_default",
+        "source_type": "javascript",
+        "usage_kind": "process.env"
+      },
+      {
+        "default_value": "3000",
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/node_repo/app.js",
+        "line_number": 2,
+        "name": "PORT",
+        "requiredness": "optional_with_default",
+        "source_type": "javascript",
+        "usage_kind": "process.env"
+      }
+    ],
+    "warnings": []
+  },
+  "findings": [],
+  "inputs": {
+    "path": "tests/fixtures/repos/node_repo"
+  },
+  "meta": {
+    "command": "scan",
+    "schema_version": "1"
+  },
+  "summary": {
+    "error": 0,
+    "info": 0,
+    "warning": 0
+  }
+}
