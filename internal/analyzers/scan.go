@@ -153,7 +153,7 @@ func scanFile(filePath string, root string) fileScan {
 	case isJavaScriptFile(filePath):
 		result, err := parsers.ScanJavaScriptFile(filePath)
 		return usageFileScan(result, err, filePath, root)
-	case isShellFile(filePath):
+	case isShellFile(filePath) || isDirenvFile(name):
 		result, err := parsers.ScanShellFile(filePath)
 		return usageFileScan(result, err, filePath, root)
 	case isDockerfile(name):
@@ -323,6 +323,12 @@ func isJavaScriptFile(filePath string) bool {
 func isShellFile(filePath string) bool {
 	_, ok := shellExtensions[filepath.Ext(filePath)]
 	return ok
+}
+
+// isDirenvFile matches direnv's .envrc (and .envrc.local), which are shell
+// syntax and are scanned by the shell parser.
+func isDirenvFile(name string) bool {
+	return name == ".envrc" || strings.HasPrefix(name, ".envrc.")
 }
 
 // isDockerfile matches `Dockerfile`, `Dockerfile.<suffix>` (e.g. Dockerfile.dev),

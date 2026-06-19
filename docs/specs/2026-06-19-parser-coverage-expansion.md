@@ -112,7 +112,7 @@ is not a false "missing".
 - **`source_type`:** `shell`, `dockerfile`. **`usage_kind`:** `shell_var`,
   `dockerfile_var`.
 
-### Phase B3a — Cheap recall wins (this effort)
+### Phase B3a — Cheap recall wins (DONE)
 
 Three additions that fit the established line-regex parser pattern with little
 new modeling — bundled into one PR:
