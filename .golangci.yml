@@ -1,0 +1,29 @@
+version: "2"
+
+# Go lint stack for envdiff (the ruff equivalent now that Python is retired).
+# Defaults already enable errcheck, govet, ineffassign, staticcheck, and unused;
+# unused + staticcheck's U1000 cover the cross-file dead-code gate the Python
+# tests/test_dead_code.py used to own. The extras below add style and
+# correctness checks that fit a small, deterministic CLI.
+linters:
+  enable:
+    - misspell
+    - unconvert
+    - unparam
+    - revive
+  settings:
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+    errcheck:
+      # Writes to stdout/stderr (help text, diagnostics) have nothing useful to
+      # do with a returned error in a CLI; don't require checking them.
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+
+formatters:
+  enable:
+    - gofumpt

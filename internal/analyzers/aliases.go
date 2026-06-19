@@ -195,10 +195,9 @@ func sequenceRatio(left string, right string) float64 {
 }
 
 func longestCommonSubsequence(left string, right string) int {
-	leftRunes := []rune(left)
 	rightRunes := []rune(right)
 	previous := make([]int, len(rightRunes)+1)
-	for _, leftRune := range leftRunes {
+	for _, leftRune := range left {
 		current := make([]int, len(rightRunes)+1)
 		for rightIndex, rightRune := range rightRunes {
 			if leftRune == rightRune {
