@@ -45,10 +45,12 @@ Open divergences between the Go port and the Python oracle that current fixtures
 do not exercise. Resolved items shipped in the CLI hardening pass — see ROADMAP
 "Recent hardening".
 
-- **JSON non-ASCII handling** — Go emits raw UTF-8 where the Python oracle
-  escapes to `\uXXXX` (`ensure_ascii`). Deliberately deferred to the
-  Go-as-source-of-truth branch (regenerate goldens from Go, relax the parity
-  gate); no fixture exercises non-ASCII today.
+- **JSON non-ASCII handling** — *Resolved (Go-as-source-of-truth phase 1).* Go
+  emits raw UTF-8 where the Python oracle escapes to `\uXXXX` (`ensure_ascii`).
+  Goldens now generate from the Go binary with `ensure_ascii=False`, the
+  `unicode_repo` fixture exercises it, and `TestScanRepositoryEmitsRawUTF8` pins
+  raw UTF-8 at the byte level. The parity gate stays green because it compares
+  decoded values.
 - **Path canonicalization** (`internal/analyzers/scan.go`,
   `internal/paths/walk.go`) — Go `filepath.Abs` is lexical; Python
   `Path.resolve()` resolves symlinks, so on a symlinked component (e.g. macOS

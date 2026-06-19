@@ -30,7 +30,7 @@ Go port (resolved items from the backlog):
 
 Detail in `docs/project/BACKLOG.md`:
 
-- **Go as source of truth** — raw-UTF-8 JSON (drop `ensure_ascii`-style escaping), regenerate goldens from Go, downgrade the Python parity gate, retire the Python oracle.
+- **Go as source of truth** (in progress) — phase 1 landed: goldens are generated from the Go binary, JSON emits raw UTF-8 (locked by `unicode_repo` + a byte-level test), and `docs/system/JSON_SCHEMA.md` names Go the contract source. Remaining: coverage audit before deleting Python, then retire the oracle and adopt a Go lint stack. The parity gate stays blocking until the first deliberate Go-only divergence. See `docs/plans/2026-06-18-go-source-of-truth-migration.md`.
 - **Remaining oracle divergences** — symlink path canonicalization (`Abs` vs `resolve`), secret-length code-point counting, the usage-error exit-code contract (1 vs 2), and the intentional regex-vs-AST Python scanner.
 - **Perf follow-up** — memoize the per-directory nearest-dotenv resolution walk.
 - **Parser expansion (candidate)** — shell scripts, `.envrc`/direnv (repo-local subset), Pydantic `BaseSettings`, `.devcontainer`, monorepo service grouping.

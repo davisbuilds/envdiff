@@ -58,6 +58,7 @@ JSON_CASES: tuple[tuple[str, list[str]], ...] = (
     ),
     ("scan-simple", ["scan", "tests/fixtures/repos/simple_repo", "--json"]),
     ("scan-workflow", ["scan", "tests/fixtures/repos/workflow_repo", "--json"]),
+    ("scan-unicode", ["scan", "tests/fixtures/repos/unicode_repo", "--json"]),
     ("generate", ["generate", "tests/fixtures/repos/simple_repo", "--json"]),
     (
         "generate-annotated",

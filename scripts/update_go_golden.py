@@ -15,6 +15,26 @@ GOLDEN_DIR = REPO_ROOT / "tests" / "golden" / "json"
 REPO_TOKEN = "<REPO_ROOT>"
 TMP_TOKEN = "<TMPDIR>"
 
+_GO_BINARY: Path | None = None
+
+
+def go_binary() -> Path:
+    """Build the Go envdiff binary once and return its path.
+
+    Go is the source of truth for the JSON contract, so goldens are generated
+    from the compiled Go binary rather than the Python oracle.
+    """
+    global _GO_BINARY
+    if _GO_BINARY is None:
+        target = REPO_ROOT / "bin" / "envdiff"
+        subprocess.run(
+            ["go", "build", "-o", str(target), "./cmd/envdiff"],
+            cwd=REPO_ROOT,
+            check=True,
+        )
+        _GO_BINARY = target
+    return _GO_BINARY
+
 
 JSON_CASES: tuple[tuple[str, list[str], int], ...] = (
     (
@@ -52,6 +72,7 @@ JSON_CASES: tuple[tuple[str, list[str], int], ...] = (
     ),
     ("scan-simple-repo.json", ["scan", "tests/fixtures/repos/simple_repo", "--json"], 0),
     ("scan-workflow-repo.json", ["scan", "tests/fixtures/repos/workflow_repo", "--json"], 0),
+    ("scan-unicode-repo.json", ["scan", "tests/fixtures/repos/unicode_repo", "--json"], 0),
     ("generate-simple-repo.json", ["generate", "tests/fixtures/repos/simple_repo", "--json"], 0),
     (
         "generate-simple-repo-annotated.json",
@@ -64,12 +85,12 @@ JSON_CASES: tuple[tuple[str, list[str], int], ...] = (
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Regenerate Go-port JSON goldens from the Python envdiff CLI."
+        description="Regenerate JSON goldens from the Go envdiff binary (the contract source)."
     )
     parser.add_argument(
         "--check",
         action="store_true",
-        help="Verify committed goldens match the Python oracle without rewriting files.",
+        help="Verify committed goldens match the Go binary without rewriting files.",
     )
     args = parser.parse_args()
 
@@ -126,7 +147,7 @@ def run_command(
     expected_code: int,
 ) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(
-        [str(REPO_ROOT / "scripts" / "envdiff-python"), *command_args],
+        [str(go_binary()), *command_args],
         cwd=REPO_ROOT,
         text=True,
         capture_output=True,
@@ -169,7 +190,7 @@ def normalize_value(value: Any, replacements: Mapping[str, str]) -> Any:
 
 
 def render_json(payload: Any) -> str:
-    return json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    return json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
 
 
 def check_or_write(target: Path, rendered: str, *, check: bool, failures: list[str]) -> None:

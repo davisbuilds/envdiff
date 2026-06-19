@@ -423,3 +423,40 @@ func TestRunDoctorBaselineSuppressesFindings(t *testing.T) {
 		t.Fatalf("stdout = %q, want suppressed findings", stdout.String())
 	}
 }
+
+func TestRunDoctorUsesDefaultIgnoreFile(t *testing.T) {
+	project := t.TempDir()
+	appDir := filepath.Join(project, "app")
+	if err := os.MkdirAll(appDir, 0o755); err != nil {
+		t.Fatalf("create app dir: %v", err)
+	}
+	mainPath := filepath.Join(appDir, "main.py")
+	writes := map[string]string{
+		filepath.Join(project, ".env"):           "",
+		filepath.Join(project, ".env.example"):   "API_KEY=\n",
+		filepath.Join(project, ".envdiffignore"): "missing:" + mainPath + ":API_KEY\n",
+		mainPath:                                  "import os\nos.environ[\"API_KEY\"]\n",
+	}
+	for filePath, content := range writes {
+		if err := os.WriteFile(filePath, []byte(content), 0o644); err != nil {
+			t.Fatalf("write %s: %v", filePath, err)
+		}
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := Run([]string{"doctor", project, "--json"}, &stdout, &stderr)
+
+	if code != 0 {
+		t.Fatalf("exit code = %d, stderr = %q", code, stderr.String())
+	}
+	out := stdout.String()
+	if !strings.Contains(out, `"ignore_file":`) {
+		t.Fatalf("stdout missing ignore_file input:\n%s", out)
+	}
+	if !strings.Contains(out, ".envdiffignore") {
+		t.Fatalf("ignore_file should resolve to the default .envdiffignore:\n%s", out)
+	}
+	if !strings.Contains(out, `"error": 0`) {
+		t.Fatalf("default ignore file should suppress the ENV001 error:\n%s", out)
+	}
+}

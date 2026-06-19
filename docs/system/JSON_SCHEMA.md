@@ -136,6 +136,12 @@ Each `variables[]` entry includes:
 - New fields may be added in a future schema version.
 - Existing fields in schema version `1` should be treated as stable.
 - Consumers should key on `meta.command` and `meta.schema_version`.
+- **Encoding:** output is UTF-8 with two-space indentation and lexicographically
+  sorted keys. Ordinary non-ASCII values are emitted as raw UTF-8 (not `\uXXXX`
+  escapes), and `<`, `>`, `&` appear literally rather than HTML-escaped. The
+  exceptions are the standard JSON string escapes (`"`, `\`, control characters)
+  and the line/paragraph separators U+2028/U+2029, which Go's encoder always
+  emits as `\u2028`/`\u2029`.
 
 ## Contract Change Procedure
 
@@ -149,7 +155,12 @@ Schema version can stay the same when:
   fields.
 - Adding new warning strings while preserving existing structured fields.
 
-Bump `SCHEMA_VERSION` in `src/envdiff/models.py` when:
+The **Go implementation is the contract source**; the Python package is a
+transitional parity oracle. Goldens under `tests/golden/json/` are generated
+from the Go binary (`uv run python scripts/update_go_golden.py`).
+
+Bump `SchemaVersion` in `internal/version` (and the mirrored `SCHEMA_VERSION` in
+`src/envdiff/models.py` while the oracle exists) when:
 
 - Renaming or removing an existing field.
 - Changing a field's type or nullability.
@@ -160,13 +171,16 @@ Bump `SCHEMA_VERSION` in `src/envdiff/models.py` when:
 
 For any schema-affecting change:
 
-1. Update `src/envdiff/models.py`.
-2. Update JSON rendering in `src/envdiff/render/json.py` if needed.
-3. Update this file and affected command docs.
-4. Add or update tests in `tests/test_models.py`, `tests/test_cli_smoke.py`, and any
-   command-specific test that snapshots JSON shape.
-5. Run `uv run ruff check .`, `uv run ruff format --check .`, and
-   `uv run pytest -q`.
+1. Update the Go models in `internal/model` (and `internal/version` for a version
+   bump).
+2. Update JSON rendering in `internal/render` if needed.
+3. Regenerate goldens from Go: `uv run python scripts/update_go_golden.py`.
+4. Update this file and affected command docs.
+5. While the Python oracle exists, mirror the change in `src/envdiff/models.py`
+   and `src/envdiff/render/json.py` so the parity gate stays green.
+6. Run the full gate: `go test ./...`, `uv run pytest -q`,
+   `uv run python scripts/check_go_parity.py`, `uv run ruff check .`, and
+   `uv run ruff format --check .`.
 
 Do not silently change field names to make human output cleaner. Human rendering and
 JSON rendering have different compatibility requirements.
