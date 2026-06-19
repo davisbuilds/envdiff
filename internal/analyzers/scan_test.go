@@ -41,6 +41,34 @@ func TestScanRepositoryMatchesWorkflowRepoGolden(t *testing.T) {
 	assertScanMatchesGolden(t, "repos/workflow_repo", "scan-workflow-repo.json")
 }
 
+func TestScanRepositoryMatchesUnicodeRepoGolden(t *testing.T) {
+	assertScanMatchesGolden(t, "repos/unicode_repo", "scan-unicode-repo.json")
+}
+
+// Go is the source of truth for the JSON contract, which emits non-ASCII values
+// as raw UTF-8 rather than \uXXXX escapes (unlike Python's ensure_ascii default).
+// This pins that behavior at the byte level, where structural golden comparison
+// (which decodes both sides) cannot see the difference.
+func TestScanRepositoryEmitsRawUTF8(t *testing.T) {
+	const greeting = "Café ☕ déjà vu — Москва"
+
+	result, err := ScanRepository(testutil.FixturePath(t, "repos", "unicode_repo"))
+	if err != nil {
+		t.Fatalf("scan repository: %v", err)
+	}
+	rendered, err := render.JSON(model.NewJsonEnvelope("scan", map[string]any{}, result))
+	if err != nil {
+		t.Fatalf("render JSON: %v", err)
+	}
+
+	if !strings.Contains(rendered, greeting) {
+		t.Fatalf("rendered JSON missing raw UTF-8 value %q:\n%s", greeting, rendered)
+	}
+	if strings.Contains(rendered, `\u`) {
+		t.Fatalf("rendered JSON contains \\u escapes, want raw UTF-8:\n%s", rendered)
+	}
+}
+
 func assertScanMatchesGolden(t *testing.T, fixture string, golden string) {
 	t.Helper()
 

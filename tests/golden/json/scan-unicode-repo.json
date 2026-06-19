@@ -1,0 +1,91 @@
+{
+  "data": {
+    "contracts": [
+      {
+        "aliases": [],
+        "definitions": [
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/unicode_repo/.env",
+            "is_duplicate": false,
+            "line_number": 1,
+            "name": "GREETING",
+            "normalized_value_kind": "string",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": "Café ☕ déjà vu — Москва"
+          }
+        ],
+        "name": "GREETING",
+        "placeholder_like": false,
+        "requiredness": "required",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/unicode_repo/.env"
+        ],
+        "secret_like": false,
+        "status": [
+          "defined",
+          "referenced"
+        ],
+        "usages": [
+          {
+            "default_value": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/unicode_repo/app.py",
+            "line_number": 3,
+            "name": "GREETING",
+            "requiredness": "required",
+            "source_type": "python",
+            "usage_kind": "os.environ"
+          }
+        ]
+      }
+    ],
+    "definitions": [
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/unicode_repo/.env",
+        "is_duplicate": false,
+        "line_number": 1,
+        "name": "GREETING",
+        "normalized_value_kind": "string",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": "Café ☕ déjà vu — Москва"
+      }
+    ],
+    "resolutions": [
+      {
+        "env_file": "<REPO_ROOT>/tests/fixtures/repos/unicode_repo/.env",
+        "example_file": null,
+        "notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/unicode_repo/.env"
+        ],
+        "source_file": "<REPO_ROOT>/tests/fixtures/repos/unicode_repo/app.py"
+      }
+    ],
+    "root_path": "<REPO_ROOT>/tests/fixtures/repos/unicode_repo",
+    "usages": [
+      {
+        "default_value": null,
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/unicode_repo/app.py",
+        "line_number": 3,
+        "name": "GREETING",
+        "requiredness": "required",
+        "source_type": "python",
+        "usage_kind": "os.environ"
+      }
+    ],
+    "warnings": []
+  },
+  "findings": [],
+  "inputs": {
+    "path": "tests/fixtures/repos/unicode_repo"
+  },
+  "meta": {
+    "command": "scan",
+    "schema_version": "1"
+  },
+  "summary": {
+    "error": 0,
+    "info": 0,
+    "warning": 0
+  }
+}
