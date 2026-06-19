@@ -1,0 +1,169 @@
+{
+  "data": {
+    "contracts": [
+      {
+        "aliases": [],
+        "definitions": [
+          {
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/.env",
+            "is_duplicate": false,
+            "line_number": 1,
+            "name": "DATABASE_URL",
+            "normalized_value_kind": "url",
+            "parse_warnings": [],
+            "source_type": "dotenv",
+            "value": "postgres://localhost/app"
+          }
+        ],
+        "name": "DATABASE_URL",
+        "placeholder_like": false,
+        "requiredness": "required",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/deploy_repo/.env"
+        ],
+        "secret_like": false,
+        "status": [
+          "defined",
+          "referenced"
+        ],
+        "usages": [
+          {
+            "default_value": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/entrypoint.sh",
+            "line_number": 2,
+            "name": "DATABASE_URL",
+            "requiredness": "required",
+            "source_type": "shell",
+            "usage_kind": "shell_var"
+          }
+        ]
+      },
+      {
+        "aliases": [],
+        "definitions": [],
+        "name": "REDIS_URL",
+        "placeholder_like": false,
+        "requiredness": "required",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/deploy_repo/.env"
+        ],
+        "secret_like": false,
+        "status": [
+          "referenced",
+          "undefined"
+        ],
+        "usages": [
+          {
+            "default_value": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/entrypoint.sh",
+            "line_number": 3,
+            "name": "REDIS_URL",
+            "requiredness": "required",
+            "source_type": "shell",
+            "usage_kind": "shell_var"
+          }
+        ]
+      },
+      {
+        "aliases": [],
+        "definitions": [],
+        "name": "SENTRY_DSN",
+        "placeholder_like": false,
+        "requiredness": "required",
+        "resolution_notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/deploy_repo/.env"
+        ],
+        "secret_like": false,
+        "status": [
+          "referenced",
+          "undefined"
+        ],
+        "usages": [
+          {
+            "default_value": null,
+            "file_path": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/Dockerfile",
+            "line_number": 3,
+            "name": "SENTRY_DSN",
+            "requiredness": "required",
+            "source_type": "dockerfile",
+            "usage_kind": "dockerfile_var"
+          }
+        ]
+      }
+    ],
+    "definitions": [
+      {
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/.env",
+        "is_duplicate": false,
+        "line_number": 1,
+        "name": "DATABASE_URL",
+        "normalized_value_kind": "url",
+        "parse_warnings": [],
+        "source_type": "dotenv",
+        "value": "postgres://localhost/app"
+      }
+    ],
+    "resolutions": [
+      {
+        "env_file": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/.env",
+        "example_file": null,
+        "notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/deploy_repo/.env"
+        ],
+        "source_file": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/Dockerfile"
+      },
+      {
+        "env_file": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/.env",
+        "example_file": null,
+        "notes": [
+          "env:<REPO_ROOT>/tests/fixtures/repos/deploy_repo/.env"
+        ],
+        "source_file": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/entrypoint.sh"
+      }
+    ],
+    "root_path": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo",
+    "usages": [
+      {
+        "default_value": null,
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/entrypoint.sh",
+        "line_number": 2,
+        "name": "DATABASE_URL",
+        "requiredness": "required",
+        "source_type": "shell",
+        "usage_kind": "shell_var"
+      },
+      {
+        "default_value": null,
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/entrypoint.sh",
+        "line_number": 3,
+        "name": "REDIS_URL",
+        "requiredness": "required",
+        "source_type": "shell",
+        "usage_kind": "shell_var"
+      },
+      {
+        "default_value": null,
+        "file_path": "<REPO_ROOT>/tests/fixtures/repos/deploy_repo/Dockerfile",
+        "line_number": 3,
+        "name": "SENTRY_DSN",
+        "requiredness": "required",
+        "source_type": "dockerfile",
+        "usage_kind": "dockerfile_var"
+      }
+    ],
+    "warnings": []
+  },
+  "findings": [],
+  "inputs": {
+    "path": "tests/fixtures/repos/deploy_repo"
+  },
+  "meta": {
+    "command": "scan",
+    "schema_version": "1"
+  },
+  "summary": {
+    "error": 0,
+    "info": 0,
+    "warning": 0
+  }
+}

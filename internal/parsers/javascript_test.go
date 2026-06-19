@@ -41,9 +41,9 @@ func TestScanJavaScriptFileDetectsProcessEnvAccess(t *testing.T) {
 	}
 
 	// Inline || / ?? fallbacks are optional_with_default.
-	assertDefault(t, usages["PORT"], "optional_with_default", "3000")
-	assertDefault(t, usages["LOG_LEVEL"], "optional_with_default", "info")
-	assertDefault(t, usages["DEBUG"], "optional_with_default", "false")
+	assertDefault(t, usages["PORT"], "3000")
+	assertDefault(t, usages["LOG_LEVEL"], "info")
+	assertDefault(t, usages["DEBUG"], "false")
 }
 
 func TestScanJavaScriptFileIgnoresDynamicAndWholeObjectAccess(t *testing.T) {
@@ -56,10 +56,11 @@ func TestScanJavaScriptFileIgnoresDynamicAndWholeObjectAccess(t *testing.T) {
 	}
 }
 
-func assertDefault(t *testing.T, usage model.EnvVarUsage, wantReq string, wantDefault string) {
+// assertDefault checks an optional_with_default usage and its captured default.
+func assertDefault(t *testing.T, usage model.EnvVarUsage, wantDefault string) {
 	t.Helper()
-	if usage.Requiredness != wantReq {
-		t.Fatalf("%s requiredness = %s, want %s", usage.Name, usage.Requiredness, wantReq)
+	if usage.Requiredness != "optional_with_default" {
+		t.Fatalf("%s requiredness = %s, want optional_with_default", usage.Name, usage.Requiredness)
 	}
 	if usage.DefaultValue == nil || *usage.DefaultValue != wantDefault {
 		t.Fatalf("%s default = %v, want %s", usage.Name, usage.DefaultValue, wantDefault)

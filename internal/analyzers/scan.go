@@ -30,6 +30,11 @@ var javaScriptExtensions = map[string]struct{}{
 	".cjs": {},
 }
 
+var shellExtensions = map[string]struct{}{
+	".sh":   {},
+	".bash": {},
+}
+
 type contractPayload struct {
 	definitions []model.EnvVarDefinition
 	usages      []model.EnvVarUsage
@@ -147,6 +152,12 @@ func scanFile(filePath string, root string) fileScan {
 		return usageFileScan(result, err, filePath, root)
 	case isJavaScriptFile(filePath):
 		result, err := parsers.ScanJavaScriptFile(filePath)
+		return usageFileScan(result, err, filePath, root)
+	case isShellFile(filePath):
+		result, err := parsers.ScanShellFile(filePath)
+		return usageFileScan(result, err, filePath, root)
+	case isDockerfile(name):
+		result, err := parsers.ScanDockerfile(filePath)
 		return usageFileScan(result, err, filePath, root)
 	case isComposeFile(name):
 		result, err := parsers.ScanComposeFile(filePath)
@@ -307,6 +318,19 @@ func isComposeFile(name string) bool {
 func isJavaScriptFile(filePath string) bool {
 	_, ok := javaScriptExtensions[filepath.Ext(filePath)]
 	return ok
+}
+
+func isShellFile(filePath string) bool {
+	_, ok := shellExtensions[filepath.Ext(filePath)]
+	return ok
+}
+
+// isDockerfile matches `Dockerfile`, `Dockerfile.<suffix>` (e.g. Dockerfile.dev),
+// and `<name>.dockerfile`.
+func isDockerfile(name string) bool {
+	return name == "Dockerfile" ||
+		strings.HasPrefix(name, "Dockerfile.") ||
+		filepath.Ext(name) == ".dockerfile"
 }
 
 func isGitHubActionsWorkflow(filePath string) bool {

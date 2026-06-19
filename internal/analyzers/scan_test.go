@@ -49,6 +49,32 @@ func TestScanRepositoryMatchesNodeRepoGolden(t *testing.T) {
 	assertScanMatchesGolden(t, "repos/node_repo", "scan-node-repo.json")
 }
 
+func TestScanRepositoryMatchesDeployRepoGolden(t *testing.T) {
+	assertScanMatchesGolden(t, "repos/deploy_repo", "scan-deploy-repo.json")
+}
+
+func TestScanRepositoryDetectsShellAndDockerfileUsage(t *testing.T) {
+	result, err := ScanRepository(testutil.FixturePath(t, "repos", "deploy_repo"))
+	if err != nil {
+		t.Fatalf("scan repository: %v", err)
+	}
+
+	names := map[string]model.EnvVarContract{}
+	for _, contract := range result.Contracts {
+		names[contract.Name] = contract
+	}
+	for _, want := range []string{"DATABASE_URL", "REDIS_URL", "SENTRY_DSN"} {
+		if _, ok := names[want]; !ok {
+			t.Fatalf("contracts = %v, want %s referenced", keysOfContracts(names), want)
+		}
+	}
+	// NODE_ENV is defined locally by the Dockerfile ENV and must not surface as a
+	// repo-wide contract (separate scope).
+	if _, ok := names["NODE_ENV"]; ok {
+		t.Fatalf("NODE_ENV should not be a contract (locally defined in Dockerfile)")
+	}
+}
+
 func TestScanRepositoryDetectsJavaScriptProcessEnvUsage(t *testing.T) {
 	result, err := ScanRepository(testutil.FixturePath(t, "repos", "node_repo"))
 	if err != nil {
