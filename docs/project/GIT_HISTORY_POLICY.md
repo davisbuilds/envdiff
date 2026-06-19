@@ -42,11 +42,10 @@ Workflow: `.github/workflows/ci.yml`
 
 Quality gates expected green before merge (matches the project pre-push checklist):
 
-- `uv run ruff check .`
-- `uv run ruff format --check .`
-- `uv run pytest -q`
+- `go vet ./...`
 - `go test ./...`
-- `uv run python scripts/check_go_parity.py`
+- `golangci-lint run ./...`
+- goldens current: `ENVDIFF_UPDATE_GOLDENS=1 go test ./... && git diff --exit-code tests/golden`
 
 ## Recommended Ongoing Hygiene
 

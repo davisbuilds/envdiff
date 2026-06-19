@@ -88,8 +88,7 @@ func assertScanMatchesGolden(t *testing.T, fixture string, golden string) {
 
 	got := testutil.DecodeJSON(t, []byte(rendered))
 	got = testutil.NormalizeJSONValue(got, testutil.DefaultPathReplacements(t))
-	want := testutil.LoadGoldenJSON(t, golden)
-	testutil.AssertJSONEqual(t, got, want)
+	testutil.AssertGoldenJSON(t, golden, got)
 }
 
 func filepathParts(path string) []string {

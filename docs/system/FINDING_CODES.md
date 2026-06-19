@@ -42,9 +42,9 @@ key on them.
 
 When adding or changing a finding:
 
-1. Update the analyzer that emits it.
+1. Update the analyzer that emits it (`internal/analyzers/`).
 2. Update this file and `docs/system/FEATURES.md`.
-3. Add focused analyzer tests and a CLI smoke test when user-visible output changes.
-4. Keep finding ordering deterministic through `src/envdiff/utils/ordering.py`.
-5. Run the full local gate: `uv run ruff check .`, `uv run ruff format --check .`,
-   and `uv run pytest -q`.
+3. Add focused analyzer tests and a CLI test (`internal/cli/cli_test.go`) when
+   user-visible output changes.
+4. Keep finding ordering deterministic through `internal/order`.
+5. Run the full local gate: `go test ./...` and `golangci-lint run ./...`.

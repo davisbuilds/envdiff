@@ -16,7 +16,7 @@ func RepoRoot(t testing.TB) string {
 	}
 
 	for {
-		if fileExists(filepath.Join(dir, "pyproject.toml")) && fileExists(filepath.Join(dir, "envdiff")) {
+		if fileExists(filepath.Join(dir, "go.mod")) && fileExists(filepath.Join(dir, "envdiff")) {
 			return dir
 		}
 		parent := filepath.Dir(dir)

@@ -165,8 +165,8 @@ func TestRunMatrixRejectsSinglePath(t *testing.T) {
 
 	code := Run([]string{"matrix", "tests/fixtures/matrix/a.env"}, &stdout, &stderr)
 
-	if code == 0 {
-		t.Fatal("exit code = 0, want non-zero")
+	if code != 1 {
+		t.Fatalf("exit code = %d, want 1 (usage error)", code)
 	}
 	if !strings.Contains(stderr.String(), "matrix requires at least two dotenv files") {
 		t.Fatalf("stderr = %q, want matrix validation message", stderr.String())
@@ -379,8 +379,8 @@ func TestRunDoctorThresholdAndInvalidFailOn(t *testing.T) {
 	stdout.Reset()
 	stderr.Reset()
 	code = Run([]string{"doctor", "tests/fixtures/doctor/project", "--fail-on", "debug"}, &stdout, &stderr)
-	if code == 0 {
-		t.Fatal("exit code = 0, want non-zero")
+	if code != 1 {
+		t.Fatalf("exit code = %d, want 1 (usage error)", code)
 	}
 	if !strings.Contains(stderr.String(), "fail-on must be one of") {
 		t.Fatalf("stderr = %q, want allowed severities", stderr.String())
@@ -432,15 +432,24 @@ func TestRunDoctorUsesDefaultIgnoreFile(t *testing.T) {
 	}
 	mainPath := filepath.Join(appDir, "main.py")
 	writes := map[string]string{
-		filepath.Join(project, ".env"):           "",
-		filepath.Join(project, ".env.example"):   "API_KEY=\n",
-		filepath.Join(project, ".envdiffignore"): "missing:" + mainPath + ":API_KEY\n",
-		mainPath:                                  "import os\nos.environ[\"API_KEY\"]\n",
+		filepath.Join(project, ".env"):         "",
+		filepath.Join(project, ".env.example"): "API_KEY=\n",
+		mainPath:                               "import os\nos.environ[\"API_KEY\"]\n",
 	}
 	for filePath, content := range writes {
 		if err := os.WriteFile(filePath, []byte(content), 0o644); err != nil {
 			t.Fatalf("write %s: %v", filePath, err)
 		}
+	}
+	// Suppression keys use the scanned (symlink-resolved) usage path, so build
+	// the ignore key from the resolved main.py path.
+	resolvedMain, err := filepath.EvalSymlinks(mainPath)
+	if err != nil {
+		t.Fatalf("resolve main.py: %v", err)
+	}
+	ignoreContent := "missing:" + resolvedMain + ":API_KEY\n"
+	if err := os.WriteFile(filepath.Join(project, ".envdiffignore"), []byte(ignoreContent), 0o644); err != nil {
+		t.Fatalf("write .envdiffignore: %v", err)
 	}
 
 	var stdout, stderr bytes.Buffer

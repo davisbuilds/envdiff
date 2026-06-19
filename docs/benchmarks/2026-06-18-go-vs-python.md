@@ -96,9 +96,9 @@ scaling. Output is unchanged (goldens + parity hold).
 
 ## Reproduce
 
-```bash
-brew install hyperfine
-uv sync --extra dev
-scripts/bench_go_vs_python.sh                 # defaults: scan to 5k, doctor to 1k
-BENCH_DOCTOR_SIZES="10 100 1000 5000" scripts/bench_go_vs_python.sh   # include the cliff
-```
+> **Historical.** This benchmark compared the Go CLI against the Python oracle,
+> which was retired when Go became the source of truth (2026-06). The
+> `scripts/bench_go_vs_python.sh` harness and the Python implementation no longer
+> exist, so this comparison is preserved only as a record of the port's payoff.
+> The numbers above were produced with hyperfine 1.20 on the machine noted in
+> the method section.

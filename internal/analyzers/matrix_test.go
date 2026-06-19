@@ -87,6 +87,5 @@ func assertMatrixMatchesGolden(t *testing.T, showAll bool, golden string) {
 	}
 
 	got := testutil.DecodeJSON(t, []byte(rendered))
-	want := testutil.LoadGoldenJSON(t, golden)
-	testutil.AssertJSONEqual(t, got, want)
+	testutil.AssertGoldenJSON(t, golden, got)
 }

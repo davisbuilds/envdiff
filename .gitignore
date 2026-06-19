@@ -1,16 +1,7 @@
-.venv/
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-__pycache__/
-*.pyc
-*.py[cod]
-*.egg-info/
-build/
-dist/
+# Compiled binary cached by the ./envdiff launcher
 /bin/
-.coverage
-htmlcov/
+
+# Editors / OS
 .idea/
 .vscode/
 *.swp
