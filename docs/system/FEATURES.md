@@ -14,6 +14,14 @@ Current product-surface reference for `envdiff`.
   - `process.env.X` and `process.env["X"]` (optional — JS returns `undefined`)
   - `process.env.X || "default"` / `process.env.X ?? "default"`
     (optional with default)
+- Shell (`.sh`, `.bash`):
+  - `$VAR` / `${VAR}` (required), `${VAR:-default}` / `${VAR:=default}`
+    (optional with default), `${VAR:?msg}` (required)
+  - `export VAR=…` / `VAR=…` are treated as local definitions and suppress
+    same-file "missing" findings only (they do not satisfy `.env` contracts)
+- Dockerfile (`Dockerfile`, `Dockerfile.*`, `*.Dockerfile`):
+  - `$VAR` / `${VAR}` interpolation (same requiredness rules as shell)
+  - `ARG`/`ENV` are local definitions (same-file suppression, separate scope)
 - Docker Compose:
   - `${VAR}`
   - `${VAR:-default}`

@@ -87,20 +87,30 @@ change. Directly relevant to the Next.js-heavy side of the portfolio.
   keys, `import.meta.env` (Vite), and `.env` *loading* libraries. Noted as B3
   candidates.
 
-### Phase B2 — Shell + Dockerfile (define + use)
+### Phase B2 — Shell + Dockerfile (define + use) (DONE)
 
-Introduces local-definition awareness so a var defined and used in the same
-scope is not a false "missing". Scope/decision work:
+Introduces local-definition awareness so a var defined and used in the same file
+is not a false "missing".
 
-- Shell: `export NAME=…` / `NAME=…` (definition), `$NAME` / `${NAME}` /
-  `${NAME:-default}` / `${NAME:=default}` (usage). Files: `*.sh`, `*.bash`, and
-  shebang detection for extensionless scripts (deferred sub-item).
+- Shell: `export NAME=…` / `NAME=…` (local definition), `$NAME` / `${NAME}` /
+  `${NAME:-default}` / `${NAME:=default}` / `${NAME:?…}` (usage). Files: `*.sh`,
+  `*.bash` (shebang detection for extensionless scripts deferred to B3).
 - Dockerfile: `ARG NAME[=default]`, `ENV NAME=value` / `ENV NAME value`
-  (definitions), `${NAME}` / `$NAME` (usage). File: `Dockerfile`, `*.Dockerfile`.
-- **Open decision (resolve in B2 spec update):** do shell/Dockerfile-local
-  definitions satisfy a contract the way a `.env` definition does, or are they a
-  separate scope that only suppresses same-file "missing" findings? Likely the
-  latter, to avoid cross-scope confusion in the doctor.
+  (local definitions), `${NAME}` / `$NAME` (usage). Files: `Dockerfile`,
+  `Dockerfile.*`, `*.Dockerfile`.
+- **Decision (2026-06-19): separate scope.** Local `export`/`ENV`/`ARG`
+  definitions do **not** satisfy `.env` contracts elsewhere in the repo and are
+  not emitted into the scan's `Definitions`/contracts. They only suppress
+  "missing" findings for usages of the same name **in the same file**.
+  Implementation stays entirely in the parser: detect local definitions, then
+  emit usages only for referenced names not locally defined in that file. No
+  doctor/model/contract change. A var referenced in file B but defined only in
+  file A is still flagged (resolves against the nearest `.env`, as today).
+- **Requiredness (follows the Compose precedent):** bare `$NAME`/`${NAME}` and
+  `${NAME:?…}` → `required`; `${NAME:-d}`/`${NAME:=d}` → `optional_with_default`
+  with the captured default.
+- **`source_type`:** `shell`, `dockerfile`. **`usage_kind`:** `shell_var`,
+  `dockerfile_var`.
 
 ### Phase B3 — Framework & remaining sources (later)
 

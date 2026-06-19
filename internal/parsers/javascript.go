@@ -48,7 +48,7 @@ func jsUsage(name string, defaultLiteral string, path string, lineNumber int) mo
 	requiredness := "optional"
 	var defaultValue *string
 	if defaultLiteral != "" {
-		value := stripJSQuotes(defaultLiteral)
+		value := stripMatchingQuotes(defaultLiteral)
 		defaultValue = &value
 		requiredness = "optional_with_default"
 	}
@@ -61,15 +61,4 @@ func jsUsage(name string, defaultLiteral string, path string, lineNumber int) mo
 		SourceType:   "javascript",
 		UsageKind:    "process.env",
 	}
-}
-
-func stripJSQuotes(value string) string {
-	if len(value) >= 2 {
-		first := value[0]
-		last := value[len(value)-1]
-		if first == last && (first == '"' || first == '\'') {
-			return value[1 : len(value)-1]
-		}
-	}
-	return value
 }
