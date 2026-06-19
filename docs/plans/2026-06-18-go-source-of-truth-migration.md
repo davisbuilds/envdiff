@@ -83,16 +83,37 @@ stays valuable as a safety net through the phase-2 coverage audit. Demotion move
 to whichever follow-up first introduces a deliberate Go-only divergence (e.g. the
 typed-envelope work, which changes `null`-vs-`[]`).
 
-## Phase 2 — Coverage audit (the gate before deletion)
+## Phase 2 — Coverage audit (the gate before deletion) — DONE
 
-The ~1.6k lines of Python tests (`test_python_ast`, `test_compose`,
-`test_github_actions`, `test_dotenv`, analyzer tests) are a behavior spec.
-Before deleting them, confirm the Go suite subsumes each, and backfill Go tests
-where it does not. This is the step that makes retirement safe and is easy to
-skip by accident.
+The ~1.6k lines of Python tests are a behavior spec. Audited each Python test
+file against its Go counterpart. Most areas were already subsumed (dotenv,
+python scanner, compose, github_actions, secrets, compare, matrix, generate,
+models, scan, baseline, order, normalize, paths). Four genuine gaps that would
+have lost coverage on Python deletion, now backfilled in Go:
 
-Exit criteria: every behavior asserted by a Python test has a corresponding Go
-assertion (or a documented, intentional reason it no longer applies).
+- **Human rendering byte-exact output** — Go previously only `strings.Contains`
+  smoke-tested human output (and had no compare/matrix human test at all). Added
+  byte-exact tests for compare, scan (status join + empty `(none)`), matrix
+  (reason tags, per-file presence, empty view), generate (drift/matches/write),
+  and doctor (empty + severity grouping) in `internal/render/human_test.go`.
+  Resolves the BACKLOG "human output is smoke-tested only" caveat.
+- **Doctor behaviors** — added ENV005 template skew, the `.env.example` ENV003
+  skip, the no-associated-`.env` details string, ENV007 alias **dedup** for a
+  repeated missing usage, and doctor over `workflow_repo`
+  (`internal/analyzers/doctor_test.go`).
+- **Alias canonical-expansion match** — exact-name skip + score 0.99 +
+  "Canonical token expansion matches" reason
+  (`internal/analyzers/aliases_test.go`).
+- **Default `.envdiffignore` discovery** — CLI auto-loads a repo-root
+  `.envdiffignore` and suppresses matching findings
+  (`internal/cli/cli_test.go`).
+
+Intentionally not ported (Python-implementation-specific): `main_invokes_typer_app`
+and `module_entrypoint_invokes_main` (Typer wiring), and `test_dead_code.py`
+(Python static-analysis tooling — replaced by the Go lint stack in phase 3).
+
+Exit criteria met: every behavior asserted by a Python test has a corresponding
+Go assertion or a documented reason it no longer applies.
 
 ## Phase 3 — Retirement
 
