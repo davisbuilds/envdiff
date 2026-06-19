@@ -45,6 +45,39 @@ func TestScanRepositoryMatchesUnicodeRepoGolden(t *testing.T) {
 	assertScanMatchesGolden(t, "repos/unicode_repo", "scan-unicode-repo.json")
 }
 
+func TestScanRepositoryMatchesNodeRepoGolden(t *testing.T) {
+	assertScanMatchesGolden(t, "repos/node_repo", "scan-node-repo.json")
+}
+
+func TestScanRepositoryDetectsJavaScriptProcessEnvUsage(t *testing.T) {
+	result, err := ScanRepository(testutil.FixturePath(t, "repos", "node_repo"))
+	if err != nil {
+		t.Fatalf("scan repository: %v", err)
+	}
+
+	names := map[string]model.EnvVarContract{}
+	for _, contract := range result.Contracts {
+		names[contract.Name] = contract
+	}
+	for _, want := range []string{"DATABASE_URL", "PORT", "LOG_LEVEL"} {
+		if _, ok := names[want]; !ok {
+			t.Fatalf("contracts = %v, want %s referenced", keysOfContracts(names), want)
+		}
+	}
+	// PORT is referenced from JS but absent from .env.
+	if status := names["PORT"].Status; len(status) == 0 || status[0] != "referenced" {
+		t.Fatalf("PORT status = %v, want referenced (undefined)", names["PORT"].Status)
+	}
+}
+
+func keysOfContracts(m map[string]model.EnvVarContract) []string {
+	keys := make([]string, 0, len(m))
+	for key := range m {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
 // Go is the source of truth for the JSON contract, which emits non-ASCII values
 // as raw UTF-8 rather than \uXXXX escapes (unlike Python's ensure_ascii default).
 // This pins that behavior at the byte level, where structural golden comparison

@@ -50,6 +50,7 @@ currently supported input surface:
 
 - `internal/dotenv/parse.go`: `.env` and `.env.example` parsing with duplicate preservation and warnings
 - `internal/parsers/python.go`: `os.environ[...]` and `os.getenv(...)`
+- `internal/parsers/javascript.go`: `process.env.X` / `process.env["X"]` reads (JS/TS)
 - `internal/parsers/compose.go`: Docker Compose `${VAR}` interpolation
 - `internal/parsers/github_actions.go`: workflow expression scanning for `secrets.*` and `vars.*`
 
@@ -84,7 +85,7 @@ envdiff                         # Local Go launcher wrapper
 cmd/envdiff/                    # Go CLI entrypoint
 internal/analyzers/             # Comparison, scan, doctor, alias, and secret logic
 internal/dotenv/                # Dotenv parser
-internal/parsers/               # Python, Compose, and GitHub Actions scanners
+internal/parsers/               # Python, JS/TS, Compose, and GitHub Actions scanners
 internal/lines/                 # Cap-free file-to-lines reader (ScanLines semantics)
 internal/render/                # Human and JSON renderers
 internal/model/                 # JSON schema and domain models
