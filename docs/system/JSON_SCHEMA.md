@@ -137,8 +137,11 @@ Each `variables[]` entry includes:
 - Existing fields in schema version `1` should be treated as stable.
 - Consumers should key on `meta.command` and `meta.schema_version`.
 - **Encoding:** output is UTF-8 with two-space indentation and lexicographically
-  sorted keys. Non-ASCII values are emitted as raw UTF-8 (not `\uXXXX` escapes),
-  and `<`, `>`, `&` appear literally rather than HTML-escaped.
+  sorted keys. Ordinary non-ASCII values are emitted as raw UTF-8 (not `\uXXXX`
+  escapes), and `<`, `>`, `&` appear literally rather than HTML-escaped. The
+  exceptions are the standard JSON string escapes (`"`, `\`, control characters)
+  and the line/paragraph separators U+2028/U+2029, which Go's encoder always
+  emits as `\u2028`/`\u2029`.
 
 ## Contract Change Procedure
 
