@@ -135,8 +135,7 @@ func assertGenerateMatchesGolden(t *testing.T, annotate bool, golden string) {
 
 	got := testutil.DecodeJSON(t, []byte(rendered))
 	got = testutil.NormalizeJSONValue(got, testutil.DefaultPathReplacements(t))
-	want := testutil.LoadGoldenJSON(t, golden)
-	testutil.AssertJSONEqual(t, got, want)
+	testutil.AssertGoldenJSON(t, golden, got)
 }
 
 func scanSimpleRepoForGenerate(t *testing.T) model.RepoScanResult {

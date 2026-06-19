@@ -56,6 +56,5 @@ func TestCompareDotenvFilesMatchesGolden(t *testing.T) {
 	}
 
 	got := testutil.DecodeJSON(t, []byte(rendered))
-	want := testutil.LoadGoldenJSON(t, "compare-basic.json")
-	testutil.AssertJSONEqual(t, got, want)
+	testutil.AssertGoldenJSON(t, "compare-basic.json", got)
 }

@@ -81,8 +81,7 @@ func TestDoctorRepositoryMatchesGolden(t *testing.T) {
 	}
 	got := testutil.DecodeJSON(t, []byte(rendered))
 	got = testutil.NormalizeJSONValue(got, testutil.DefaultPathReplacements(t))
-	want := testutil.LoadGoldenJSON(t, "doctor-project.json")
-	testutil.AssertJSONEqual(t, got, want)
+	testutil.AssertGoldenJSON(t, "doctor-project.json", got)
 }
 
 func TestDoctorRepositoryDoesNotEmitUnusedForEnvExampleEntries(t *testing.T) {
