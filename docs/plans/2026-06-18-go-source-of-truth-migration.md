@@ -125,8 +125,11 @@ Go assertion or a documented reason it no longer applies.
   cross-file dead-code gate. Add `.golangci.yml`.
 - Rewrite CI to Go-only (drop the Python `lint`/`test` jobs and the uv setup
   from `go`).
-- Settle the two genuine contract decisions: symlink path canonicalization
-  (`filepath.EvalSymlinks`) and the usage-error exit code (1 vs 2).
+- Settle the two genuine contract decisions (**decided 2026-06-18**): resolve
+  symlinks in path canonicalization (`filepath.EvalSymlinks`, matching the old
+  Python `resolve()`), and standardize usage errors on **exit 1** (current Go
+  behavior; do not adopt Typer's exit 2). Demote/remove the parity gate as part
+  of this, since the exit-code choice makes it diverge from the Python oracle.
 - Update all `docs/system/` + README + AGENTS.md to drop the dual-implementation
   framing.
 
