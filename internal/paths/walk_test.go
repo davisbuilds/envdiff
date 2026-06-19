@@ -6,6 +6,38 @@ import (
 	"testing"
 )
 
+func TestCanonicalResolvesSymlinkedComponents(t *testing.T) {
+	real := t.TempDir()
+	writeTestFile(t, filepath.Join(real, "marker"), "")
+	link := filepath.Join(t.TempDir(), "link")
+	if err := os.Symlink(real, link); err != nil {
+		t.Fatalf("symlink: %v", err)
+	}
+
+	got, err := Canonical(link)
+	if err != nil {
+		t.Fatalf("canonical: %v", err)
+	}
+	want, err := filepath.EvalSymlinks(real)
+	if err != nil {
+		t.Fatalf("resolve real: %v", err)
+	}
+	if got != want {
+		t.Fatalf("Canonical(%q) = %q, want %q", link, got, want)
+	}
+}
+
+func TestCanonicalFallsBackForMissingPath(t *testing.T) {
+	missing := filepath.Join(t.TempDir(), "does-not-exist")
+	got, err := Canonical(missing)
+	if err != nil {
+		t.Fatalf("canonical: %v", err)
+	}
+	if got != missing {
+		t.Fatalf("Canonical(%q) = %q, want lexical fallback %q", missing, got, missing)
+	}
+}
+
 func TestIterRepoFilesSkipsIgnoredDirsAndSortsResults(t *testing.T) {
 	root := t.TempDir()
 	writeTestFile(t, filepath.Join(root, "b.py"), "")
@@ -38,12 +70,19 @@ func TestFindNearestNamedFileSearchesFromFilesAndStopsAtRoot(t *testing.T) {
 	writeTestFile(t, source, "import os\n")
 	writeTestFile(t, marker, "DATABASE_URL=postgres://db\n")
 
+	// Paths are symlink-resolved (Canonical), so compare against the resolved
+	// marker — on macOS $TMPDIR resolves /var -> /private/var.
+	wantMarker, err := filepath.EvalSymlinks(marker)
+	if err != nil {
+		t.Fatalf("resolve marker: %v", err)
+	}
+
 	found, err := FindNearestNamedFile(source, root, ".env")
 	if err != nil {
 		t.Fatalf("find nearest file: %v", err)
 	}
-	if found == nil || *found != marker {
-		t.Fatalf("nearest = %v, want %s", found, marker)
+	if found == nil || *found != wantMarker {
+		t.Fatalf("nearest = %v, want %s", found, wantMarker)
 	}
 
 	notFound, err := FindNearestNamedFile(nested, nested, ".env")

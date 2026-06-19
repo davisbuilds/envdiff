@@ -37,7 +37,7 @@ type fileScan struct {
 }
 
 func ScanRepository(path string) (model.RepoScanResult, error) {
-	root, err := filepath.Abs(path)
+	root, err := paths.Canonical(path)
 	if err != nil {
 		return model.RepoScanResult{}, err
 	}

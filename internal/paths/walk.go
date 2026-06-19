@@ -9,6 +9,23 @@ import (
 
 var DefaultIgnoredDirs = []string{".git", ".venv", "__pycache__", "node_modules"}
 
+// Canonical returns an absolute, symlink-resolved path. It mirrors the prior
+// Python oracle's Path.resolve() so emitted paths are stable on symlinked
+// components (e.g. macOS $TMPDIR -> /private/var). If the path cannot be
+// resolved (for example it does not exist yet), it falls back to the lexical
+// absolute path rather than failing.
+func Canonical(path string) (string, error) {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	resolved, err := filepath.EvalSymlinks(abs)
+	if err != nil {
+		return abs, nil
+	}
+	return resolved, nil
+}
+
 func IterRepoFiles(root string, ignoreDirs []string) ([]string, error) {
 	ignored := map[string]struct{}{}
 	if ignoreDirs == nil {
@@ -41,7 +58,7 @@ func IterRepoFiles(root string, ignoreDirs []string) ([]string, error) {
 }
 
 func FindNearestNamedFile(start string, root string, targetName string) (*string, error) {
-	rootPath, err := filepath.Abs(root)
+	rootPath, err := Canonical(root)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +67,7 @@ func FindNearestNamedFile(start string, root string, targetName string) (*string
 	if info, statErr := os.Stat(start); statErr == nil && !info.IsDir() {
 		current = filepath.Dir(start)
 	}
-	current, err = filepath.Abs(current)
+	current, err = Canonical(current)
 	if err != nil {
 		return nil, err
 	}
