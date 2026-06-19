@@ -56,8 +56,6 @@ func printHelp(output io.Writer) {
 	for _, name := range commandNames {
 		fmt.Fprintf(output, "  %s\n", name)
 	}
-	fmt.Fprintln(output)
-	fmt.Fprintln(output, "Python fallback: scripts/envdiff-python")
 }
 
 func isKnownCommand(command string) bool {
