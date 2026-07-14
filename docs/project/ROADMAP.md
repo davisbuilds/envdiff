@@ -13,7 +13,7 @@ and `docs/system/`; open and unscheduled work lives in
 | B | Practical team tool | Alias naming-drift and secret/placeholder heuristics (ENV008–ENV009); human + JSON renderers; versioned JSON envelope; per-severity summary counts; baseline/suppression workflow for gradual CI adoption. |
 | C | Broader contract platform | `matrix` multi-file consistency; `generate` with `--annotate`/`--check`/`--output`; GitHub Actions workflow scanner. |
 | — | Go port | Full side-by-side Go reimplementation, validated against the Python oracle via a parity gate during the transition. |
-| — | Go as source of truth | Go is now the sole implementation. Goldens generate from the Go binary (raw UTF-8, byte-level pinned); the Python oracle and all binding apparatus are deleted; lint moved to `golangci-lint`/`gofumpt`; CI is Go-only. Contract decisions settled: symlink-resolved paths (`EvalSymlinks`) and usage errors exit `1`. See `docs/plans/2026-06-18-go-source-of-truth-migration.md`. |
+| — | Go as source of truth | Go is now the sole implementation. Goldens generate from the Go binary (raw UTF-8, byte-level pinned); the Python oracle and all binding apparatus are deleted; lint moved to `golangci-lint`/`gofumpt`; CI is Go-only. Contract decisions settled: symlink-resolved paths (`EvalSymlinks`) and usage errors exit `1`. |
 
 ## Recent hardening (2026-06)
 

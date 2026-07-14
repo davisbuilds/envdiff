@@ -25,7 +25,7 @@ golangci-lint run ./...              # lint
 ENVDIFF_UPDATE_GOLDENS=1 go test ./...  # regenerate JSON goldens from Go
 ```
 
-Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `cmd/envdiff` (Go); the source lives under `internal/`. envdiff is Go-only — the original Python implementation was a transitional oracle and has been retired (see `docs/plans/2026-06-18-go-source-of-truth-migration.md`).
+Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `cmd/envdiff` (Go); the source lives under `internal/`. envdiff is Go-only — the original Python implementation was a transitional oracle and has been retired (see `docs/project/ROADMAP.md` → "Go as source of truth").
 
 ## Project Boundaries
 

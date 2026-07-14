@@ -17,8 +17,8 @@ The current implementation is intentionally local-first and deterministic. There
 envdiff is a Go program: `cmd/envdiff/` plus the packages under `internal/`,
 run locally through the `./envdiff` launcher. It began as a port of a Python
 implementation that served as a transitional parity oracle; that oracle has been
-retired and Go is the sole source of truth (see
-`docs/plans/2026-06-18-go-source-of-truth-migration.md`).
+retired and Go is the sole source of truth (see `docs/project/ROADMAP.md` →
+"Go as source of truth").
 
 ## CLI Layer
 
