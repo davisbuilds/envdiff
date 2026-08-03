@@ -1,9 +1,13 @@
 # Backlog
 
-Parking lot for implementation tradeoffs, follow-up simplifications, and product
-improvement ideas that should survive across sessions. Items resolved during the
-Go port and the Go-as-source-of-truth migration have been removed; see ROADMAP
-"Shipped" and the migration plan for that history.
+Future-only design gaps, tech debt, and better ways to do a thing noticed during normal
+execution. Fix simple, quick, or blocking issues inline; capture only durable follow-ups
+worth revisiting cold. Resolved Go-port history lives in ROADMAP "Shipped" and the
+migration plan, not here.
+
+Entries should record **What** / **Why or evidence** / optional **Next** / optional
+**Revisit when**. Use **Next** for the smallest action that makes an item actionable and
+**Revisit when** only for an intentional external or measurable gate.
 
 ## Open
 
@@ -24,14 +28,14 @@ Go port and the Go-as-source-of-truth migration have been removed; see ROADMAP
   option parsing keeps growing, consider a small internal parsing abstraction
   before reaching for a third-party CLI dependency.
 
-## Design notes (intentional, revisit only with fixtures)
+### Design notes (intentional, revisit only with fixtures)
 
 - **Python scanner is regex-based** (`internal/parsers/python.go`) — line
   regexes for documented literal patterns, not full AST semantics. This is the
   spec, not a divergence; it matches inside comments/strings and misses
   multi-line calls. Add fixtures first if broader recall is ever needed.
 
-## Lower-priority cleanup
+### Lower-priority cleanup
 
 - The matched-quote-strip idiom is duplicated in
   `internal/parsers/github_actions.go` and `internal/dotenv/parse.go` — extract a
