@@ -26,12 +26,17 @@ Go port (resolved items from the backlog):
 - **Performance** — repository files are parsed in a bounded worker pool with a deterministic merge; doctor definition-name sets are memoized per file.
 - **Launcher** — `./envdiff` execs a cached compiled binary (rebuilding only when sources change) instead of `go run`, cutting steady-state startup from ~45 ms to ~2 ms (see `docs/benchmarks/`).
 - **Doctor alias pruning** — the O(usages × defs) alias pass now builds a per-file `AliasIndex` (canonical tokens + inverted token index) and only compares names sharing a token, turning a scaling cliff back to ~linear (`doctor` at 2k files: 1.82 s → 4.4 ms, output unchanged).
+- **Secret-length code points** — `LooksLikeSecret` now gates on
+  `utf8.RuneCountInString` instead of `len(value)`, so a multibyte value
+  classifies the same as an equivalent-length ASCII one; the digit count also
+  switched from `unicode.IsDigit` to ASCII-only digits, matching `allDigits`
+  elsewhere in the package (a non-ASCII digit code point no longer counts on
+  its own).
 
 ## Open (tracked, not scheduled)
 
 Detail in `docs/project/BACKLOG.md`:
 
-- **Secret-length counting** — `LooksLikeSecret` counts bytes; consider counting code points so multibyte values classify consistently.
 - **Perf follow-up** — memoize the per-directory nearest-dotenv resolution walk.
 - **Parser expansion (candidate)** — shell scripts, `.envrc`/direnv (repo-local subset), Pydantic `BaseSettings`, `.devcontainer`, monorepo service grouping.
 - **Stretch** — pre-commit hook, editor diagnostics, alias autofix, contract export/import.

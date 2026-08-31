@@ -22,10 +22,6 @@ to a trigger, or move completed decisions and work to the Roadmap or decision hi
 
 ## Open
 
-- **Secret-length code points** (`internal/normalize/value.go`) — the
-  `LooksLikeSecret` length gate counts bytes via `len(value)`, so a multibyte
-  value can classify differently from an equivalent ASCII one. Consider counting
-  runes, and review `unicode.IsDigit` vs ASCII-digit semantics while there.
 - **Resolution-walk memoization** — `resolveUsageFile` re-walks the same
   directory ancestry for every usage file; memoize the nearest
   `.env`/`.env.example` per directory. (Scan concurrency hides but does not
