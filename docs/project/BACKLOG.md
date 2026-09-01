@@ -22,10 +22,6 @@ to a trigger, or move completed decisions and work to the Roadmap or decision hi
 
 ## Open
 
-- **Resolution-walk memoization** — `resolveUsageFile` re-walks the same
-  directory ancestry for every usage file; memoize the nearest
-  `.env`/`.env.example` per directory. (Scan concurrency hides but does not
-  eliminate the redundant walks.)
 - **Typed JSON envelope** — `JsonEnvelope.Data` is `any` so structured results
   and map-like command payloads share one envelope. Typed result structs would
   remove the reflection ambiguity and the `nil`-slice-serializes-as-`null`
