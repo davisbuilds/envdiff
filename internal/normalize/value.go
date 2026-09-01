@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 var placeholderValues = map[string]struct{}{
@@ -49,7 +50,9 @@ func IsNonEmptyPlaceholder(value string) bool {
 }
 
 func LooksLikeSecret(value string) bool {
-	if len(value) < 20 {
+	// Count code points, not bytes: a byte-length gate would classify a
+	// multibyte value differently from an equivalent-length ASCII one.
+	if utf8.RuneCountInString(value) < 20 {
 		return false
 	}
 	letters := 0
@@ -58,7 +61,10 @@ func LooksLikeSecret(value string) bool {
 		if unicode.IsLetter(character) {
 			letters++
 		}
-		if unicode.IsDigit(character) {
+		// ASCII-only, matching allDigits below: a non-ASCII digit code
+		// point (e.g. a Devanagari digit) should not by itself make a
+		// value look secret-like.
+		if character >= '0' && character <= '9' {
 			digits++
 		}
 	}
