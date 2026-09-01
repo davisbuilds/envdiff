@@ -1,6 +1,7 @@
 package analyzers
 
 import (
+	"os"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -50,6 +51,27 @@ type fileScan struct {
 	err         error
 }
 
+// resolutionCache stores the nearest dotenv files for each directory. A scan
+// treats the repository as a stable snapshot, so descendants can safely reuse
+// the resolution already established for an ancestor.
+type resolutionCache struct {
+	byDirectory map[string]dotenvFiles
+	mu          sync.Mutex
+	root        string
+}
+
+type dotenvFiles struct {
+	envFile     *string
+	exampleFile *string
+}
+
+func newResolutionCache(root string) *resolutionCache {
+	return &resolutionCache{
+		byDirectory: map[string]dotenvFiles{},
+		root:        root,
+	}
+}
+
 func ScanRepository(path string) (model.RepoScanResult, error) {
 	root, err := paths.Canonical(path)
 	if err != nil {
@@ -64,7 +86,7 @@ func ScanRepository(path string) (model.RepoScanResult, error) {
 	// Files are parsed concurrently (each parse reads and regex-scans its own
 	// file). Results are written to a per-file slot and merged in file order,
 	// so the output is independent of goroutine scheduling.
-	results := scanFilesConcurrently(files, root)
+	results := scanFilesConcurrently(files, newResolutionCache(root))
 
 	definitions := []model.EnvVarDefinition{}
 	usages := []model.EnvVarUsage{}
@@ -103,7 +125,7 @@ func ScanRepository(path string) (model.RepoScanResult, error) {
 
 // scanFilesConcurrently parses each file in a bounded worker pool and returns
 // one result per file, in the same order as files.
-func scanFilesConcurrently(files []string, root string) []fileScan {
+func scanFilesConcurrently(files []string, resolutions *resolutionCache) []fileScan {
 	results := make([]fileScan, len(files))
 	if len(files) == 0 {
 		return results
@@ -123,7 +145,7 @@ func scanFilesConcurrently(files []string, root string) []fileScan {
 			// Each index is owned by a single goroutine, so writing distinct
 			// slice elements concurrently needs no further synchronization.
 			for index := range jobs {
-				results[index] = scanFile(files[index], root)
+				results[index] = scanFile(files[index], resolutions)
 			}
 		}()
 	}
@@ -138,7 +160,7 @@ func scanFilesConcurrently(files []string, root string) []fileScan {
 
 // scanFile parses a single file according to its kind and returns its
 // contribution to the repository result.
-func scanFile(filePath string, root string) fileScan {
+func scanFile(filePath string, resolutions *resolutionCache) fileScan {
 	name := filepath.Base(filePath)
 	switch {
 	case name == ".env" || name == ".env.example":
@@ -149,22 +171,22 @@ func scanFile(filePath string, root string) fileScan {
 		return fileScan{definitions: result.Definitions, warnings: result.Warnings}
 	case filepath.Ext(filePath) == ".py":
 		result, err := parsers.ScanPythonFile(filePath)
-		return usageFileScan(result, err, filePath, root)
+		return usageFileScan(result, err, filePath, resolutions)
 	case isJavaScriptFile(filePath):
 		result, err := parsers.ScanJavaScriptFile(filePath)
-		return usageFileScan(result, err, filePath, root)
+		return usageFileScan(result, err, filePath, resolutions)
 	case isShellFile(filePath) || isDirenvFile(name):
 		result, err := parsers.ScanShellFile(filePath)
-		return usageFileScan(result, err, filePath, root)
+		return usageFileScan(result, err, filePath, resolutions)
 	case isDockerfile(name):
 		result, err := parsers.ScanDockerfile(filePath)
-		return usageFileScan(result, err, filePath, root)
+		return usageFileScan(result, err, filePath, resolutions)
 	case isComposeFile(name):
 		result, err := parsers.ScanComposeFile(filePath)
-		return usageFileScan(result, err, filePath, root)
+		return usageFileScan(result, err, filePath, resolutions)
 	case isGitHubActionsWorkflow(filePath):
 		result, err := parsers.ScanGitHubActionsFile(filePath)
-		return usageFileScan(result, err, filePath, root)
+		return usageFileScan(result, err, filePath, resolutions)
 	}
 	return fileScan{}
 }
@@ -175,12 +197,12 @@ func usageFileScan(
 	result model.UsageScanResult,
 	err error,
 	filePath string,
-	root string,
+	resolutions *resolutionCache,
 ) fileScan {
 	if err != nil {
 		return fileScan{err: err}
 	}
-	resolution := resolveUsageFile(filePath, root)
+	resolution := resolutions.resolveUsageFile(filePath)
 	return fileScan{
 		usages:     result.Usages,
 		warnings:   result.Warnings,
@@ -188,26 +210,81 @@ func usageFileScan(
 	}
 }
 
-func resolveUsageFile(filePath string, root string) model.ResolutionDecision {
-	envFile, _ := paths.FindNearestNamedFile(filePath, root, ".env")
-	exampleFile, _ := paths.FindNearestNamedFile(filePath, root, ".env.example")
-	notes := []string{}
-	if envFile != nil {
-		notes = append(notes, "env:"+*envFile)
+func (cache *resolutionCache) resolveUsageFile(filePath string) model.ResolutionDecision {
+	directory, err := paths.Canonical(filepath.Dir(filePath))
+	if err != nil {
+		directory = filepath.Dir(filePath)
 	}
-	if exampleFile != nil {
-		notes = append(notes, "example:"+*exampleFile)
+	files := cache.filesForDirectory(directory)
+	notes := []string{}
+	if files.envFile != nil {
+		notes = append(notes, "env:"+*files.envFile)
+	}
+	if files.exampleFile != nil {
+		notes = append(notes, "example:"+*files.exampleFile)
 	}
 	if len(notes) == 0 {
 		notes = append(notes, "no associated dotenv files found")
 	}
 
 	return model.ResolutionDecision{
-		EnvFile:     envFile,
-		ExampleFile: exampleFile,
+		EnvFile:     files.envFile,
+		ExampleFile: files.exampleFile,
 		Notes:       notes,
 		SourceFile:  filePath,
 	}
+}
+
+// filesForDirectory resolves both dotenv names once per directory ancestry.
+// The mutex also prevents concurrent workers from duplicating a walk before
+// either one has populated the shared cache.
+func (cache *resolutionCache) filesForDirectory(directory string) dotenvFiles {
+	cache.mu.Lock()
+	defer cache.mu.Unlock()
+
+	if files, ok := cache.byDirectory[directory]; ok {
+		return files
+	}
+
+	directories := []string{}
+	current := directory
+	files := dotenvFiles{}
+	for {
+		if cached, ok := cache.byDirectory[current]; ok {
+			files = cached
+			break
+		}
+		directories = append(directories, current)
+		if current == cache.root {
+			break
+		}
+		parent := filepath.Dir(current)
+		if parent == current {
+			break
+		}
+		current = parent
+	}
+
+	for index := len(directories) - 1; index >= 0; index-- {
+		current = directories[index]
+		if envFile := regularFile(filepath.Join(current, ".env")); envFile != nil {
+			files.envFile = envFile
+		}
+		if exampleFile := regularFile(filepath.Join(current, ".env.example")); exampleFile != nil {
+			files.exampleFile = exampleFile
+		}
+		cache.byDirectory[current] = files
+	}
+
+	return cache.byDirectory[directory]
+}
+
+func regularFile(path string) *string {
+	info, err := os.Stat(path)
+	if err != nil || info.IsDir() {
+		return nil
+	}
+	return &path
 }
 
 func buildContracts(

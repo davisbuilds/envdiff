@@ -38,7 +38,7 @@ Each command supports a human-oriented terminal rendering path and a stable JSON
 - `compare.go`: dotenv file-to-file comparison
 - `generate.go`: inferred `.env.example` generation and drift checks
 - `matrix.go`: multi-file dotenv comparison
-- `scan.go`: repository traversal, parser dispatch, contract aggregation, and repo-local resolution; files are parsed in a bounded worker pool and merged in file order, so output stays deterministic
+- `scan.go`: repository traversal, parser dispatch, contract aggregation, and repo-local resolution; nearest dotenv files are memoized per directory, and files are parsed in a bounded worker pool then merged in file order, so output stays deterministic
 - `doctor.go`: contract validation and finding generation
 - `aliases.go`: low-confidence, explainable naming-drift heuristics
 - `secrets.go`: conservative secret-like and placeholder-like checks for committed `.env` values

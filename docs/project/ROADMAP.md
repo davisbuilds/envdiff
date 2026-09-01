@@ -24,6 +24,10 @@ Go port (resolved items from the backlog):
 - **Exit codes** — `generate --check --json` exits `2` on drift (was `0`); `--fail-on` is case-insensitive.
 - **Robustness** — files are read without `bufio.Scanner`'s 64 KB line cap (new `internal/lines` reader); `generate --check` against a directory/non-file target reports drift instead of erroring.
 - **Performance** — repository files are parsed in a bounded worker pool with a deterministic merge; doctor definition-name sets are memoized per file.
+- **Resolution-walk memoization** — nearest `.env` and `.env.example` files are
+  memoized per directory during scans, avoiding repeated ancestor walks for
+  usage files in the same subtree while retaining the existing resolution
+  output.
 - **Launcher** — `./envdiff` execs a cached compiled binary (rebuilding only when sources change) instead of `go run`, cutting steady-state startup from ~45 ms to ~2 ms (see `docs/benchmarks/`).
 - **Doctor alias pruning** — the O(usages × defs) alias pass now builds a per-file `AliasIndex` (canonical tokens + inverted token index) and only compares names sharing a token, turning a scaling cliff back to ~linear (`doctor` at 2k files: 1.82 s → 4.4 ms, output unchanged).
 - **Secret-length code points** — `LooksLikeSecret` now gates on
@@ -37,8 +41,8 @@ Go port (resolved items from the backlog):
 
 Detail in `docs/project/BACKLOG.md`:
 
-- **Perf follow-up** — memoize the per-directory nearest-dotenv resolution walk.
-- **Parser expansion (candidate)** — shell scripts, `.envrc`/direnv (repo-local subset), Pydantic `BaseSettings`, `.devcontainer`, monorepo service grouping.
+- **Parser expansion (candidate)** — Pydantic `BaseSettings`, `.devcontainer`,
+  and monorepo service grouping.
 - **Stretch** — pre-commit hook, editor diagnostics, alias autofix, contract export/import.
 
 ## Invariants

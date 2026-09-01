@@ -1,6 +1,7 @@
 package analyzers
 
 import (
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -118,6 +119,36 @@ func TestScanRepositoryScansDirenvEnvrcAsShell(t *testing.T) {
 	// NODE_ENV is locally exported in the same .envrc, so it is suppressed.
 	if _, ok := names["NODE_ENV"]; ok {
 		t.Fatalf("NODE_ENV should be suppressed (locally exported in .envrc)")
+	}
+}
+
+func TestResolutionCacheReusesNearestFilesForSiblingUsageDirectories(t *testing.T) {
+	root := t.TempDir()
+	envFile := filepath.Join(root, ".env")
+	if err := os.WriteFile(envFile, []byte("DATABASE_URL=postgres://db\n"), 0o644); err != nil {
+		t.Fatalf("write .env: %v", err)
+	}
+
+	firstDirectory := filepath.Join(root, "services", "api", "handlers")
+	secondDirectory := filepath.Join(root, "services", "api", "workers")
+	for _, directory := range []string{firstDirectory, secondDirectory} {
+		if err := os.MkdirAll(directory, 0o755); err != nil {
+			t.Fatalf("make usage directory: %v", err)
+		}
+	}
+
+	cache := newResolutionCache(root)
+	first := cache.resolveUsageFile(filepath.Join(firstDirectory, "request.py"))
+	if first.EnvFile == nil || *first.EnvFile != envFile {
+		t.Fatalf("first env file = %v, want %q", first.EnvFile, envFile)
+	}
+	if err := os.Remove(envFile); err != nil {
+		t.Fatalf("remove .env after initial resolution: %v", err)
+	}
+
+	second := cache.resolveUsageFile(filepath.Join(secondDirectory, "worker.py"))
+	if second.EnvFile == nil || *second.EnvFile != envFile {
+		t.Fatalf("second env file = %v, want cached %q", second.EnvFile, envFile)
 	}
 }
 
