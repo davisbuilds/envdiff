@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/davisbuilds/envdiff/internal/model"
+	"github.com/davisbuilds/envdiff/internal/paths"
 	"github.com/davisbuilds/envdiff/internal/render"
 	"github.com/davisbuilds/envdiff/internal/testutil"
 )
@@ -123,7 +124,14 @@ func TestScanRepositoryScansDirenvEnvrcAsShell(t *testing.T) {
 }
 
 func TestResolutionCacheReusesNearestFilesForSiblingUsageDirectories(t *testing.T) {
-	root := t.TempDir()
+	// t.TempDir() can return a path through a symlink (e.g. macOS's /tmp ->
+	// /private/tmp); canonicalize here so this comparison matches what
+	// resolveUsageFile resolves internally, the same way ScanRepository's
+	// caller-side canonicalization does in production.
+	root, err := paths.Canonical(t.TempDir())
+	if err != nil {
+		t.Fatalf("canonicalize root: %v", err)
+	}
 	envFile := filepath.Join(root, ".env")
 	if err := os.WriteFile(envFile, []byte("DATABASE_URL=postgres://db\n"), 0o644); err != nil {
 		t.Fatalf("write .env: %v", err)
@@ -140,7 +148,7 @@ func TestResolutionCacheReusesNearestFilesForSiblingUsageDirectories(t *testing.
 	cache := newResolutionCache(root)
 	first := cache.resolveUsageFile(filepath.Join(firstDirectory, "request.py"))
 	if first.EnvFile == nil || *first.EnvFile != envFile {
-		t.Fatalf("first env file = %v, want %q", first.EnvFile, envFile)
+		t.Fatalf("first env file = %v, want %q", derefOrNil(first.EnvFile), envFile)
 	}
 	if err := os.Remove(envFile); err != nil {
 		t.Fatalf("remove .env after initial resolution: %v", err)
@@ -148,8 +156,17 @@ func TestResolutionCacheReusesNearestFilesForSiblingUsageDirectories(t *testing.
 
 	second := cache.resolveUsageFile(filepath.Join(secondDirectory, "worker.py"))
 	if second.EnvFile == nil || *second.EnvFile != envFile {
-		t.Fatalf("second env file = %v, want cached %q", second.EnvFile, envFile)
+		t.Fatalf("second env file = %v, want cached %q", derefOrNil(second.EnvFile), envFile)
 	}
+}
+
+// derefOrNil renders a *string for failure messages without leaking the
+// pointer address that %v on a *string would otherwise print.
+func derefOrNil(value *string) any {
+	if value == nil {
+		return nil
+	}
+	return *value
 }
 
 func keysOfContracts(m map[string]model.EnvVarContract) []string {

@@ -66,6 +66,14 @@ type dotenvFiles struct {
 }
 
 func newResolutionCache(root string) *resolutionCache {
+	// Canonicalize defensively so the ancestry walk's early-exit check
+	// (current == cache.root) matches the canonicalized directories
+	// resolveUsageFile produces, regardless of whether the caller already
+	// canonicalized root (ScanRepository does; a symlinked tmp dir passed
+	// directly, as in tests, would otherwise never match).
+	if resolved, err := paths.Canonical(root); err == nil {
+		root = resolved
+	}
 	return &resolutionCache{
 		byDirectory: map[string]dotenvFiles{},
 		root:        root,
