@@ -5,6 +5,7 @@ compares `.env` files, and flags mismatches. Local-first; no network in core ana
 
 ## Documentation Map
 
+- `CONTRIBUTING.md` — contribution scope, review expectations, and delivery policy.
 - `docs/system/ARCHITECTURE.md` — high-level flow, CLI/analyzer/parser/model/utils layers, directory map.
 - `docs/system/FEATURES.md` — supported inputs, command table, finding codes (ENV001–009), heuristics, output modes, deferred features.
 - `docs/system/OPERATIONS.md` — setup, runnable fixture repos, exit codes, constraints, implementation status.
@@ -12,7 +13,7 @@ compares `.env` files, and flags mismatches. Local-first; no network in core ana
 - `docs/system/JSON_SCHEMA.md` — JSON envelope contract.
 - `docs/system/FINDING_CODES.md` — finding-code reference.
 - `docs/project/SPEC.md` — problem framing and in/out scope.
-- `docs/project/ROADMAP.md` — shipped highlights and open items.
+- `docs/project/ROADMAP.md` — selected direction and product boundaries.
 - `docs/project/BACKLOG.md` — tradeoffs and follow-up simplification backlog.
 - `docs/project/GIT_HISTORY_POLICY.md` — merge settings, branch protection, and history conventions.
 
@@ -26,7 +27,7 @@ golangci-lint run ./...              # lint
 ENVDIFF_UPDATE_GOLDENS=1 go test ./...  # regenerate JSON goldens from Go
 ```
 
-Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `cmd/envdiff` (Go); the source lives under `internal/`. envdiff is Go-only — the original Python implementation was a transitional oracle and has been retired (see `docs/project/ROADMAP.md` → "Go as source of truth").
+Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `cmd/envdiff` (Go); the source lives under `internal/`. envdiff is Go-only — the original Python implementation was a transitional oracle and has been retired (see `docs/project/ROADMAP.md` → "Current Direction").
 
 ## Project Boundaries
 
@@ -53,7 +54,14 @@ Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human
 ## Working Agreement
 
 - **Push back before building.** If a request is incoherent or self-contradictory, or a spec/plan is vague or skips key decisions, stop and interview me — ask clarifying questions and confirm intent before writing code or changing files. Don't guess at scope or comply silently. (Clear, well-scoped requests don't need this.)
-- **Keep docs current.** After a significant change, PR, or completed spec/plan, update any now-stale reference docs under `docs/system/` (and `docs/project/ROADMAP.md`) so they match shipped behavior. Skip this for trivial changes.
+- **Keep docs current.** Update the owning reference when a change makes its contract, boundary, procedure, or direction inaccurate. Routine internal changes need no ceremonial doc edit.
 - **Commit logically.** Commit completed work in coherent chunks as you proceed. Push only when explicitly asked.
-- **Log durable follow-ups in `BACKLOG.md`.** Note design gaps, tech debt, or better approaches you spot mid-task in `docs/project/BACKLOG.md`; fix simple, quick, or blocking issues inline and call them out. Add an item only for recurring friction, meaningful risk/cost, an unresolved decision, or a concrete trigger. Record **What / Why or evidence / Next or Revisit when**; keep the backlog future-only, use the capability-owning repository as canonical for cross-repo work, date/source volatile claims (or label a hypothesis), and move shipped work to `docs/project/ROADMAP.md`. Review after a significant shipped slice or at least quarterly.
+- **Log durable follow-ups in `BACKLOG.md`.** Capture consequential design gaps,
+  tech debt, and better approaches in `docs/project/BACKLOG.md`; fix small or
+  blocking issues inline. Keep entries future-only, with evidence and a next step
+  or revisit trigger; date/source volatile claims or label hypotheses. The
+  capability-owning repo holds cross-repo detail. Agents can work directly from
+  entries; use issues for discussion or coordination with one detailed owner.
+  Reconcile affected entries as work lands; update `ROADMAP.md` when selected
+  direction changes, not as a shipment log.
 - **Re-ground after compaction.** A compaction summary loses precise paths, context, and verification state — before continuing, re-read this project's `AGENTS.md`, its reference docs, and recent commits.
