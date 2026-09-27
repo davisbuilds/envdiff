@@ -51,12 +51,17 @@ Requirements:
 
 ```bash
 ./envdiff --help
+./envdiff --version
 ./envdiff scan tests/fixtures/repos/simple_repo --json
 ```
 
 `./envdiff` is the local launcher: it builds and caches `bin/envdiff`, rebuilding
 only when sources change. You can also `go build -o bin/envdiff ./cmd/envdiff`
 and run the binary directly.
+
+Releases use reviewed [Release Please PRs](docs/system/RELEASES.md), followed by
+`vX.Y.Z` source tags and GitHub Releases after main CI passes. The application
+SemVer is separate from JSON schema version `"1"`.
 
 ## Common Commands
 

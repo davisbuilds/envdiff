@@ -9,6 +9,7 @@ import (
 	"github.com/davisbuilds/envdiff/internal/analyzers"
 	"github.com/davisbuilds/envdiff/internal/model"
 	"github.com/davisbuilds/envdiff/internal/render"
+	"github.com/davisbuilds/envdiff/internal/version"
 )
 
 var commandNames = []string{"compare", "generate", "matrix", "scan", "doctor"}
@@ -17,6 +18,15 @@ var commandNames = []string{"compare", "generate", "matrix", "scan", "doctor"}
 func Run(args []string, stdout io.Writer, stderr io.Writer) int {
 	if len(args) == 0 || args[0] == "--help" || args[0] == "-h" {
 		printHelp(stdout)
+		return 0
+	}
+
+	if args[0] == "--version" {
+		if len(args) != 1 {
+			fmt.Fprintln(stderr, "--version accepts no additional arguments")
+			return 1
+		}
+		fmt.Fprintf(stdout, "envdiff %s\n", version.Version)
 		return 0
 	}
 
@@ -51,6 +61,7 @@ func printHelp(output io.Writer) {
 	fmt.Fprintln(output)
 	fmt.Fprintln(output, "Usage:")
 	fmt.Fprintln(output, "  envdiff <command> [options]")
+	fmt.Fprintln(output, "  envdiff --version")
 	fmt.Fprintln(output)
 	fmt.Fprintln(output, "Commands:")
 	for _, name := range commandNames {
