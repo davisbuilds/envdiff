@@ -54,12 +54,21 @@ class ReleaseCommitsTest(unittest.TestCase):
                 env.pop("PR_TITLE", None)
                 def run(*args):
                     return subprocess.run([sys.executable, str(script), *args], env=env, capture_output=True, text=True)
-                self.assertEqual(run(base, valid).returncode, 0)
-                self.assertNotEqual(run(base, git("rev-parse", "HEAD")).returncode, 0)
+                self.assertEqual(run(base, valid, "--push").returncode, 0)
+                self.assertNotEqual(run(base, git("rev-parse", "HEAD"), "--push").returncode, 0)
                 self.assertNotEqual(run(base, valid, "--check-pr-title").returncode, 0)
                 env["PR_TITLE"] = "feat: valid merge title"
                 self.assertEqual(run(base, valid, "--check-pr-title").returncode, 0)
-                self.assertNotEqual(run("0" * 40, valid).returncode, 0)
+                self.assertNotEqual(run("0" * 40, valid, "--push").returncode, 0)
+                self.assertNotEqual(run(base, base, "--push").returncode, 0)
+                self.assertNotEqual(run(valid, base, "--push").returncode, 0)
+                git("checkout", "-qb", "diverged", base)
+                git("commit", "--allow-empty", "-qm", "fix: other branch")
+                diverged = git("rev-parse", "HEAD")
+                self.assertNotEqual(run(valid, diverged, "--push").returncode, 0)
+                # A PR can diverge from an advanced base; its head-only commits
+                # must still be validated without requiring push ancestry.
+                self.assertEqual(run(valid, diverged, "--check-pr-title").returncode, 0)
             finally:
                 os.chdir(previous)
 

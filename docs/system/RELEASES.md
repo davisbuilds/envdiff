@@ -60,7 +60,8 @@ Run the existing Go vet, test, lint, and golden checks, plus
 `python3 -m unittest discover -s scripts -p 'test_release_commits.py'` and
 `uvx zizmor@1.30.0 --offline .github/workflows/` for workflow changes. CI validates
 retained Conventional Commit subjects and the PR title, plus main-push commits
-(including direct pushes) before release authority; see the Git history
+(including direct pushes) before release authority; push ranges must be nonempty
+and advance from an ancestor revision; see the Git history
 policy. Syntax checks cannot decide whether a change breaks compatibility.
 
 If automation fails, inspect the run before retrying. When it may have created a

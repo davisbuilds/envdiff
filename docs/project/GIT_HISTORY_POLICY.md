@@ -46,7 +46,9 @@ review; [release operations](../system/RELEASES.md) own the release contract.
 CI checks PR titles on edits and all retained non-merge subjects. Main-push CI
 also checks non-merge commits in the pushed `before..head` range, including direct
 pushes, before it can authorize release work. Missing, zero, or unavailable
-revision SHAs fail closed; pre-bootstrap history is not traversed. Locally run:
+revision SHAs, identical ranges, and non-forward pushes fail closed;
+pre-bootstrap history is not traversed. The ancestry requirement is push-only:
+a PR may diverge from an advanced base. Locally run:
 
 ```bash
 PR_TITLE='feat: describe the change' python3 scripts/check_release_commits.py \

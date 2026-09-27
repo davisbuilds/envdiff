@@ -17,12 +17,19 @@ def valid_subject(subject):
     return CONVENTIONAL.fullmatch(subject) is not None
 
 
-def check_range(base, head):
+def check_range(base, head, *, push=False):
     for revision in (base, head):
         if not re.fullmatch(r"[0-9a-f]{40}", revision) or revision == "0" * 40:
             raise ValueError("release validation requires nonzero full commit SHAs")
         subprocess.run(
             ["git", "cat-file", "-e", f"{revision}^{{commit}}"],
+            check=True, capture_output=True,
+        )
+    if push:
+        if base == head:
+            raise ValueError("release validation requires a nonempty push range")
+        subprocess.run(
+            ["git", "merge-base", "--is-ancestor", base, head],
             check=True, capture_output=True,
         )
     # Actual merge commits carry no new consumer change; validate retained leaves.
@@ -37,10 +44,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("base_sha")
     parser.add_argument("head_sha")
-    parser.add_argument("--check-pr-title", action="store_true")
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--check-pr-title", action="store_true")
+    mode.add_argument("--push", action="store_true")
     args = parser.parse_args()
     try:
-        invalid = check_range(args.base_sha, args.head_sha)
+        invalid = check_range(args.base_sha, args.head_sha, push=args.push)
     except (ValueError, subprocess.CalledProcessError) as error:
         sys.exit(str(error))
     if args.check_pr_title:
