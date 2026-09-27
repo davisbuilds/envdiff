@@ -76,6 +76,18 @@ class ReleaseCommitsTest(unittest.TestCase):
                 # Proposed manifest versions without a tag use bootstrap.
                 manifest.write_text(json.dumps({".": "0.3.0"}))
                 self.assertNotEqual(run(failed_head, good_head, "--push").returncode, 0)
+                # Valid versions without a tag may use bootstrap; malformed
+                # versions must never silently take that same path.
+                for version in ["0.0.0", "12.34.56", "1.2.3-alpha.0", "1.2.3-01a", "1.2.3--", "1.2.3+001", "1.2.3-rc.1+build.02"]:
+                    with self.subTest(valid_version=version):
+                        manifest.write_text(json.dumps({".": version}))
+                        self.assertEqual(run(base, valid, "--push").returncode, 0)
+                for version in ["01.2.3", "1.02.3", "1.2.03", "1.2.3-01", "1.2.3-alpha..beta", "1.2.3+build..id", "1.2.3-", "1.2.3+", "v1.2.3", "1.2.3\n", "１.2.3", None, 123]:
+                    with self.subTest(invalid_version=version):
+                        manifest.write_text(json.dumps({".": version}))
+                        result = run(base, valid, "--push")
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertIn("requires an application SemVer", result.stderr)
                 manifest.write_text(json.dumps({".": "invalid"}))
                 self.assertNotEqual(run(base, valid, "--push").returncode, 0)
                 manifest.unlink()

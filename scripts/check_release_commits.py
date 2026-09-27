@@ -14,6 +14,16 @@ CONVENTIONAL = re.compile(
 )
 
 
+# SemVer 2.0.0: https://semver.org/#semantic-versioning-specification-semver
+NUMERIC = r"(?:0|[1-9][0-9]*)"
+PRERELEASE = rf"(?:{NUMERIC}|[0-9]*[A-Za-z-][0-9A-Za-z-]*)"
+SEMVER = re.compile(
+    rf"{NUMERIC}\.{NUMERIC}\.{NUMERIC}"
+    rf"(?:-{PRERELEASE}(?:\.{PRERELEASE})*)?"
+    r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
+)
+
+
 def valid_subject(subject):
     return CONVENTIONAL.fullmatch(subject) is not None
 
@@ -46,9 +56,7 @@ def release_boundary():
         bootstrap = json.load(config_file)["bootstrap-sha"]
     with open(".release-please-manifest.json", encoding="utf-8") as manifest_file:
         version = json.load(manifest_file)["."]
-    if not isinstance(version, str) or not re.fullmatch(
-        r"[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?", version
-    ):
+    if not isinstance(version, str) or not SEMVER.fullmatch(version):
         raise ValueError("release manifest requires an application SemVer")
     if version != "0.0.0":
         tag = f"refs/tags/v{version}"
