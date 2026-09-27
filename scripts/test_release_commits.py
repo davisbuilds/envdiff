@@ -1,5 +1,6 @@
 """Exercise syntax controls and actual Git history traversal."""
 
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -39,6 +40,9 @@ class ReleaseCommitsTest(unittest.TestCase):
             previous = Path.cwd()
             try:
                 os.chdir(directory)
+                Path("release-please-config.json").write_text(json.dumps({"bootstrap-sha": base}))
+                manifest = Path(".release-please-manifest.json")
+                manifest.write_text(json.dumps({".": "0.0.0"}))
                 self.assertEqual(check_range(base, git("rev-parse", "HEAD")), ["Invalid retained change"])
                 self.assertEqual(check_range(base, valid), [])
                 self.assertEqual(check_range(base, base), [])
@@ -56,6 +60,27 @@ class ReleaseCommitsTest(unittest.TestCase):
                     return subprocess.run([sys.executable, str(script), *args], env=env, capture_output=True, text=True)
                 self.assertEqual(run(base, valid, "--push").returncode, 0)
                 self.assertNotEqual(run(base, git("rev-parse", "HEAD"), "--push").returncode, 0)
+                failed_head = git("rev-parse", "HEAD")
+                git("commit", "--allow-empty", "-qm", "fix: subsequent valid push")
+                good_head = git("rev-parse", "HEAD")
+                self.assertEqual(check_range(failed_head, good_head, push=True), [])
+                self.assertNotEqual(run(failed_head, good_head, "--push").returncode, 0)
+                git("tag", "-a", "v0.1.0", "-m", "Actual release boundary", failed_head)
+                manifest.write_text(json.dumps({".": "0.1.0"}))
+                self.assertEqual(run(failed_head, good_head, "--push").returncode, 0)
+                # Tagged heads may have no unreleased commits; the push itself
+                # still needs a nonempty forward range.
+                git("tag", "v0.2.0", good_head)
+                manifest.write_text(json.dumps({".": "0.2.0"}))
+                self.assertEqual(run(failed_head, good_head, "--push").returncode, 0)
+                # Proposed manifest versions without a tag use bootstrap.
+                manifest.write_text(json.dumps({".": "0.3.0"}))
+                self.assertNotEqual(run(failed_head, good_head, "--push").returncode, 0)
+                manifest.write_text(json.dumps({".": "invalid"}))
+                self.assertNotEqual(run(base, valid, "--push").returncode, 0)
+                manifest.unlink()
+                self.assertNotEqual(run(base, valid, "--push").returncode, 0)
+                manifest.write_text(json.dumps({".": "0.0.0"}))
                 self.assertNotEqual(run(base, valid, "--check-pr-title").returncode, 0)
                 env["PR_TITLE"] = "feat: valid merge title"
                 self.assertEqual(run(base, valid, "--check-pr-title").returncode, 0)
@@ -69,6 +94,8 @@ class ReleaseCommitsTest(unittest.TestCase):
                 # A PR can diverge from an advanced base; its head-only commits
                 # must still be validated without requiring push ancestry.
                 self.assertEqual(run(valid, diverged, "--check-pr-title").returncode, 0)
+                Path("release-please-config.json").write_text(json.dumps({"bootstrap-sha": diverged}))
+                self.assertNotEqual(run(base, valid, "--push").returncode, 0)
             finally:
                 os.chdir(previous)
 

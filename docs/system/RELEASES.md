@@ -61,7 +61,10 @@ Run the existing Go vet, test, lint, and golden checks, plus
 `uvx zizmor@1.30.0 --offline .github/workflows/` for workflow changes. CI validates
 retained Conventional Commit subjects and the PR title, plus main-push commits
 (including direct pushes) before release authority; push ranges must be nonempty
-and advance from an ancestor revision; see the Git history
+and advance from an ancestor revision. Push CI also validates all unreleased
+commits after the actual tag matching the manifest, or the configured bootstrap
+SHA if the tag does not exist. Later pushes cannot forget an earlier failed
+classification. See the Git history
 policy. Syntax checks cannot decide whether a change breaks compatibility.
 
 If automation fails, inspect the run before retrying. When it may have created a
@@ -69,3 +72,13 @@ PR, tag, or release, inspect that remote state first to avoid a duplicate writer
 Fix workflow/configuration problems in a normal reviewed PR. Correct proposed
 notes and compatibility mistakes before merging the release PR. Do not rewrite
 published tags; use a corrective release for published mistakes.
+
+If an unclassified commit is already on main, stop release work and review all
+unreleased changes and their compatibility intent. Preserve published history.
+Any rewrite of unpublished main history requires an explicit owner decision.
+Otherwise keep automation blocked pending an owner-approved recovery release
+whose version and notes cover the complete unreleased range. Pause this writer
+before any separately authorized manual recovery publication; do not fabricate a
+historical tag or silently skip the failed commit. Resume only when the application
+version and manifest match that actual reviewed release tag. Already published
+commits are outside the gate when the manifest matches their real release tag.

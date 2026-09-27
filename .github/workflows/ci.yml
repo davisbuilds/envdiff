@@ -37,7 +37,7 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: python3 scripts/check_release_commits.py "$BASE_SHA" "$HEAD_SHA" --check-pr-title
 
-      - name: Validate main push commits
+      - name: Validate push range and all unreleased commits
         if: github.event_name == 'push'
         env:
           BASE_SHA: ${{ github.event.before }}

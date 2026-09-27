@@ -45,7 +45,11 @@ review; [release operations](../system/RELEASES.md) own the release contract.
 
 CI checks PR titles on edits and all retained non-merge subjects. Main-push CI
 also checks non-merge commits in the pushed `before..head` range, including direct
-pushes, before it can authorize release work. Missing, zero, or unavailable
+pushes, and all unreleased commits before it can authorize release work. The
+durable boundary is the actual `vX.Y.Z` tag matching the release manifest, or the
+configured bootstrap SHA when no matching tag exists. A release PR's not-yet-
+tagged manifest version uses that conservative fallback. A later valid push
+cannot hide an earlier invalid unreleased main commit. Missing, zero, or unavailable
 revision SHAs, identical ranges, and non-forward pushes fail closed;
 pre-bootstrap history is not traversed. The ancestry requirement is push-only:
 a PR may diverge from an advanced base. Locally run:

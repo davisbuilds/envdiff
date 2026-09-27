@@ -2,6 +2,7 @@
 """Validate subjects retained by merge/rebase and the PR merge title."""
 
 import argparse
+import json
 import os
 import re
 import subprocess
@@ -17,7 +18,7 @@ def valid_subject(subject):
     return CONVENTIONAL.fullmatch(subject) is not None
 
 
-def check_range(base, head, *, push=False):
+def check_range(base, head, *, push=False, require_ancestor=False):
     for revision in (base, head):
         if not re.fullmatch(r"[0-9a-f]{40}", revision) or revision == "0" * 40:
             raise ValueError("release validation requires nonzero full commit SHAs")
@@ -25,8 +26,8 @@ def check_range(base, head, *, push=False):
             ["git", "cat-file", "-e", f"{revision}^{{commit}}"],
             check=True, capture_output=True,
         )
-    if push:
-        if base == head:
+    if push or require_ancestor:
+        if push and base == head:
             raise ValueError("release validation requires a nonempty push range")
         subprocess.run(
             ["git", "merge-base", "--is-ancestor", base, head],
@@ -40,6 +41,29 @@ def check_range(base, head, *, push=False):
     return [subject for subject in subjects if not valid_subject(subject)]
 
 
+def release_boundary():
+    with open("release-please-config.json", encoding="utf-8") as config_file:
+        bootstrap = json.load(config_file)["bootstrap-sha"]
+    with open(".release-please-manifest.json", encoding="utf-8") as manifest_file:
+        version = json.load(manifest_file)["."]
+    if not isinstance(version, str) or not re.fullmatch(
+        r"[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?", version
+    ):
+        raise ValueError("release manifest requires an application SemVer")
+    if version != "0.0.0":
+        tag = f"refs/tags/v{version}"
+        result = subprocess.run(["git", "show-ref", "--verify", "--quiet", tag])
+        if result.returncode == 0:
+            return subprocess.check_output(
+                ["git", "rev-parse", "--verify", f"{tag}^{{commit}}"], text=True,
+            ).strip()
+        if result.returncode != 1:
+            result.check_returncode()
+    # A release PR updates the manifest before its tag exists. Bootstrap is
+    # conservative during that gap and never fabricates a historical release.
+    return bootstrap
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("base_sha")
@@ -50,7 +74,12 @@ def main():
     args = parser.parse_args()
     try:
         invalid = check_range(args.base_sha, args.head_sha, push=args.push)
-    except (ValueError, subprocess.CalledProcessError) as error:
+        if args.push:
+            # Re-check all unreleased subjects so a later successful push cannot
+            # forget classification that failed on an earlier main push.
+            invalid += check_range(release_boundary(), args.head_sha, require_ancestor=True)
+            invalid = list(dict.fromkeys(invalid))
+    except (ValueError, OSError, KeyError, subprocess.CalledProcessError) as error:
         sys.exit(str(error))
     if args.check_pr_title:
         title = os.environ.get("PR_TITLE", "")
