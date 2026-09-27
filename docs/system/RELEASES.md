@@ -26,7 +26,7 @@ normally request a consumer release.
 ## Bootstrap
 
 The September 27, 2026 inventory found no existing tags or GitHub Releases.
-`0.0.0` in the application constant and `.release-please-manifest.json` is an
+The initial `0.0.0` application constant and manifest value were an
 unreleased sentinel, not a past release. The first release is configured as
 `0.1.0`. The initial commit comparison starts after actual main commit
 `4f2b8a852bc0451a4a569cd5817b0ef56272f3c4`; older work is not retroactively
