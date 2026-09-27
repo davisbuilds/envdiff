@@ -44,6 +44,9 @@ Current product-surface reference for `envdiff`.
 | `scan` | Analyze a repo's env contract surface | Aggregates definitions, usages, and repo-local resolution |
 | `doctor` | Validate the inferred contract | Emits structured findings, supports `--fail-on`, and can baseline or suppress findings |
 
+`envdiff --version` prints the application SemVer and exits 0. It accepts no
+additional arguments; JSON commands retain schema version `"1"`.
+
 ## Finding Surface
 
 | Code | Meaning | Type |

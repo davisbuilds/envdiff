@@ -1,6 +1,6 @@
 # Git History and Branch Hygiene
 
-Last updated: June 18, 2026
+Last updated: September 27, 2026
 
 ## Repository Merge Settings
 
@@ -28,6 +28,25 @@ Merge commits and rebase merges are both allowed; squash merges are disabled.
 - **Rebase merge.** Use when the PR's commits are clean and the linear history reads better without an extra merge node. Avoid if the PR's commits are noisy (WIP, fixups) — clean them up locally first.
 - **Authoring expectation.** Because squash is gone, individual PR commits land in `main`. Keep PR commit messages tidy: meaningful subjects, no WIP markers, no fixup chains. Squash or reword locally before opening the PR if needed.
 
+## Conventional Commits and Releases
+
+Merge and rebase retain individual commits, so every non-merge PR commit must
+use `type(scope)?: description` (optional scope and optional `!` before the
+colon). Use `feat`, `fix`, `perf`, `docs`, `test`, `chore`, `build`, `ci`, `style`,
+`refactor`, or `revert`. PR titles use the same syntax because merge commits use
+`PR_TITLE`. Actual merge commits inside a branch are excluded from the subject
+check. Reword WIP/fixup commits before opening the PR.
+
+`feat` requests a minor release; `fix`/`perf` request a patch. Mark breaking
+changes with `!` or a `BREAKING CHANGE:` footer, even before 1.0, and explain the
+migration. Before 1.0, breaking changes bump minor. Syntax validation does not
+verify compatibility classification. Release PRs and published notes still need
+review; [release operations](../system/RELEASES.md) own the release contract.
+
+CI checks PR titles on edits and all retained non-merge subjects. Locally run
+`PR_TITLE='feat: describe the change' python3 scripts/check_release_commits.py
+origin/main HEAD`. Old main history predating the PR is outside this check.
+
 ## Branch Protection
 
 Enabled on `main` (this is a public repository, so protection APIs are available):
@@ -45,6 +64,8 @@ Quality gates expected green before merge (matches the project pre-push checklis
 - `go vet ./...`
 - `go test ./...`
 - `golangci-lint run ./...`
+- release validator controls: `python3 -m unittest discover -s scripts -p 'test_release_commits.py'`
+- PR title and retained commit categories (PR runs only)
 - goldens current: `ENVDIFF_UPDATE_GOLDENS=1 go test ./... && git diff --exit-code tests/golden`
 
 ## Recommended Ongoing Hygiene

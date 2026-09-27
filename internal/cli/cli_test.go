@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/davisbuilds/envdiff/internal/testutil"
+	"github.com/davisbuilds/envdiff/internal/version"
 )
 
 func TestRunPrintsHelpForNoArguments(t *testing.T) {
@@ -467,5 +468,27 @@ func TestRunDoctorUsesDefaultIgnoreFile(t *testing.T) {
 	}
 	if !strings.Contains(out, `"error": 0`) {
 		t.Fatalf("default ignore file should suppress the ENV001 error:\n%s", out)
+	}
+}
+
+func TestRunPrintsApplicationVersion(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := Run([]string{"--version"}, &stdout, &stderr)
+	if code != 0 || stderr.Len() != 0 {
+		t.Fatalf("code = %d, stderr = %q", code, stderr.String())
+	}
+	if want := "envdiff " + version.Version + "\n"; stdout.String() != want {
+		t.Fatalf("stdout = %q, want %q", stdout.String(), want)
+	}
+	if strings.Contains(stdout.String(), "envdiff "+version.SchemaVersion+"\n") {
+		t.Fatal("application version must be independent of schema version")
+	}
+}
+
+func TestRunVersionRejectsExtraArguments(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := Run([]string{"--version", "--json"}, &stdout, &stderr)
+	if code != 1 || stdout.Len() != 0 || stderr.Len() == 0 {
+		t.Fatalf("code = %d, stdout = %q, stderr = %q", code, stdout.String(), stderr.String())
 	}
 }

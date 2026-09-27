@@ -15,6 +15,16 @@ and `docs/system/`; open and unscheduled work lives in
 | — | Go port | Full side-by-side Go reimplementation, validated against the Python oracle via a parity gate during the transition. |
 | — | Go as source of truth | Go is now the sole implementation. Goldens generate from the Go binary (raw UTF-8, byte-level pinned); the Python oracle and all binding apparatus are deleted; lint moved to `golangci-lint`/`gofumpt`; CI is Go-only. Contract decisions settled: symlink-resolved paths (`EvalSymlinks`) and usage errors exit `1`. |
 
+## Release automation (2026-09)
+
+Application SemVer now has a separate constant and `--version` interface;
+JSON schema version `"1"` remains unchanged. CI validates retained Conventional
+Commits and PR titles. Release Please proposes reviewed version/changelog PRs
+and publishes source tags and GitHub Releases after successful main-push CI.
+The initial `0.0.0` sentinel represents unreleased source, with first release
+configured as `0.1.0`; see [release operations](../system/RELEASES.md). Hosted
+activation is verified separately from this implementation.
+
 ## Recent hardening (2026-06)
 
 CLI correctness, robustness, and performance pass driven by a code review of the

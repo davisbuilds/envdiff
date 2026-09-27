@@ -10,6 +10,7 @@ uses `golangci-lint` (v2) and `gofumpt`.
 ## Key Commands
 
 - Run CLI help: `./envdiff --help`
+- Inspect application version: `./envdiff --version`
 - Run tests: `go test ./...`
 - Lint: `golangci-lint run ./...`
 - Regenerate JSON goldens from Go: `ENVDIFF_UPDATE_GOLDENS=1 go test ./...`
@@ -74,3 +75,9 @@ What is still open:
 
 - finding-noise reduction beyond the initial heuristic pass
 - broader parser coverage
+
+## Releases
+
+[Release operations](RELEASES.md) cover application SemVer, the independent JSON
+schema version, the CI-gated release PR workflow, and recovery. Distribution
+remains source tags and GitHub Releases; build locally as above.
