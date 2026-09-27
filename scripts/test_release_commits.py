@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -31,14 +32,34 @@ class ReleaseCommitsTest(unittest.TestCase):
             base = git("rev-parse", "HEAD")
             git("checkout", "-qb", "feature")
             git("commit", "--allow-empty", "-qm", "feat: add version")
+            valid = git("rev-parse", "HEAD")
             git("commit", "--allow-empty", "-qm", "Invalid retained change")
             git("checkout", "-qb", "main", base)
             git("merge", "--no-ff", "-qm", "Merge feature", "feature")
             previous = Path.cwd()
             try:
                 os.chdir(directory)
-                self.assertEqual(check_range(base, "HEAD"), ["Invalid retained change"])
+                self.assertEqual(check_range(base, git("rev-parse", "HEAD")), ["Invalid retained change"])
+                self.assertEqual(check_range(base, valid), [])
                 self.assertEqual(check_range(base, base), [])
+                for invalid in ["", "0" * 40, "HEAD", "g" * 40]:
+                    with self.subTest(revision=invalid), self.assertRaises(ValueError):
+                        check_range(invalid, valid)
+                    with self.subTest(head=invalid), self.assertRaises(ValueError):
+                        check_range(base, invalid)
+                with self.assertRaises(subprocess.CalledProcessError):
+                    check_range("f" * 40, valid)
+                script = previous / "scripts" / "check_release_commits.py"
+                env = dict(os.environ)
+                env.pop("PR_TITLE", None)
+                def run(*args):
+                    return subprocess.run([sys.executable, str(script), *args], env=env, capture_output=True, text=True)
+                self.assertEqual(run(base, valid).returncode, 0)
+                self.assertNotEqual(run(base, git("rev-parse", "HEAD")).returncode, 0)
+                self.assertNotEqual(run(base, valid, "--check-pr-title").returncode, 0)
+                env["PR_TITLE"] = "feat: valid merge title"
+                self.assertEqual(run(base, valid, "--check-pr-title").returncode, 0)
+                self.assertNotEqual(run("0" * 40, valid).returncode, 0)
             finally:
                 os.chdir(previous)
 

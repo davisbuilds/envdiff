@@ -43,9 +43,17 @@ migration. Before 1.0, breaking changes bump minor. Syntax validation does not
 verify compatibility classification. Release PRs and published notes still need
 review; [release operations](../system/RELEASES.md) own the release contract.
 
-CI checks PR titles on edits and all retained non-merge subjects. Locally run
-`PR_TITLE='feat: describe the change' python3 scripts/check_release_commits.py
-origin/main HEAD`. Old main history predating the PR is outside this check.
+CI checks PR titles on edits and all retained non-merge subjects. Main-push CI
+also checks non-merge commits in the pushed `before..head` range, including direct
+pushes, before it can authorize release work. Missing, zero, or unavailable
+revision SHAs fail closed; pre-bootstrap history is not traversed. Locally run:
+
+```bash
+PR_TITLE='feat: describe the change' python3 scripts/check_release_commits.py \
+  "$(git rev-parse origin/main)" "$(git rev-parse HEAD)" --check-pr-title
+```
+
+Old main history predating the PR is outside this check.
 
 ## Branch Protection
 
@@ -65,7 +73,7 @@ Quality gates expected green before merge (matches the project pre-push checklis
 - `go test ./...`
 - `golangci-lint run ./...`
 - release validator controls: `python3 -m unittest discover -s scripts -p 'test_release_commits.py'`
-- PR title and retained commit categories (PR runs only)
+- PR title and retained commit categories; main-push commit categories
 - goldens current: `ENVDIFF_UPDATE_GOLDENS=1 go test ./... && git diff --exit-code tests/golden`
 
 ## Recommended Ongoing Hygiene
