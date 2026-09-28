@@ -1,19 +1,41 @@
 # Contributing
 
+## Welcome and scope
+
 Bug reports, focused fixes, documentation improvements, and supported proposals
 are welcome. Discuss substantial parser expansion, new dependencies, or changes to
-the CLI and JSON/finding contracts before investing in implementation. This is a
-solo-maintained project; a proposal does not imply a support or response-time promise.
+CLI and JSON/finding contracts before major implementation.
 
-Agent-assisted work is welcome. Submitters should understand the change's intent,
-important behavior, tradeoffs, and verification, and explain any limits in the PR.
-No prompt transcript or manual rewrite is required. A clear [Backlog](docs/project/BACKLOG.md)
-entry can go directly to a PR; use an issue when discussion or coordination helps.
+This is a solo-maintained project; contributions do not imply a support or
+response-time commitment.
 
-Work on a focused branch from `main`. Describe the problem and resulting behavior
-with relevant test evidence. [Operations](docs/system/OPERATIONS.md) has setup and
-checks; [Git policy](docs/project/GIT_HISTORY_POLICY.md) owns retained Conventional
-Commits and merge strategy. Use `!` or a `BREAKING CHANGE:` footer and explain
-migration for incompatible behavior. Release Please drafts `CHANGELOG.md`; review
-consumer meaning and migration steps in its release PR rather than editing a
-parallel release log for ordinary PRs.
+## Understanding and agent use
+
+Agent-assisted work is welcome. Submitters should understand the change's purpose,
+important behavior, tradeoffs, and verification limits. Explain what you checked
+and what remains uncertain; no prompt transcript or manual rewrite is required.
+
+## Choosing work
+
+[Roadmap](docs/project/ROADMAP.md) records selected direction;
+[Backlog](docs/project/BACKLOG.md) records unresolved work. Backlog entries can be
+delegated directly to agents or become focused PRs. Use an issue when persistent
+discussion, investigation, or coordination helps; there is no mandatory graduation
+step. An entry or issue alone is not a feature commitment. When an issue owns the
+details, keep only a useful linked summary in the backlog.
+
+## Delivering a change
+
+Work on a focused branch from `main` (or an appropriate parent for stacked work).
+Keep commits coherent. Describe the problem and resulting behavior in the PR,
+with relevant verification and limitations. Merge after applicable checks pass
+and review conversations are resolved.
+
+[Operations](docs/system/OPERATIONS.md) owns setup and checks;
+[Git policy](docs/project/GIT_HISTORY_POLICY.md) owns retained Conventional Commits
+and merge strategy. Use `!` or a `BREAKING CHANGE:` footer and describe migration
+for incompatible behavior. Release Please drafts `CHANGELOG.md`; review consumer
+meaning and migration steps in its release PR instead of maintaining a parallel log.
+
+Update the owning reference when its claims change and reconcile affected backlog
+entries. Roadmap tracks direction; Git and PRs hold routine delivery history.
