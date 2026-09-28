@@ -45,10 +45,10 @@ Examples:
 ## Exit Codes
 
 - `0`: command completed without findings at or above threshold
-- `1`: execution or parsing failure
-- `2`: findings met or exceeded `--fail-on` (case-insensitive), `generate --check`
-  drift (including with `--json`), or a usage/validation error such as
-  single-file `matrix`
+- `1`: execution, parsing, or usage/validation error (including single-file
+  `matrix`)
+- `2`: findings met or exceeded `--fail-on` (case-insensitive), or
+  `generate --check` drift (including with `--json`)
 
 ## Current Constraints
 

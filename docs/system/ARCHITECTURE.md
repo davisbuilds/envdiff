@@ -17,8 +17,7 @@ The current implementation is intentionally local-first and deterministic. There
 envdiff is a Go program: `cmd/envdiff/` plus the packages under `internal/`,
 run locally through the `./envdiff` launcher. It began as a port of a Python
 implementation that served as a transitional parity oracle; that oracle has been
-retired and Go is the sole source of truth (see `docs/project/ROADMAP.md` →
-"Go as source of truth").
+retired and Go is the sole source of truth (see [the Roadmap](../project/ROADMAP.md#current-direction)).
 
 ## CLI Layer
 
@@ -80,6 +79,11 @@ values rather than as `\u00XX`.
 - stable ordering
 - repo traversal
 - nearest file resolution
+
+Repository paths are canonicalized through `internal/paths/`: existing symlink
+components resolve to their physical path, so findings and suppression keys stay
+stable across logical path aliases. Missing paths fall back to an absolute lexical
+path instead of failing resolution.
 
 ## Directory Map
 

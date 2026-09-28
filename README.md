@@ -130,3 +130,7 @@ envdiff                      local launcher (builds/caches bin/envdiff)
 - No shell startup file parsing.
 - No env loading or injection.
 - No secret manager integration.
+
+## Contributing
+
+Focused contributions are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
