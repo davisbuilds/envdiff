@@ -1,6 +1,6 @@
 # Git History and Branch Hygiene
 
-Last updated: September 27, 2026
+Last updated: October 11, 2026
 
 ## Repository Merge Settings
 
@@ -67,7 +67,12 @@ Enabled on `main` (this is a public repository, so protection APIs are available
 
 - `required_conversation_resolution`: `true` — all PR review threads must be resolved before merge.
 - `enforce_admins`: `false` — admins may still push directly to `main` for trivial maintenance.
-- No required reviews or status checks are enforced as branch rules yet; CI gates below are enforced by convention.
+- Required GitHub Actions checks (verified 2026-10-11):
+  - `Release commit categories` (CI)
+  - `Build & test` (CI)
+  - `Lint & format` (CI)
+  - `check` (Publication Hygiene)
+- Branches need not be up to date with `main`, and no reviews are required. Required checks match job names, so rename a job and its entry in the protection rule together. `Workflow Security Audit` is path-filtered and deliberately not required.
 
 ## CI Gates
 
