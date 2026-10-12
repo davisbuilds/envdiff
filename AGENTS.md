@@ -40,7 +40,7 @@ Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human
 
 ## Testing
 
-- **Pre-push** (matches CI `.github/workflows/ci.yml`): `go vet ./...`, `go test ./...`, `golangci-lint run ./...`, and confirm goldens are current (`ENVDIFF_UPDATE_GOLDENS=1 go test ./... && git diff --exit-code tests/golden`).
+- **Pre-push** (matches CI `.github/workflows/ci.yml` and `security.yml`): `go mod tidy -diff`, `go vet ./...`, `go test -race ./...`, `golangci-lint run ./...`, `go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...`, and confirm goldens are current (`ENVDIFF_UPDATE_GOLDENS=1 go test ./... && git diff --exit-code tests/golden`).
 - **Release workflow changes**: also run `python3 -m unittest discover -s scripts -p 'test_release_commits.py'` and `uvx zizmor@1.30.0 --offline .github/workflows/`.
 - **TDD**: red/green for new features, major refactors, and large changes. The red step must fail for the behavior you're about to fix — a test that fails only because the symbol doesn't exist yet is a stub, not a red test; write the signature first, then a test that fails on the behavior. Skip the red step for code with no behavior to assert, and cover it after. For smaller edits, still run the relevant existing tests before wrapping up.
 - Favor behavior-oriented tests over implementation detail; use real fixture repos under `tests/fixtures/` instead of mocks.
