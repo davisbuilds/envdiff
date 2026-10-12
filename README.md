@@ -11,11 +11,11 @@ New here? Paste the prompt below into your coding agent (Claude Code, Codex, etc
 ```text
 Set up the `envdiff` repo for me. It's a local-first Go CLI that analyzes a
 repository's environment-variable contract (compares .env files, scans code for env
-usage, flags mismatches). Go 1.26.4. It's fully local — no network, no secrets,
+usage, flags mismatches). Go 1.26.9. It's fully local — no network, no secrets,
 no env config.
 
 Do this, in order:
-1. Install deps. Ensure Go 1.26.4 is on PATH. Clone
+1. Install deps. Ensure Go 1.26.9 is on PATH. Clone
    git@github.com:davisbuilds/envdiff.git (or the https URL) and cd in first if
    needed.
 2. Verify it runs against the bundled fixtures: `./envdiff --help`,
@@ -47,7 +47,7 @@ Prefer to do it yourself? The manual steps are below.
 
 Requirements:
 
-- Go `1.26.4`
+- Go `1.26.9`
 
 ```bash
 ./envdiff --help

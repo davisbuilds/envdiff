@@ -4,7 +4,7 @@ Operational notes for local development and verification.
 
 ## Setup
 
-envdiff is a Go program; Go `1.26.4` is the only requirement. The lint stack
+envdiff is a Go program; Go `1.26.9` is the only requirement. The lint stack
 uses `golangci-lint` (v2) and `gofumpt`.
 
 ## Key Commands
