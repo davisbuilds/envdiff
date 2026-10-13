@@ -59,11 +59,18 @@ jobs:
         with:
           go-version-file: go.mod
 
+      # go.mod and go.sum must already be tidy, and downloaded modules must
+      # match go.sum.
+      - name: Go modules tidy and verified
+        run: |
+          go mod tidy -diff
+          go mod verify
+
       - name: Go vet
         run: go vet ./...
 
-      - name: Go tests
-        run: go test ./...
+      - name: Go tests (race)
+        run: go test -race ./...
 
       - name: Goldens are up to date
         run: |

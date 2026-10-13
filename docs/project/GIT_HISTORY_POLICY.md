@@ -72,20 +72,22 @@ Enabled on `main` (this is a public repository, so protection APIs are available
   - `Build & test` (CI)
   - `Lint & format` (CI)
   - `check` (Publication Hygiene)
-- Branches need not be up to date with `main`, and no reviews are required. Required checks match job names, so rename a job and its entry in the protection rule together. `Workflow Security Audit` is path-filtered and deliberately not required.
+- Branches need not be up to date with `main`, and no reviews are required. Required checks match job names, so rename a job and its entry in the protection rule together. `Workflow Security Audit` is path-filtered and deliberately not required. `govulncheck` (Security audit) is also not required, so a newly published advisory flags every PR without blocking unrelated merges.
 
 ## CI Gates
 
-Workflow: `.github/workflows/ci.yml`
+Workflows: `.github/workflows/ci.yml` and `.github/workflows/security.yml`
 
 Quality gates expected green before merge (matches the project pre-push checklist):
 
+- `go mod tidy -diff` and `go mod verify`
 - `go vet ./...`
-- `go test ./...`
+- `go test -race ./...`
 - `golangci-lint run ./...`
 - release validator controls: `python3 -m unittest discover -s scripts -p 'test_release_commits.py'`
 - PR title and retained commit categories; main-push commit categories
 - goldens current: `ENVDIFF_UPDATE_GOLDENS=1 go test ./... && git diff --exit-code tests/golden`
+- `govulncheck` (`security.yml`; also weekly): `go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...`
 
 ## Recommended Ongoing Hygiene
 
