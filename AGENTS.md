@@ -62,6 +62,8 @@ Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human
   Before retiring execution docs, preserve lasting decisions and open work in
   maintained references and repair incoming links.
   Archive reviewed completed execution docs in the ignored `docs/archive/`.
+  Git history retains the committed versions for contributors without the
+  local archive.
 - **Push back before building.** If a request is incoherent or self-contradictory, or a spec/plan is vague or skips key decisions, stop and interview me — ask clarifying questions and confirm intent before writing code or changing files. Don't guess at scope or comply silently. (Clear, well-scoped requests don't need this.)
 - **Keep docs current.** Update the owning reference when a change makes its contract, boundary, procedure, or direction inaccurate. Routine internal changes need no ceremonial doc edit.
 - **Commit logically.** Commit completed work in coherent chunks as you proceed. Push only when explicitly asked.
