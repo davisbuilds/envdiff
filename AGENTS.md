@@ -1,73 +1,88 @@
 # AGENTS.md
 
-`envdiff` is a deterministic CLI that scans repos for environment variable contracts,
-compares `.env` files, and flags mismatches. Local-first; no network in core analysis.
+`envdiff` is a deterministic Go CLI that scans repos for environment variable
+contracts, compares `.env` files, and flags mismatches. Local-first; no network
+in core analysis. `./envdiff --help` lists commands (the launcher builds and
+caches `bin/envdiff`).
 
 ## Documentation Map
 
-- `CONTRIBUTING.md` — contribution scope, review expectations, and delivery policy.
-- `docs/system/ARCHITECTURE.md` — high-level flow, CLI/analyzer/parser/model/utils layers, directory map.
-- `docs/system/FEATURES.md` — supported inputs, command table, finding codes (ENV001–009), heuristics, output modes, deferred features.
-- `docs/system/OPERATIONS.md` — setup, runnable fixture repos, exit codes, constraints, implementation status.
-- `docs/system/RELEASES.md` — application SemVer, release automation, bootstrap, and recovery.
-- `docs/system/JSON_SCHEMA.md` — JSON envelope contract.
-- `docs/system/FINDING_CODES.md` — finding-code reference.
-- `docs/project/SPEC.md` — problem framing and in/out scope.
-- `docs/project/ROADMAP.md` — selected direction and product boundaries.
-- `docs/project/BACKLOG.md` — tradeoffs and follow-up simplification backlog.
-- `docs/project/GIT_HISTORY_POLICY.md` — merge settings, branch protection, and history conventions.
-
-## Command Quickstart
-
-```bash
-./envdiff --help                     # list all commands (Go launcher; builds/caches bin/envdiff)
-go build -o bin/envdiff ./cmd/envdiff   # build the binary directly
-go test ./...                        # tests (also validates committed goldens)
-golangci-lint run ./...              # lint
-ENVDIFF_UPDATE_GOLDENS=1 go test ./...  # regenerate JSON goldens from Go
-```
-
-Commands: `compare`, `scan`, `matrix`, `doctor`, `generate` — each has a human path and a `--json` path. Entry point: `cmd/envdiff` (Go); the source lives under `internal/`. envdiff is Go-only — the original Python implementation was a transitional oracle and has been retired (see `docs/project/ROADMAP.md` → "Current Direction").
+- `CONTRIBUTING.md` — contribution scope and delivery.
+- `docs/system/ARCHITECTURE.md` — flow, layers, directory map.
+- `docs/system/FEATURES.md` — inputs, commands, heuristics, output modes, deferred features.
+- `docs/system/OPERATIONS.md` — setup, runnable fixture repos, exit codes, constraints.
+- `docs/system/JSON_SCHEMA.md`, `docs/system/FINDING_CODES.md` — the public JSON and finding-code contracts.
+- `docs/system/RELEASES.md` — SemVer, release automation, recovery.
+- `docs/project/SPEC.md` (scope), `ROADMAP.md`, `BACKLOG.md`.
+- `docs/project/GIT_HISTORY_POLICY.md` — merge settings, Conventional Commits, branch protection.
 
 ## Project Boundaries
 
-`envdiff` is a deterministic, repo-local env contract analyzer — keep it that way.
-
-- Don't expand it into an env loader, injector, or secret-distribution tool.
-- Keep analysis repo-local; user-shell startup files are out of scope.
-- Prefer conservative heuristics over aggressive recall.
-- **Treat the JSON envelope, field names, and finding codes as a public contract**, and keep finding/contract ordering deterministic. When CLI behavior changes, update `docs/system/` in the same change.
+- Keep it a deterministic, repo-local env contract analyzer: not an env loader,
+  injector, or secret-distribution tool, and user-shell startup files are out of
+  scope. Prefer conservative heuristics over aggressive recall.
+- **The JSON envelope, field names, finding codes, CLI arguments, output streams,
+  and exit codes are public contracts.** Keep finding and contract ordering
+  deterministic. A change to any of them updates `docs/system/` in the same change
+  and is marked breaking (`!` or a `BREAKING CHANGE:` footer) when incompatible.
 
 ## Testing
 
-- **Pre-push** (matches CI `.github/workflows/ci.yml` and `security.yml`): `go mod tidy -diff`, `go mod verify`, `go vet ./...`, `go test -race ./...`, `golangci-lint run ./...`, `go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...`, and confirm goldens are current (`ENVDIFF_UPDATE_GOLDENS=1 go test ./... && git diff --exit-code tests/golden`).
-- **Release workflow changes**: also run `python3 -m unittest discover -s scripts -p 'test_release_commits.py'` and `uvx zizmor@1.30.0 --offline .github/workflows/`.
-- **TDD**: red/green for new features, major refactors, and large changes. The red step must fail for the behavior you're about to fix — a test that fails only because the symbol doesn't exist yet is a stub, not a red test; write the signature first, then a test that fails on the behavior. Skip the red step for code with no behavior to assert, and cover it after. For smaller edits, still run the relevant existing tests before wrapping up.
-- Favor behavior-oriented tests over implementation detail; use real fixture repos under `tests/fixtures/` instead of mocks.
-- For parser work add focused parser tests (`internal/parsers`, `internal/dotenv`) plus a repo-scan integration test (`internal/analyzers/scan_test.go`); for CLI changes update `internal/cli/cli_test.go`.
-- **JSON goldens** (`tests/golden/json/`) are the rendered-output contract, generated from Go. Each golden has exactly one writer (an analyzer-level test via `testutil.AssertGoldenJSON`); CLI/render tests are pure consumers. `TestScanRepositoryEmitsRawUTF8` pins raw-UTF-8 encoding at the byte level.
+- **Local gate** (matches the required `Build & test`, `Lint & format`, `check`,
+  and `Release commit categories` checks, plus `security.yml`):
 
-## Conventions Enforced Elsewhere
+  ```bash
+  go mod tidy -diff && go mod verify && go vet ./... && go test -race ./... \
+    && golangci-lint run ./... \
+    && ENVDIFF_UPDATE_GOLDENS=1 go test ./... >/dev/null && git diff --exit-code tests/golden \
+    && go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./... \
+    && python3 scripts/check_publication_hygiene.py \
+    && python3 -m unittest discover -s scripts -p 'test_release_commits.py'
+  ```
 
-`golangci-lint` (config in `.golangci.yml`) is the lint stack: `gofumpt` formatting, plus `unused`/`staticcheck` (which own cross-file dead code), `errcheck`, `govet`, `ineffassign`, and a few style linters. Fix what the linter flags rather than restating rules here.
+  CI also validates the PR title and every retained commit subject; run the
+  `check_release_commits.py` command in `docs/project/GIT_HISTORY_POLICY.md`.
+  For workflow changes, also run `uvx zizmor@1.30.0 --offline .github/workflows/`.
+- Use real fixture repos under `tests/fixtures/`, not mocks. Parser work gets
+  focused tests (`internal/parsers`, `internal/dotenv`) plus a repo-scan
+  integration test (`internal/analyzers/scan_test.go`); CLI changes update
+  `internal/cli/cli_test.go`.
+- **JSON goldens** (`tests/golden/json/`) are the rendered-output contract. Each
+  golden has exactly one writer, an analyzer-level test via
+  `testutil.AssertGoldenJSON`; CLI and render tests only consume them.
+  `TestScanRepositoryEmitsRawUTF8` pins raw UTF-8 at the byte level.
+- `golangci-lint` (`.golangci.yml`, including `gofumpt`) owns style and dead code;
+  fix what it flags.
 
 ## Working Agreement
 
-- **Push back before building.** If a request is incoherent or self-contradictory, or a spec/plan is vague or skips key decisions, stop and interview me — ask clarifying questions and confirm intent before writing code or changing files. Don't guess at scope or comply silently. (Clear, well-scoped requests don't need this.)
-- **Log durable follow-ups in `BACKLOG.md`.** Capture consequential design gaps,
-  tech debt, and better approaches in `docs/project/BACKLOG.md`; fix small or
-  blocking issues inline. Keep entries future-only, with evidence and a next step
-  or revisit trigger; date/source volatile claims or label hypotheses. The
-  capability-owning repo holds cross-repo detail. Agents can work directly from
-  entries; use issues for discussion or coordination with one detailed owner.
-  Reconcile affected entries as work lands; update `ROADMAP.md` when selected
-  direction changes, not as a shipment log.
-- **Keep docs current.** Update the owning reference when a change makes its contract, boundary, procedure, or direction inaccurate. Routine internal changes need no ceremonial doc edit.
+- **Clarify before building** when a request is vague, contradictory, or skips a
+  key decision; clear, well-scoped requests need no interview.
+- **Fix small issues now; backlog the rest.** Fix simple, quick, or blocking
+  issues in this repo as part of the current change and call them out. Record in
+  `docs/project/BACKLOG.md` only what can't be finished now or needs the
+  maintainer's decision; don't open a branch or PR just for a backlog entry.
+- **Keep docs current** when a change makes a documented contract, boundary,
+  procedure, or direction stale.
 - **Plan and hand off work.** Reuse clear task context. Save planning docs when
-  decisions, acceptance, or coordination need persistence. Leave a brief
-  handoff only when needed to resume unfinished work. Commit shared docs and
-  keep status current. Before archiving reviewed, completed docs in ignored
-  `docs/archive/`, preserve lasting decisions and open work in maintained docs
-  and repair links.
-- **Commit logically.** Commit completed work in coherent chunks as you proceed. Push only when explicitly asked.
-- **Re-ground after compaction.** A compaction summary loses precise paths, context, and verification state — before continuing, re-read this project's `AGENTS.md`, its reference docs, and recent commits.
+  decisions, acceptance, or coordination need persistence, and leave a brief
+  handoff only when needed to resume unfinished work. Commit shared docs and keep
+  status current. `docs/archive/` is gitignored: before archiving a completed doc
+  there, preserve lasting decisions and open work in maintained docs and repair
+  links.
+- **TDD:** red/green for features, major refactors and large changes; the red
+  test must fail on the behavior, not on a missing symbol. For smaller edits, run
+  the relevant existing checks.
+- **Commit and push.** Commit coherent chunks, staging by explicit path. Push
+  your task branch and open a PR once the work is complete and the local gate
+  passes; don't push directly to `main`.
+- **Merge** only under the standing merge authority in the maintainer's workspace
+  instructions, or when the maintainer asks. Without those instructions in
+  context, leave the PR for the maintainer.
+- **History and releases.** Squash is disabled: merge commit by default, rebase
+  only when the branch's commits are already clean. Every retained commit
+  subject and the PR title use Conventional Commits, because Release Please
+  reads them. Merging to `main` updates the Release Please PR; merging that PR
+  tags a GitHub Release, so leave it for the maintainer.
+- **Re-ground after compaction** in source, this file, the owning docs, and
+  recent commits. A summary and your own earlier proposals are not user approval.
