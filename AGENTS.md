@@ -37,6 +37,7 @@ caches `bin/envdiff`).
     && ENVDIFF_UPDATE_GOLDENS=1 go test ./... >/dev/null && git diff --exit-code tests/golden \
     && go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./... \
     && python3 scripts/check_publication_hygiene.py \
+    && python3 scripts/check_comments.py \
     && python3 -m unittest discover -s scripts -p 'test_release_commits.py'
   ```
 
@@ -73,6 +74,12 @@ caches `bin/envdiff`).
 - **TDD:** red/green for features, major refactors and large changes; the red
   test must fail on the behavior, not on a missing symbol. For smaller edits, run
   the relevant existing checks.
+- **Comments.** Don't add code comments. The one exception is a decision record:
+  start it with `WHY:` and state a non-obvious reason the code can't express.
+  Never justify a shortcut in a comment; fix it or record it in
+  `docs/project/BACKLOG.md`. `python3 scripts/check_comments.py` enforces a
+  ratchet: after deleting comments run it with `--update`, and never raise a count
+  in `.comment-baseline.json`.
 - **Commit and push.** Commit coherent chunks, staging by explicit path. Push
   your task branch and open a PR once the work is complete and the local gate
   passes; don't push directly to `main`.

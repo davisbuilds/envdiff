@@ -13,6 +13,7 @@ uses `golangci-lint` (v2) and `gofumpt`.
 - Inspect application version: `./envdiff --version`
 - Run tests: `go test ./...`
 - Lint: `golangci-lint run ./...`
+- Comment ratchet: `python3 scripts/check_comments.py` (`--update` after deleting comments)
 - Regenerate JSON goldens from Go: `ENVDIFF_UPDATE_GOLDENS=1 go test ./...`
 
 `./envdiff` is the launcher: it builds and caches `bin/envdiff`, rebuilding only
