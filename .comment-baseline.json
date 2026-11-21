@@ -6,7 +6,7 @@
   "files": {
     ".github/workflows/ci.yml": 2,
     ".github/workflows/release-please.yml": 3,
-    ".github/workflows/security.yml": 5,
+    ".github/workflows/security.yml": 6,
     ".github/workflows/zizmor.yml": 8,
     ".golangci.yml": 7,
     "envdiff": 1,
