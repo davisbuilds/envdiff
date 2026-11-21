@@ -84,6 +84,7 @@ Quality gates expected green before merge (matches the project pre-push checklis
 - `go vet ./...`
 - `go test -race ./...`
 - `golangci-lint run ./...`
+- comment ratchet (`.comment-baseline.json`): `python3 scripts/check_comments.py`
 - release validator controls: `python3 -m unittest discover -s scripts -p 'test_release_commits.py'`
 - PR title and retained commit categories; main-push commit categories
 - goldens current: `ENVDIFF_UPDATE_GOLDENS=1 go test ./... && git diff --exit-code tests/golden`
