@@ -35,7 +35,6 @@ func TestScanShellFileDetectsUsageAndSuppressesLocalDefinitions(t *testing.T) {
 		t.Fatalf("usages = %v, want %v", keysOf(usages), want)
 	}
 
-	// WHY: bare interpolation is required (Compose precedent); :? is also required.
 	if usages["DATABASE_URL"].Requiredness != "required" {
 		t.Fatalf("DATABASE_URL requiredness = %s, want required", usages["DATABASE_URL"].Requiredness)
 	}

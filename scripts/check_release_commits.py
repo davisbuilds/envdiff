@@ -14,7 +14,6 @@ CONVENTIONAL = re.compile(
 )
 
 
-# WHY: follows SemVer 2.0.0: https://semver.org/#semantic-versioning-specification-semver
 NUMERIC = r"(?:0|[1-9][0-9]*)"
 PRERELEASE = rf"(?:{NUMERIC}|[0-9]*[A-Za-z-][0-9A-Za-z-]*)"
 SEMVER = re.compile(

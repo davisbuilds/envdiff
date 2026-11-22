@@ -29,10 +29,6 @@ func TestValueKindClassifiesPlaceholdersBooleansNumbersURLsAndSecrets(t *testing
 }
 
 func TestLooksLikeSecretCountsCodePointsNotBytes(t *testing.T) {
-	// WHY: "ééééééééé12" is 9 two-byte "é" runes plus two ASCII digits: 20 bytes
-	// but only 11 code points. A byte-length gate of 20 would wrongly treat
-	// this as long enough to be secret-like; a rune-length gate correctly
-	// treats it as too short.
 	short := strings.Repeat("é", 9) + "12"
 	if got := ValueKind(short); got != "string" {
 		t.Fatalf("ValueKind(%q) = %q, want %q (too short in code points to be secret-like)", short, got, "string")
@@ -45,9 +41,6 @@ func TestLooksLikeSecretCountsCodePointsNotBytes(t *testing.T) {
 }
 
 func TestLooksLikeSecretUsesASCIIDigitSemantics(t *testing.T) {
-	// WHY: a Devanagari digit (U+0966) satisfies unicode.IsDigit but is not an
-	// ASCII digit. A value that only reaches "digit" status via non-ASCII
-	// digit code points should not classify as secret-like, matching allDigits.
 	value := strings.Repeat("a", 19) + "०"
 	if got := ValueKind(value); got != "string" {
 		t.Fatalf("ValueKind(%q) = %q, want %q (non-ASCII digit should not count)", value, got, "string")

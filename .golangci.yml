@@ -1,8 +1,5 @@
 version: "2"
 
-# WHY: the defaults already enable errcheck, govet, ineffassign, staticcheck, and
-# unused; unused plus staticcheck's U1000 are the cross-file dead-code gate. The
-# extras below add style and correctness checks that fit a small, deterministic CLI.
 linters:
   enable:
     - misspell

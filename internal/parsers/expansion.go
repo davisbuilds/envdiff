@@ -7,10 +7,7 @@ import (
 
 // POSIX-style parameter expansion shared by the shell and Dockerfile scanners.
 var (
-	// WHY: callers index the groups: group 2 is the operator (:-, :?, ...), group 3
-	// the default or message text.
 	dollarBracedPattern = regexp.MustCompile(`\$\{([A-Za-z_][A-Za-z0-9_]*)(:?[-=?+])?([^}]*)\}`)
-	// WHY: requiring a letter or underscore first excludes $1, $?, and $@.
 	dollarSimplePattern = regexp.MustCompile(`\$([A-Za-z_][A-Za-z0-9_]*)`)
 )
 
