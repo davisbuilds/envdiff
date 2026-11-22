@@ -558,7 +558,7 @@ func TestRunDoctorUsesDefaultIgnoreFile(t *testing.T) {
 			t.Fatalf("write %s: %v", filePath, err)
 		}
 	}
-	// Suppression keys use the scanned (symlink-resolved) usage path, so build
+	// WHY: suppression keys use the scanned (symlink-resolved) usage path, so build
 	// the ignore key from the resolved main.py path.
 	resolvedMain, err := filepath.EvalSymlinks(mainPath)
 	if err != nil {

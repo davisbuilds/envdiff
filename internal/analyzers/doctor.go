@@ -49,9 +49,8 @@ func DoctorRepository(scanResult model.RepoScanResult) []model.Finding {
 		}
 	}
 
-	// The set of names defined in a given file is identical for every usage
-	// that resolves to it, so memoize per file path instead of rebuilding it on
-	// each usage iteration.
+	// WHY: the names defined in a file are the same for every usage that resolves
+	// to it, so memoize per file path.
 	nameCache := map[string]map[string]struct{}{}
 	namesFor := func(filePath *string) map[string]struct{} {
 		if filePath == nil {
@@ -65,9 +64,9 @@ func DoctorRepository(scanResult model.RepoScanResult) []model.Finding {
 		return names
 	}
 
-	// The alias index over a file's defined names is likewise identical for
-	// every usage resolving to it, so build it once per file rather than once
-	// per missing usage (the alias pass is the dominant cost at scale).
+	// WHY: the alias index is likewise per file. Building it once per file rather
+	// than once per missing usage matters because the alias pass is the dominant
+	// cost at scale.
 	emptyAliasIndex := BuildAliasIndex(nil)
 	aliasCache := map[string]*AliasIndex{}
 	aliasIndexFor := func(filePath *string) *AliasIndex {

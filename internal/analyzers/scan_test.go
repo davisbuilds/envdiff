@@ -71,8 +71,6 @@ func TestScanRepositoryDetectsShellAndDockerfileUsage(t *testing.T) {
 			t.Fatalf("contracts = %v, want %s referenced", keysOfContracts(names), want)
 		}
 	}
-	// NODE_ENV is defined locally by the Dockerfile ENV and must not surface as a
-	// repo-wide contract (separate scope).
 	if _, ok := names["NODE_ENV"]; ok {
 		t.Fatalf("NODE_ENV should not be a contract (locally defined in Dockerfile)")
 	}
@@ -93,7 +91,6 @@ func TestScanRepositoryDetectsJavaScriptProcessEnvUsage(t *testing.T) {
 			t.Fatalf("contracts = %v, want %s referenced", keysOfContracts(names), want)
 		}
 	}
-	// PORT is referenced from JS but absent from .env.
 	if status := names["PORT"].Status; len(status) == 0 || status[0] != "referenced" {
 		t.Fatalf("PORT status = %v, want referenced (undefined)", names["PORT"].Status)
 	}
@@ -113,18 +110,16 @@ func TestScanRepositoryScansDirenvEnvrcAsShell(t *testing.T) {
 	for _, contract := range result.Contracts {
 		names[contract.Name] = contract
 	}
-	// STRIPE_KEY is referenced in .envrc (scanned as shell).
 	if _, ok := names["STRIPE_KEY"]; !ok {
 		t.Fatalf("contracts = %v, want STRIPE_KEY from .envrc", keysOfContracts(names))
 	}
-	// NODE_ENV is locally exported in the same .envrc, so it is suppressed.
 	if _, ok := names["NODE_ENV"]; ok {
 		t.Fatalf("NODE_ENV should be suppressed (locally exported in .envrc)")
 	}
 }
 
 func TestResolutionCacheReusesNearestFilesForSiblingUsageDirectories(t *testing.T) {
-	// t.TempDir() can return a path through a symlink (e.g. macOS's /tmp ->
+	// WHY: t.TempDir() can return a path through a symlink (e.g. macOS's /tmp ->
 	// /private/tmp); canonicalize here so this comparison matches what
 	// resolveUsageFile resolves internally, the same way ScanRepository's
 	// caller-side canonicalization does in production.

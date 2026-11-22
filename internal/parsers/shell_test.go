@@ -24,8 +24,6 @@ func TestScanShellFileDetectsUsageAndSuppressesLocalDefinitions(t *testing.T) {
 		}
 	}
 
-	// PORT (export) and LOG_DIR (bare assignment) are locally defined, so their
-	// $PORT/$LOG_DIR references are suppressed.
 	for _, suppressed := range []string{"PORT", "LOG_DIR", "region"} {
 		if _, ok := usages[suppressed]; ok {
 			t.Fatalf("%s should be suppressed (locally defined)", suppressed)
@@ -37,7 +35,7 @@ func TestScanShellFileDetectsUsageAndSuppressesLocalDefinitions(t *testing.T) {
 		t.Fatalf("usages = %v, want %v", keysOf(usages), want)
 	}
 
-	// Bare interpolation is required (Compose precedent); :? is also required.
+	// WHY: bare interpolation is required (Compose precedent); :? is also required.
 	if usages["DATABASE_URL"].Requiredness != "required" {
 		t.Fatalf("DATABASE_URL requiredness = %s, want required", usages["DATABASE_URL"].Requiredness)
 	}

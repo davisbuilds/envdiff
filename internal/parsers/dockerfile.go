@@ -9,11 +9,9 @@ import (
 )
 
 var (
-	// ARG NAME[=default] — a single build-arg name.
 	dockerArgPattern = regexp.MustCompile(`(?i)^\s*ARG\s+([A-Za-z_][A-Za-z0-9_]*)`)
-	// ENV NAME=value (possibly several per line: ENV A=1 B=2).
+	// WHY: unanchored because one ENV line can assign several keys (ENV A=1 B=2).
 	dockerEnvAssignPattern = regexp.MustCompile(`([A-Za-z_][A-Za-z0-9_]*)=`)
-	// ENV NAME value (space form, single key).
 	dockerEnvSpacePattern  = regexp.MustCompile(`(?i)^\s*ENV\s+([A-Za-z_][A-Za-z0-9_]*)\s+[^=]*$`)
 	dockerEnvPrefixPattern = regexp.MustCompile(`(?i)^\s*ENV\s+`)
 )
@@ -65,7 +63,6 @@ func dockerLocalDefinitions(fileLines []string) map[string]struct{} {
 			defs[match[1]] = struct{}{}
 			continue
 		}
-		// ENV K1=v1 K2=v2 — capture every assigned key.
 		for _, match := range dockerEnvAssignPattern.FindAllStringSubmatch(line, -1) {
 			defs[match[1]] = struct{}{}
 		}

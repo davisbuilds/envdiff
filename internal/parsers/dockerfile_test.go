@@ -24,8 +24,6 @@ func TestScanDockerfileDetectsUsageAndSuppressesArgAndEnv(t *testing.T) {
 		}
 	}
 
-	// ARG/ENV locally define these in the same file, so their interpolations are
-	// suppressed (NODE_VERSION via ARG, APP_HOME/CACHE_TTL/LOG_LEVEL via ENV).
 	for _, suppressed := range []string{"NODE_VERSION", "APP_HOME", "CACHE_TTL", "LOG_LEVEL"} {
 		if _, ok := usages[suppressed]; ok {
 			t.Fatalf("%s should be suppressed (locally defined)", suppressed)

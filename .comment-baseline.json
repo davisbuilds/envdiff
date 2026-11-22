@@ -8,25 +8,6 @@
     ".github/workflows/release-please.yml": 3,
     ".github/workflows/security.yml": 6,
     ".github/workflows/zizmor.yml": 8,
-    ".golangci.yml": 7,
-    "envdiff": 1,
-    "internal/analyzers/aliases.go": 1,
-    "internal/analyzers/doctor.go": 6,
-    "internal/analyzers/scan.go": 10,
-    "internal/analyzers/scan_test.go": 9,
-    "internal/cli/cli.go": 2,
-    "internal/cli/cli_test.go": 2,
-    "internal/normalize/value.go": 5,
-    "internal/normalize/value_test.go": 10,
-    "internal/parsers/dockerfile.go": 4,
-    "internal/parsers/dockerfile_test.go": 2,
-    "internal/parsers/expansion.go": 3,
-    "internal/parsers/javascript.go": 2,
-    "internal/parsers/javascript_test.go": 2,
-    "internal/parsers/shell_test.go": 3,
-    "internal/paths/walk_test.go": 2,
-    "scripts/check_publication_hygiene.py": 4,
-    "scripts/check_release_commits.py": 6,
-    "scripts/test_release_commits.py": 7
+    "scripts/check_publication_hygiene.py": 4
   }
 }

@@ -12,7 +12,6 @@ BIN="$DIR/bin/envdiff"
 sources=("$DIR/cmd" "$DIR/internal" "$DIR/go.mod")
 [ -f "$DIR/go.sum" ] && sources+=("$DIR/go.sum")
 
-# Rebuild if the binary is missing or any source is newer than it.
 if [ ! -x "$BIN" ] || [ -n "$(find "${sources[@]}" -newer "$BIN" -print -quit 2>/dev/null)" ]; then
 	mkdir -p "$DIR/bin"
 	( cd "$DIR" && go build -o "$BIN" ./cmd/envdiff )
