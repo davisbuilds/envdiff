@@ -74,7 +74,6 @@ func (index *AliasIndex) Candidates(missingName string) []AliasCandidate {
 	missingSet := tokenSet(missingTokens)
 	missingCanonical := strings.Join(missingTokens, "_")
 
-	// WHY: only defined names sharing at least one token can match; gather them once.
 	considered := map[int]struct{}{}
 	candidates := []AliasCandidate{}
 	for token := range missingSet {
