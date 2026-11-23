@@ -21,8 +21,6 @@ var (
 	jsImportMetaDotPattern     = jsDotPattern(`import\.meta\.env`)
 	jsImportMetaBracketPattern = jsBracketPattern(`import\.meta\.env`)
 
-	// Single-line destructuring: `const { A, B: alias } = process.env`. The
-	// captured object decides the usage_kind; each member's source key is taken.
 	jsDestructurePattern  = regexp.MustCompile(`\{([^{}]+)\}\s*=\s*(process\.env|import\.meta\.env)\b`)
 	jsDestructureMemberID = regexp.MustCompile(`^\s*([A-Za-z_][A-Za-z0-9_]*)`)
 

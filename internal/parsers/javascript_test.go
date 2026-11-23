@@ -29,7 +29,6 @@ func TestScanJavaScriptFileDetectsProcessEnvAccess(t *testing.T) {
 		t.Fatalf("usages = %v, want %v", keysOf(usages), want)
 	}
 
-	// Bare reads return undefined in JS (no throw), so they are optional.
 	if usages["DATABASE_URL"].Requiredness != "optional" {
 		t.Fatalf("DATABASE_URL requiredness = %s, want optional", usages["DATABASE_URL"].Requiredness)
 	}
@@ -40,7 +39,6 @@ func TestScanJavaScriptFileDetectsProcessEnvAccess(t *testing.T) {
 		t.Fatalf("AWS_REGION requiredness = %s, want optional", usages["AWS_REGION"].Requiredness)
 	}
 
-	// Inline || / ?? fallbacks are optional_with_default.
 	assertDefault(t, usages["PORT"], "3000")
 	assertDefault(t, usages["LOG_LEVEL"], "info")
 	assertDefault(t, usages["DEBUG"], "false")

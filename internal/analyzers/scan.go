@@ -66,11 +66,10 @@ type dotenvFiles struct {
 }
 
 func newResolutionCache(root string) *resolutionCache {
-	// Canonicalize defensively so the ancestry walk's early-exit check
+	// WHY: canonicalize defensively so the ancestry walk's early-exit check
 	// (current == cache.root) matches the canonicalized directories
-	// resolveUsageFile produces, regardless of whether the caller already
-	// canonicalized root (ScanRepository does; a symlinked tmp dir passed
-	// directly, as in tests, would otherwise never match).
+	// resolveUsageFile produces. ScanRepository already canonicalizes root, but a
+	// symlinked tmp dir passed directly, as in tests, would otherwise never match.
 	if resolved, err := paths.Canonical(root); err == nil {
 		root = resolved
 	}
@@ -91,9 +90,8 @@ func ScanRepository(path string) (model.RepoScanResult, error) {
 		return model.RepoScanResult{}, err
 	}
 
-	// Files are parsed concurrently (each parse reads and regex-scans its own
-	// file). Results are written to a per-file slot and merged in file order,
-	// so the output is independent of goroutine scheduling.
+	// WHY: files are parsed concurrently, but results go to a per-file slot and are
+	// merged in file order, so the output is independent of goroutine scheduling.
 	results := scanFilesConcurrently(files, newResolutionCache(root))
 
 	definitions := []model.EnvVarDefinition{}
@@ -150,7 +148,7 @@ func scanFilesConcurrently(files []string, resolutions *resolutionCache) []fileS
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			// Each index is owned by a single goroutine, so writing distinct
+			// WHY: each index is owned by a single goroutine, so writing distinct
 			// slice elements concurrently needs no further synchronization.
 			for index := range jobs {
 				results[index] = scanFile(files[index], resolutions)

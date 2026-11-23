@@ -14,7 +14,6 @@ CONVENTIONAL = re.compile(
 )
 
 
-# SemVer 2.0.0: https://semver.org/#semantic-versioning-specification-semver
 NUMERIC = r"(?:0|[1-9][0-9]*)"
 PRERELEASE = rf"(?:{NUMERIC}|[0-9]*[A-Za-z-][0-9A-Za-z-]*)"
 SEMVER = re.compile(
@@ -43,7 +42,7 @@ def check_range(base, head, *, push=False, require_ancestor=False):
             ["git", "merge-base", "--is-ancestor", base, head],
             check=True, capture_output=True,
         )
-    # Actual merge commits carry no new consumer change; validate retained leaves.
+    # WHY: actual merge commits carry no new consumer change; validate retained leaves.
     subjects = subprocess.check_output(
         ["git", "log", "--no-merges", "--format=%s", f"{base}..{head}"],
         text=True,
@@ -67,7 +66,7 @@ def release_boundary():
             ).strip()
         if result.returncode != 1:
             result.check_returncode()
-    # A release PR updates the manifest before its tag exists. Bootstrap is
+    # WHY: a release PR updates the manifest before its tag exists. Bootstrap is
     # conservative during that gap and never fabricates a historical release.
     return bootstrap
 
@@ -83,7 +82,7 @@ def main():
     try:
         invalid = check_range(args.base_sha, args.head_sha, push=args.push)
         if args.push:
-            # Re-check all unreleased subjects so a later successful push cannot
+            # WHY: re-check all unreleased subjects so a later successful push cannot
             # forget classification that failed on an earlier main push.
             invalid += check_range(release_boundary(), args.head_sha, require_ancestor=True)
             invalid = list(dict.fromkeys(invalid))

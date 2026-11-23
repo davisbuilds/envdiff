@@ -70,8 +70,8 @@ func TestFindNearestNamedFileSearchesFromFilesAndStopsAtRoot(t *testing.T) {
 	writeTestFile(t, source, "import os\n")
 	writeTestFile(t, marker, "DATABASE_URL=postgres://db\n")
 
-	// Paths are symlink-resolved (Canonical), so compare against the resolved
-	// marker — on macOS $TMPDIR resolves /var -> /private/var.
+	// WHY: paths are symlink-resolved (Canonical), so compare against the resolved
+	// marker; on macOS $TMPDIR resolves /var -> /private/var.
 	wantMarker, err := filepath.EvalSymlinks(marker)
 	if err != nil {
 		t.Fatalf("resolve marker: %v", err)

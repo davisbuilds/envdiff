@@ -318,7 +318,7 @@ func runGenerate(args []string, stdout io.Writer, stderr io.Writer) int {
 		writtenPath = &written
 	}
 
-	// A failed --check drives the exit code regardless of output format, so a
+	// WHY: a failed --check drives the exit code regardless of output format, so a
 	// `generate --check --json` gate is just as enforceable as the human path.
 	driftExit := 0
 	if checkResult != nil && !checkResult["matches"].(bool) {

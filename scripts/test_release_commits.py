@@ -68,16 +68,11 @@ class ReleaseCommitsTest(unittest.TestCase):
                 git("tag", "-a", "v0.1.0", "-m", "Actual release boundary", failed_head)
                 manifest.write_text(json.dumps({".": "0.1.0"}))
                 self.assertEqual(run(failed_head, good_head, "--push").returncode, 0)
-                # Tagged heads may have no unreleased commits; the push itself
-                # still needs a nonempty forward range.
                 git("tag", "v0.2.0", good_head)
                 manifest.write_text(json.dumps({".": "0.2.0"}))
                 self.assertEqual(run(failed_head, good_head, "--push").returncode, 0)
-                # Proposed manifest versions without a tag use bootstrap.
                 manifest.write_text(json.dumps({".": "0.3.0"}))
                 self.assertNotEqual(run(failed_head, good_head, "--push").returncode, 0)
-                # Valid versions without a tag may use bootstrap; malformed
-                # versions must never silently take that same path.
                 for version in ["0.0.0", "12.34.56", "1.2.3-alpha.0", "1.2.3-01a", "1.2.3--", "1.2.3+001", "1.2.3-rc.1+build.02"]:
                     with self.subTest(valid_version=version):
                         manifest.write_text(json.dumps({".": version}))
@@ -103,8 +98,6 @@ class ReleaseCommitsTest(unittest.TestCase):
                 git("commit", "--allow-empty", "-qm", "fix: other branch")
                 diverged = git("rev-parse", "HEAD")
                 self.assertNotEqual(run(valid, diverged, "--push").returncode, 0)
-                # A PR can diverge from an advanced base; its head-only commits
-                # must still be validated without requiring push ancestry.
                 self.assertEqual(run(valid, diverged, "--check-pr-title").returncode, 0)
                 Path("release-please-config.json").write_text(json.dumps({"bootstrap-sha": diverged}))
                 self.assertNotEqual(run(base, valid, "--push").returncode, 0)
