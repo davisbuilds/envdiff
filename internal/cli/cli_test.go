@@ -62,6 +62,122 @@ func TestRunRejectsUnknownCommand(t *testing.T) {
 	}
 }
 
+func TestRunRejectsUnknownSubcommandOptions(t *testing.T) {
+	t.Chdir(testutil.RepoRoot(t))
+	tests := [][]string{
+		{"compare", "tests/fixtures/compare/left.env", "--jsno"},
+		{"generate", "tests/fixtures/repos/simple_repo", "--jsno"},
+		{"matrix", "tests/fixtures/matrix/a.env", "tests/fixtures/matrix/b.env", "--jsno"},
+		{"scan", "--jsno"},
+		{"doctor", "--jsno"},
+		{"scan", "-j"},
+	}
+	for _, args := range tests {
+		option := args[len(args)-1]
+		t.Run(args[0]+"/"+option, func(t *testing.T) {
+			var stdout, stderr bytes.Buffer
+			code := Run(args, &stdout, &stderr)
+			if code != 1 || stdout.Len() != 0 {
+				t.Errorf("code = %d, stdout = %q, want exit 1 and empty stdout", code, stdout.String())
+			}
+			if !strings.Contains(stderr.String(), `unknown option "`+option+`"`) ||
+				!strings.Contains(stderr.String(), "envdiff "+args[0]+" --help") {
+				t.Errorf("stderr = %q, want the unknown option and command help", stderr.String())
+			}
+		})
+	}
+}
+
+func TestRunRejectsMissingOptionValues(t *testing.T) {
+	project := filepath.Join(testutil.RepoRoot(t), "tests/fixtures/repos/simple_repo")
+	options := []struct {
+		command string
+		option  string
+		usage   string
+	}{
+		{"generate", "--output", "path"},
+		{"doctor", "--baseline", "path"},
+		{"doctor", "--write-baseline", "path"},
+		{"doctor", "--ignore-file", "path"},
+		{"doctor", "--fail-on", "severity"},
+	}
+	values := []struct {
+		name string
+		args []string
+	}{
+		{"absent", nil},
+		{"empty", []string{""}},
+		{"option-like", []string{"--help"}},
+	}
+	for _, option := range options {
+		for _, value := range values {
+			t.Run(option.option+"/"+value.name, func(t *testing.T) {
+				t.Chdir(t.TempDir())
+				args := []string{option.command, project, option.option}
+				var stdout, stderr bytes.Buffer
+				code := Run(append(args, value.args...), &stdout, &stderr)
+				if code != 1 || stdout.Len() != 0 {
+					t.Errorf("code = %d, stdout = %q, want exit 1 and empty stdout", code, stdout.String())
+				}
+				if want := option.option + " requires a " + option.usage; !strings.Contains(stderr.String(), want) {
+					t.Errorf("stderr = %q, want %q", stderr.String(), want)
+				}
+			})
+		}
+	}
+}
+
+func TestRunOptionLikeWriteTargetsRequireExplicitPaths(t *testing.T) {
+	root := testutil.RepoRoot(t)
+	tests := []struct {
+		command string
+		fixture string
+		option  string
+		target  string
+	}{
+		{"generate", "tests/fixtures/repos/simple_repo", "--output", "--check"},
+		{"doctor", "tests/fixtures/doctor/project", "--write-baseline", "--json"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.command, func(t *testing.T) {
+			t.Chdir(t.TempDir())
+			project := "./--project"
+			if err := os.CopyFS(project, os.DirFS(filepath.Join(root, tt.fixture))); err != nil {
+				t.Fatalf("copy fixture: %v", err)
+			}
+			original := []byte("existing file\n")
+			if err := os.WriteFile(tt.target, original, 0o644); err != nil {
+				t.Fatalf("write existing file: %v", err)
+			}
+
+			var stdout, stderr bytes.Buffer
+			code := Run([]string{tt.command, project, tt.option, tt.target}, &stdout, &stderr)
+			if code != 1 || stdout.Len() != 0 {
+				t.Errorf("code = %d, stdout = %q, want exit 1 and empty stdout", code, stdout.String())
+			}
+			if want := tt.option + " requires a path"; !strings.Contains(stderr.String(), want) {
+				t.Errorf("stderr = %q, want %q", stderr.String(), want)
+			}
+			content, err := os.ReadFile(tt.target)
+			if err != nil || !bytes.Equal(content, original) {
+				t.Fatalf("rejected command changed %q, read error = %v", tt.target, err)
+			}
+
+			stdout.Reset()
+			stderr.Reset()
+			code = Run([]string{tt.command, "--json", project, tt.option, "./" + tt.target}, &stdout, &stderr)
+			if code != 0 || stderr.Len() != 0 {
+				t.Fatalf("explicit path: code = %d, stderr = %q", code, stderr.String())
+			}
+			testutil.DecodeJSON(t, stdout.Bytes())
+			content, err = os.ReadFile(tt.target)
+			if err != nil || len(content) == 0 || bytes.Equal(content, original) {
+				t.Fatalf("explicit path did not replace %q, contents = %q, read error = %v", tt.target, content, err)
+			}
+		})
+	}
+}
+
 func TestRunCompareJSONMatchesGolden(t *testing.T) {
 	t.Chdir(testutil.RepoRoot(t))
 	var stdout bytes.Buffer

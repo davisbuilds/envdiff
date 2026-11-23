@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/davisbuilds/envdiff/internal/analyzers"
 	"github.com/davisbuilds/envdiff/internal/model"
@@ -89,6 +90,9 @@ func runScan(args []string, stdout io.Writer, stderr io.Writer) int {
 		case "--json":
 			jsonOutput = true
 		default:
+			if rejectUnknownOption("scan", arg, stderr) {
+				return 1
+			}
 			if path != "" {
 				fmt.Fprintf(stderr, "scan accepts exactly one path\n")
 				return 1
@@ -142,6 +146,9 @@ func runCompare(args []string, stdout io.Writer, stderr io.Writer) int {
 		case "--json":
 			jsonOutput = true
 		default:
+			if rejectUnknownOption("compare", arg, stderr) {
+				return 1
+			}
 			paths = append(paths, arg)
 		}
 	}
@@ -186,6 +193,9 @@ func runMatrix(args []string, stdout io.Writer, stderr io.Writer) int {
 		case "--json":
 			jsonOutput = true
 		default:
+			if rejectUnknownOption("matrix", arg, stderr) {
+				return 1
+			}
 			paths = append(paths, arg)
 		}
 	}
@@ -256,14 +266,16 @@ func runGenerate(args []string, stdout io.Writer, stderr io.Writer) int {
 		case "--json":
 			jsonOutput = true
 		case "--output":
-			if index+1 >= len(args) {
+			value, ok := nextOptionValue(args, &index)
+			if !ok {
 				fmt.Fprintf(stderr, "--output requires a path\n")
 				return 1
 			}
-			value := args[index+1]
 			outputPath = &value
-			index++
 		default:
+			if rejectUnknownOption("generate", arg, stderr) {
+				return 1
+			}
 			if path != "" {
 				fmt.Fprintf(stderr, "generate accepts exactly one path\n")
 				return 1
@@ -422,6 +434,9 @@ func runDoctor(args []string, stdout io.Writer, stderr io.Writer) int {
 			}
 			ignoreFilePath = &value
 		default:
+			if rejectUnknownOption("doctor", arg, stderr) {
+				return 1
+			}
 			if path != "" {
 				fmt.Fprintf(stderr, "doctor accepts exactly one path\n")
 				return 1
@@ -544,12 +559,25 @@ func runDoctor(args []string, stdout io.Writer, stderr io.Writer) int {
 	return 0
 }
 
+func isOptionLike(arg string) bool {
+	return strings.HasPrefix(arg, "-")
+}
+
+func rejectUnknownOption(command, arg string, stderr io.Writer) bool {
+	if !isOptionLike(arg) {
+		return false
+	}
+	fmt.Fprintf(stderr, "%s: unknown option %q. See 'envdiff %s --help'.\n", command, arg, command)
+	return true
+}
+
 func nextOptionValue(args []string, index *int) (string, bool) {
-	if *index+1 >= len(args) {
+	next := *index + 1
+	if next >= len(args) || args[next] == "" || isOptionLike(args[next]) {
 		return "", false
 	}
-	*index = *index + 1
-	return args[*index], true
+	*index = next
+	return args[next], true
 }
 
 func printDoctorHelp(output io.Writer) {
