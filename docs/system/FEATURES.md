@@ -44,6 +44,11 @@ Current product-surface reference for `envdiff`.
 | `scan` | Analyze a repo's env contract surface | Aggregates definitions, usages, and repo-local resolution |
 | `doctor` | Validate the inferred contract | Emits structured findings, supports `--fail-on`, and can baseline or suppress findings |
 
+Subcommands accept options before or after positional paths. When a filename
+starts with `-`, use an explicit path such as `./--example.env` as a positional
+argument or option value. An option that takes a value requires a separate,
+non-empty argument.
+
 `envdiff --version` prints the application SemVer and exits 0. It accepts no
 additional arguments; JSON commands retain schema version `"1"`.
 

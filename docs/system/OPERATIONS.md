@@ -51,6 +51,9 @@ Examples:
 - `2`: findings met or exceeded `--fail-on` (case-insensitive), or
   `generate --check` drift (including with `--json`)
 
+Unknown options and missing option values produce a diagnostic on stderr and
+exit `1` with empty stdout before scanning or writing files.
+
 ## Current Constraints
 
 - repo-local analysis only
